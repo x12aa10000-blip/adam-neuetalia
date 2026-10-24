@@ -319,7 +319,7 @@
       case 'bx-cat': catF = v; B.show(); return true;
       case 'bx-add': { if (itemCount() >= cap()) { C.toast(t('box_full'), 'err'); return true; } const p = ST.product(v); const D = ENG.blankDesign(p); for (const o of (p.opts || [])) D.opt[o.id] = o.def; S.items.push({ uid: ST.uid('b'), pid: v, D, qty: 1 }); save(); C.toast(t('box_added')); B.show(); return true; }
       case 'bx-rm': S.items = S.items.filter(i => i.uid !== v); save(); B.show(); return true;
-      case 'bx-ex': { const c = Math.max(0, Math.min(3, (S.extras[v] || 0) + +el.dataset.d)); if (c) S.extras[v] = c; else delete S.extras[v]; save(); B.show(); return true; }
+      case 'bx-ex': { const c = Math.max(0, Math.min(999, (S.extras[v] || 0) + +el.dataset.d)); if (c) S.extras[v] = c; else delete S.extras[v]; save(); B.show(); return true; }
       case 'bx-tpl': S.card.text = t('card_tpl_' + v); S.card.design = v; save(); B.show(); return true;
       case 'bx-suggest': { const occ = $('#bxOcc').value, bud = +$('#bxBud').value; const keep = S.editId; S = B.suggest(occ, bud); S.editId = keep; S.step = 2; save(); C.toast(t('box_suggested')); B.show(); return true; }
       case 'bx-reset': S = fresh(); save(); B.show(); return true;
