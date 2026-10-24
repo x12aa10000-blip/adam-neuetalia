@@ -66,7 +66,7 @@
         ${reviews.length ? `<a class="stars" href="#reviews">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5 - Math.round(avg))} <span>${avg.toFixed(1)} · ${t('n_reviews', { n: reviews.length })}</span></a>` : ''}
         <p class="pdesc">${esc(L(p.desc))}</p>
         <form id="cfg" class="cfg" data-form="cfg" novalidate></form>
-        ${p.fields.length ? `<button type="button" class="btn ghost block see-btn only-s" data-act="zoom">${ic('eye')} ${t('see_design_long')}</button>` : ''}
+        ${p.fields.length ? `<button type="button" class="btn ghost block see-btn only-s" data-act="tostage">${ic('eye')} ${t('see_design_long')}</button>` : ''}
         <div class="eta">
           ${sameDay ? `<p class="eta-hot">${ic('bike')} ${t('eta_same', { h: Math.floor(mins / 60), m: mins % 60 })}</p>` : ''}
           <p>${ic('store')} ${t('eta_pickup', { d: C.date(ready) })}</p>
@@ -100,7 +100,7 @@
       ${related.length ? `<section class="sec-s"><h2>${t('goes_with')}</h2>${SHOP.grid(related)}</section>` : ''}
       ${recent.length ? `<section class="sec-s"><h2>${t('recently')}</h2>${SHOP.grid(recent)}</section>` : ''}
     </div>
-    <div class="sticky-buy only-s"><button class="btn ghost sp-eye" data-act="zoom" type="button">${ic('eye')} ${t('see_design')}</button><span id="sprice">${SHOP.priceHTML(p, D)}</span><button class="btn" data-act="add"${p.stock <= 0 ? ' disabled' : ''}>${ic('bag')} ${editId ? t('update_cart') : t('add_cart')}</button></div>`, 'pdp');
+    <div class="sticky-buy only-s"><button class="btn ghost sp-eye" data-act="tostage" type="button" aria-label="${esc(t('see_design'))}">${ic('eye')}<span class="lbl">${t('see_design')}</span></button><span id="sprice">${SHOP.priceHTML(p, D)}</span><button class="btn" data-act="add"${p.stock <= 0 ? ' disabled' : ''}>${ic('bag')}<span class="lbl">${editId ? t('update_cart') : t('add_cart')}</span></button></div>`, 'pdp');
     P.fields();
     P.draw(true);
     P.countdown();
@@ -231,6 +231,7 @@
       case 'qp': CUR.qty = Math.min(Math.max(1, p.stock), CUR.qty + 1); $('#qty').textContent = CUR.qty; return true;
       case 'orig': showOrig = !showOrig; el.setAttribute('aria-pressed', String(showOrig)); P.draw(true); return true;
       case 'zoom': P.zoom(); return true;
+      case 'tostage': { const st = document.querySelector('.stage-col') || document.querySelector('.stage'); if (st) { const hd = document.querySelector('header'); const off = (hd && getComputedStyle(hd).position !== 'static' ? hd.offsetHeight : 0) + 8; window.scrollTo({ top: st.getBoundingClientRect().top + scrollY - off, behavior: 'smooth' }); st.classList.remove('flash'); void st.offsetWidth; st.classList.add('flash'); } return true; }
       case 'ph-del': delete D.ph[el.dataset.f]; touch(); P.fields(); P.draw(true); return true;
       case 'ph-edit': P.cropper(el.dataset.f); return true;
       case 'add': P.add(); return true;
