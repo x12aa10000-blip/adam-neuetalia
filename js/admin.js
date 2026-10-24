@@ -21,7 +21,7 @@
 
   const TABS = [
     ['', 'home', 'Übersicht'], ['bestellungen', 'inbox', 'Bestellungen'], ['produktion', 'layers', 'Produktion'], ['versand', 'truck', 'Versand'],
-    ['produkte', 'tag', 'Produkte', 1], ['kunden', 'users', 'Kunden', 1], ['rabatte', 'gift', 'Rabatte & Gutscheine', 1], ['bewertungen', 'star', 'Bewertungen & Fragen'],
+    ['produkte', 'tag', 'Produkte', 1], ['kategorien', 'grid', 'Kategorien', 1], ['kunden', 'users', 'Kunden', 1], ['rabatte', 'gift', 'Rabatte & Gutscheine', 1], ['bewertungen', 'star', 'Bewertungen & Fragen'],
     ['emails', 'mail', 'E-Mails'], ['einstellungen', 'settings', 'Einstellungen', 1], ['aktivitaet', 'clock', 'Aktivität', 1]
   ];
   function shell(tab, html) {
@@ -46,6 +46,7 @@
       case 'versand': return A.shipping();
       case 'produkte': return id ? A.productEdit(id) : A.products();
       case 'designer': return DESIGNER.show(id);
+      case 'kategorien': return A.categories();
       case 'kunden': return A.customers(id);
       case 'rabatte': return A.discounts();
       case 'bewertungen': return A.reviews();
@@ -188,35 +189,115 @@
 
   /* ---------------- products ---------------- */
   A.products = function () {
-    let list = ST.products(true).filter(p => !p.virtual);
+    const all = ST.products(true).filter(p => !p.virtual);
+    let list = all.filter(p => SEL.pdel ? p.deleted : !p.deleted);
     if (SEL.pcat) list = list.filter(p => p.cat === SEL.pcat);
     if (SEL.pq) { const q = C.norm(SEL.pq); list = list.filter(p => C.norm(['de', 'en', 'ar'].map(l => L(p.name, l)).join(' ') + p.id).includes(q)); }
-    shell('produkte', `<div class="a-head"><h1>Produkte <small class="muted">${ST.products(true).filter(p => !p.virtual).length}</small></h1><button class="btn sm" data-a="pnew">${ic('plus')} Neues Produkt</button></div>
-      <div class="a-filter"><nav class="chips"><button data-a="pcat" data-v="" aria-pressed="${!SEL.pcat}">Alle</button>${CAT_EXTRA.cats.map(c => `<button data-a="pcat" data-v="${c}" aria-pressed="${SEL.pcat === c}">${t('cat_' + c, null, 'de')}</button>`).join('')}</nav><input class="in" type="search" data-ain="pq" placeholder="Produkt suchen" value="${esc(SEL.pq)}"></div>
-      <div class="ptable">${list.map(p => `<div class="prow${p.active ? '' : ' off'}"><a href="#/admin/produkte/${esc(p.id)}" class="pth"><img src="${esc(p.views[0].thumb || p.views[0].img)}" alt="" width="64" height="64"></a>
-        <a href="#/admin/produkte/${esc(p.id)}" class="pnm"><b>${esc(L(p.name, 'de'))}</b><small>${t('cat_' + p.cat, null, 'de')}${p.custom ? ' · eigenes Produkt' : ''}${ST.onSale(p) ? ' · <em>Angebot</em>' : ''}</small></a>
+    const nDel = all.filter(p => p.deleted).length;
+    shell('produkte', `<div class="a-head"><h1>Produkte <small class="muted">${all.filter(p => !p.deleted).length}</small></h1><div class="vbtns"><a class="btn ghost sm" href="#/admin/kategorien">${ic('grid')} Kategorien</a><button class="btn sm" data-a="pnew">${ic('plus')} Neues Produkt</button></div></div>
+      <div class="a-filter"><nav class="chips"><button data-a="pcat" data-v="" aria-pressed="${!SEL.pcat}">Alle</button>${CAT_EXTRA.cats.map(c => `<button data-a="pcat" data-v="${c}" aria-pressed="${SEL.pcat === c}">${t('cat_' + c, null, 'de')} <small>${all.filter(p => p.cat === c && !p.deleted).length}</small></button>`).join('')}${nDel ? `<button data-a="pdelview" aria-pressed="${!!SEL.pdel}">${ic('trash')} Gelöscht <small>${nDel}</small></button>` : ''}</nav><input class="in" type="search" data-ain="pq" placeholder="Produkt suchen" value="${esc(SEL.pq)}"></div>
+      <div class="ptable">${list.map(p => `<div class="prow${p.active && !p.deleted ? '' : ' off'}"><a href="#/admin/produkte/${esc(p.id)}" class="pth"><img src="${esc(p.views[0].thumb || p.views[0].img)}" alt="" width="64" height="64"></a>
+        <a href="#/admin/produkte/${esc(p.id)}" class="pnm"><b>${esc(L(p.name, 'de'))}</b><small>${t('cat_' + p.cat, null, 'de')}${p.custom ? ' · eigenes Produkt' : ''}${(p.opts || []).length ? ' · ' + p.opts.reduce((a, o) => a + o.choices.length, 0) + ' Varianten' : ''}${ST.onSale(p) ? ` · <em>Angebot −${Math.round((1 - p.salePrice / p.price) * 100)} %</em>` : ''}</small></a>
         <label class="mini-f"><span>Preis €</span><input class="in" type="number" step="0.1" min="0" value="${p.price}" data-pf="price" data-id="${esc(p.id)}"></label>
-        <label class="mini-f"><span>Bestand</span><input class="in" type="number" step="1" min="0" value="${p.stock}" data-pf="stock" data-id="${esc(p.id)}"></label>
-        <label class="tog"><input type="checkbox" data-pf="active" data-id="${esc(p.id)}"${p.active ? ' checked' : ''}><span>Online</span></label>
-        <label class="tog"><input type="checkbox" data-pf="best" data-id="${esc(p.id)}"${p.best ? ' checked' : ''}><span>Bestseller</span></label><a class="ibtn" href="#/admin/designer/${esc(p.id)}" title="Felder, Schriften & Farben" aria-label="Personalisierung bearbeiten">${ic('wand')}</a></div>`).join('')}</div>`);
+        <label class="mini-f"><span>Angebot €</span><input class="in" type="number" step="0.1" min="0" value="${p.salePrice || ''}" placeholder="–" data-pf="salePrice" data-id="${esc(p.id)}"></label>
+        ${SEL.pdel ? `<button class="btn sm" data-a="prestore" data-id="${esc(p.id)}">${ic('rotateL')} Wiederherstellen</button>` : `<label class="tog"><input type="checkbox" data-pf="active" data-id="${esc(p.id)}"${p.active ? ' checked' : ''}><span>Online</span></label>`}
+        <label class="tog"><input type="checkbox" data-pf="best" data-id="${esc(p.id)}"${p.best ? ' checked' : ''}><span>Bestseller</span></label><a class="ibtn" href="#/admin/designer/${esc(p.id)}" title="Felder, Schriften & Farben" aria-label="Personalisierung bearbeiten">${ic('wand')}</a>${SEL.pdel ? '' : `<button class="ibtn" data-a="pdel" data-id="${esc(p.id)}" title="Löschen" aria-label="Löschen">${ic('trash')}</button>`}</div>`).join('') || '<p class="muted">Keine Produkte.</p>'}</div>`);
   };
   A.productEdit = async function (id) {
-    const p = ST.product(id); if (!p) return A.products();
+    const p = ST.product(id); if (!p || p.virtual) return A.products();
     const sold = ST.orders().filter(o => o.status !== 'storniert').reduce((a, o) => a + o.items.filter(i => i.pid === p.id).reduce((x, i) => x + i.qty, 0), 0);
+    const L3 = (k, label, rows) => `<div class="grid3">${['de', 'en', 'ar'].map(l => `<label class="fld"><span>${label} ${l.toUpperCase()}</span>${rows ? `<textarea class="in" rows="${rows}" name="${k}_${l}"${l === 'ar' ? ' dir="rtl"' : ''}>${esc((p[k] || {})[l] || '')}</textarea>` : `<input class="in" name="${k}_${l}" value="${esc((p[k] || {})[l] || '')}"${l === 'ar' ? ' dir="rtl"' : ''}>`}</label>`).join('')}</div>`;
     shell('produkte', `<a class="link back" href="#/admin/produkte">${ic('back')} Produkte</a>
-      <div class="a-head"><h1>${esc(L(p.name, 'de'))}</h1><div class="vbtns"><a class="btn sm" href="#/admin/designer/${esc(p.id)}">${ic('wand')} Felder, Schriften & Farben</a><a class="btn ghost sm" href="#/p/${esc(p.id)}">${ic('eye')} Im Shop ansehen</a>${p.custom ? `<button class="btn ghost sm danger" data-a="pdel" data-id="${esc(p.id)}">${ic('trash')} Löschen</button>` : ''}</div></div>
-      <div class="pe-grid"><div class="a-card"><canvas id="pePv"></canvas><p class="muted small">Verkauft: ${sold} · Bestand: ${p.stock}</p><a class="btn ghost sm block" href="#/admin/designer/${esc(p.id)}">${ic('wand')} Wo der Kunde schreibt / Foto einsetzt bearbeiten</a></div>
-      <form class="a-card pe-form" data-aform="product" data-id="${esc(p.id)}">
-        <div class="grid3">${['de', 'en', 'ar'].map(l => `<label class="fld"><span>Name ${l.toUpperCase()}</span><input class="in" name="name_${l}" value="${esc((p.name || {})[l] || '')}"${l === 'ar' ? ' dir="rtl"' : ''}></label>`).join('')}</div>
-        <div class="grid3">${['de', 'en', 'ar'].map(l => `<label class="fld"><span>Beschreibung ${l.toUpperCase()}</span><textarea class="in" rows="4" name="desc_${l}"${l === 'ar' ? ' dir="rtl"' : ''}>${esc((p.desc || {})[l] || '')}</textarea></label>`).join('')}</div>
-        <div class="grid4"><label class="fld"><span>Preis €</span><input class="in" type="number" step="0.1" name="price" value="${p.price}"></label><label class="fld"><span>Angebotspreis €</span><input class="in" type="number" step="0.1" name="salePrice" value="${p.salePrice || ''}"></label><label class="fld"><span>Angebot bis</span><input class="in" type="date" name="saleEnd" value="${esc(p.saleEnd || '')}"></label><label class="fld"><span>Bestand</span><input class="in" type="number" name="stock" value="${p.stock}"></label>
+      <div class="a-head"><h1>${esc(L(p.name, 'de'))}${p.deleted ? ' <span class="badge st-storniert">gelöscht</span>' : ''}</h1><div class="vbtns"><a class="btn sm" href="#/admin/designer/${esc(p.id)}">${ic('wand')} Fotos, Felder, Schriften & Farben</a><a class="btn ghost sm" href="#/p/${esc(p.id)}?preview=1">${ic('eye')} Im Shop ansehen</a>${p.deleted ? `<button class="btn ghost sm" data-a="prestore" data-id="${esc(p.id)}">${ic('rotateL')} Wiederherstellen</button>` : `<button class="btn ghost sm danger" data-a="pdel" data-id="${esc(p.id)}">${ic('trash')} Löschen</button>`}</div></div>
+      <div class="pe-grid"><div class="a-card"><canvas id="pePv"></canvas><p class="muted small">Verkauft: ${sold} · Bestand: ${p.stock} · ${p.views.length} Foto(s)</p><a class="btn ghost sm block" href="#/admin/designer/${esc(p.id)}">${ic('wand')} Wo der Kunde schreibt / Foto einsetzt bearbeiten</a></div>
+      <div><form class="a-card pe-form" data-aform="product" data-id="${esc(p.id)}">
+        <h2>Texte</h2>${L3('name', 'Name')}${L3('desc', 'Beschreibung', 4)}${L3('mat', 'Material')}${L3('size', 'Größe / Inhalt')}
+        <h2 style="margin-top:14px">Preis & Lager</h2>
+        <div class="grid4"><label class="fld"><span>Preis €</span><input class="in" type="number" step="0.01" name="price" value="${p.price}"></label><label class="fld"><span>Angebotspreis € <small>(leer = kein Angebot)</small></span><input class="in" type="number" step="0.01" name="salePrice" value="${p.salePrice || ''}"></label><label class="fld"><span>Angebot bis <small>(optional)</small></span><input class="in" type="date" name="saleEnd" value="${esc(p.saleEnd || '')}"></label><label class="fld"><span>Bestand</span><input class="in" type="number" name="stock" value="${p.stock}"></label>
           <label class="fld"><span>Fertigung (Werktage)</span><input class="in" type="number" min="0" max="20" name="prod" value="${p.prod || 2}"></label><label class="fld"><span>MwSt.</span><select class="in" name="tax"><option value="19"${p.tax !== 7 ? ' selected' : ''}>19 %</option><option value="7"${p.tax === 7 ? ' selected' : ''}>7 % (Blumen)</option></select></label>
           <label class="fld"><span>Kategorie</span><select class="in" name="cat">${CAT_EXTRA.cats.map(c => `<option value="${c}"${p.cat === c ? ' selected' : ''}>${t('cat_' + c, null, 'de')}</option>`).join('')}</select></label></div>
         <fieldset class="occs"><legend>Anlässe</legend>${CAT_EXTRA.occ.map(o => `<label class="check"><input type="checkbox" name="occ" value="${o}"${(p.occ || []).includes(o) ? ' checked' : ''}><span>${t('occ_' + o, null, 'de')}</span></label>`).join('')}</fieldset>
         <div class="row"><label class="check"><input type="checkbox" name="sd"${p.sd ? ' checked' : ''}><span>Am selben Tag möglich (Kurier/Abholung)</span></label><label class="check"><input type="checkbox" name="active"${p.active ? ' checked' : ''}><span>Online</span></label><label class="check"><input type="checkbox" name="best"${p.best ? ' checked' : ''}><span>Bestseller</span></label></div>
-        <button class="btn">Speichern</button></form></div>`);
+        <button class="btn">Speichern</button></form>
+      <section class="a-card" id="optEd"></section></div></div>`);
+    A.optEditor(p);
     if (p.views.length) await ENG.render($('#pePv'), p, 0, ENG.blankDesign(p), { maxW: 900 });
   };
+  /* variants & options: groups with choices (name in 3 languages, extra price, colour, photo) */
+  A.optEditor = function (p) {
+    const box = $('#optEd'); if (!box) return;
+    const OP = JSON.parse(JSON.stringify(p.opts || []));
+    for (const o of OP) { o.lab = o.lab || { de: t(o.label, null, 'de'), en: t(o.label, null, 'en'), ar: t(o.label, null, 'ar') }; for (const c of o.choices) { const vi = p.views.findIndex(v => v.when && v.when.opt === o.id && v.when.eq === c.id); if (vi >= 0) c.view = vi; } }
+    const thumb = i => p.views[i] ? (p.views[i].thumb || p.views[i].img) : '';
+    const draw = () => {
+      box.innerHTML = `<h2>Varianten & Optionen <small class="muted">z. B. Farbe, Modell, Größe</small></h2>
+        <p class="hint">Jede Wahl kann einen Aufpreis haben und ein eigenes Foto zeigen. Fotos fügst du unter <a href="#/admin/designer/${esc(p.id)}">Fotos & Felder</a> hinzu.</p>
+        ${OP.map((o, gi) => `<div class="oe-g"><div class="oe-gh"><div class="grid3">${['de', 'en', 'ar'].map(l => `<input class="in" data-oe="glab" data-g="${gi}" data-l="${l}" value="${esc(o.lab[l] || '')}" placeholder="Name der Option ${l.toUpperCase()}"${l === 'ar' ? ' dir="rtl"' : ''}>`).join('')}</div><button class="ibtn" data-oe="gdel" data-g="${gi}" title="Option löschen">${ic('trash')}</button></div>
+          <div class="oe-cs">${o.choices.map((c, ci) => `<div class="oe-c${o.def === c.id ? ' def' : ''}"><div class="oe-img">${c.view != null && thumb(c.view) ? `<img src="${esc(thumb(c.view))}" alt="">` : c.hex ? `<i style="background:${esc(c.hex)}"></i>` : ''}</div>
+            <div class="oe-f"><div class="grid3">${['de', 'en', 'ar'].map(l => `<input class="in" data-oe="clab" data-g="${gi}" data-c="${ci}" data-l="${l}" value="${esc((c.l || {})[l] || '')}" placeholder="${l.toUpperCase()}"${l === 'ar' ? ' dir="rtl"' : ''}>`).join('')}</div>
+            <div class="oe-row"><label class="mini-f"><span>Aufpreis €</span><input class="in" type="number" step="0.01" data-oe="price" data-g="${gi}" data-c="${ci}" value="${c.price || ''}" placeholder="0"></label>
+              <label class="mini-f"><span>Farbe</span><input type="color" data-oe="hex" data-g="${gi}" data-c="${ci}" value="${esc(c.hex || '#ffffff')}"></label>
+              <label class="mini-f"><span>Foto</span><select class="in" data-oe="view" data-g="${gi}" data-c="${ci}"><option value="">–</option>${p.views.map((v, i) => `<option value="${i}"${c.view === i ? ' selected' : ''}>Foto ${i + 1}</option>`).join('')}</select></label>
+              <label class="tog"><input type="radio" name="def${gi}" data-oe="def" data-g="${gi}" data-c="${ci}"${o.def === c.id ? ' checked' : ''}><span>Standard</span></label>
+              <button class="ibtn" data-oe="cdel" data-g="${gi}" data-c="${ci}" title="Wahl löschen">${ic('close')}</button></div></div></div>`).join('')}</div>
+          <button class="btn ghost sm" data-oe="cadd" data-g="${gi}">${ic('plus')} Wahl hinzufügen</button></div>`).join('')}
+        <div class="vbtns"><button class="btn ghost sm" data-oe="gadd">${ic('plus')} Neue Option (z. B. Farbe)</button><button class="btn sm" data-oe="save">${ic('check')} Varianten speichern</button></div>`;
+    };
+    draw();
+    const at = el => { const g = OP[+el.dataset.g]; const c = g && el.dataset.c != null ? g.choices[+el.dataset.c] : null; return { g, c }; };
+    box.oninput = e => { const el = e.target.closest('[data-oe]'); if (!el) return; const { g, c } = at(el); const k = el.dataset.oe;
+      if (k === 'glab') g.lab[el.dataset.l] = el.value;
+      if (k === 'clab') { c.l = c.l || {}; c.l[el.dataset.l] = el.value; }
+      if (k === 'price') { const v = +el.value; if (v) c.price = v; else delete c.price; }
+      if (k === 'hex') c.hex = el.value; };
+    box.onchange = e => { const el = e.target.closest('[data-oe]'); if (!el) return; const { g, c } = at(el); const k = el.dataset.oe;
+      if (k === 'view') { if (el.value === '') delete c.view; else c.view = +el.value; draw(); }
+      if (k === 'def') g.def = c.id; };
+    box.onclick = e => { const el = e.target.closest('button[data-oe]'); if (!el) return; e.preventDefault(); const { g } = at(el); const k = el.dataset.oe;
+      if (k === 'gadd') OP.push({ id: 'o' + ST.uid(''), lab: { de: 'Farbe', en: 'Colour', ar: 'اللون' }, def: 'c1', choices: [{ id: 'c1', l: { de: 'Standard', en: 'Standard', ar: 'عادي' } }] });
+      if (k === 'gdel') OP.splice(+el.dataset.g, 1);
+      if (k === 'cadd') { const id = 'c' + ST.uid(''); g.choices.push({ id, l: { de: '', en: '', ar: '' } }); if (!g.def) g.def = id; }
+      if (k === 'cdel') { g.choices.splice(+el.dataset.c, 1); if (!g.choices.some(c => c.id === g.def)) g.def = (g.choices[0] || {}).id; }
+      if (k === 'save') return save();
+      draw(); };
+    const save = () => {
+      const opts = OP.filter(o => o.choices.length).map(o => { const x = { id: o.id, lab: o.lab, label: o.label, def: o.def || o.choices[0].id, choices: o.choices.map(c => { const y = Object.assign({}, c); delete y.view; if (!y.l.en) y.l.en = y.l.de; if (!y.l.ar) y.l.ar = y.l.de; return y; }) }; return x; });
+      const views = JSON.parse(JSON.stringify(p.views)); views.forEach(v => delete v.when);
+      for (const o of OP) for (const c of o.choices) if (c.view != null && views[c.view]) views[c.view].when = { opt: o.id, eq: c.id };
+      // the first photo stays the cover: when it belongs to a variant, it is the default variant's photo
+      if (p.custom) ST.saveCustom(Object.assign({}, ST.get('customProducts', []).find(x => x.id === p.id), { opts, views }));
+      else ST.saveOverride(p.id, { opts, views });
+      ST.log('produkt', 'Varianten gespeichert: ' + L(p.name, 'de')); C.toast('Varianten gespeichert ✓'); A.productEdit(p.id);
+    };
+  };
+
+  /* ---------------- categories ---------------- */
+  A.categories = function () {
+    const cfg = ST.catCfg() || CAT_EXTRA.cats.map(id => ({ id }));
+    const CF = cfg.map(c => ({ id: c.id, l: Object.assign({ de: t('cat_' + c.id, null, 'de'), en: t('cat_' + c.id, null, 'en'), ar: t('cat_' + c.id, null, 'ar') }, c.l || {}), d: Object.assign({ de: t('catd_' + c.id, null, 'de') === 'catd_' + c.id ? '' : t('catd_' + c.id, null, 'de') }, c.d || {}) }));
+    const count = id => ST.products(true).filter(p => p.cat === id && !p.deleted && !p.virtual).length;
+    const draw = () => {
+      shell('kategorien', `<a class="link back" href="#/admin/produkte">${ic('back')} Produkte</a><div class="a-head"><h1>Kategorien <small class="muted">${CF.length}</small></h1><div class="vbtns"><button class="btn ghost sm" data-ce="add">${ic('plus')} Neue Kategorie</button><button class="btn sm" data-ce="save">${ic('check')} Speichern</button></div></div>
+        <p class="hint">Reihenfolge = Reihenfolge im Shop. Beim Löschen kommen die Produkte in eine andere Kategorie.</p>
+        <div class="ce-list">${CF.map((c, i) => `<div class="a-card ce"><div class="ce-ord"><button class="ibtn" data-ce="up" data-i="${i}" ${i ? '' : 'disabled'} aria-label="nach oben">▲</button><b>${i + 1}</b><button class="ibtn" data-ce="down" data-i="${i}" ${i < CF.length - 1 ? '' : 'disabled'} aria-label="nach unten">▼</button></div>
+          <div class="ce-f"><div class="grid3">${['de', 'en', 'ar'].map(l => `<label class="fld"><span>Name ${l.toUpperCase()}</span><input class="in" data-ce="l" data-i="${i}" data-l="${l}" value="${esc(c.l[l] || '')}"${l === 'ar' ? ' dir="rtl"' : ''}></label>`).join('')}</div>
+          <label class="fld"><span>Kurzer Text (Deutsch, optional)</span><input class="in" data-ce="d" data-i="${i}" value="${esc(c.d.de || '')}"></label></div>
+          <div class="ce-side"><span class="muted small">${count(c.id)} Produkte</span><a class="btn ghost sm" href="#/c/${esc(c.id)}" target="_blank">${ic('eye')}</a><button class="btn ghost sm danger" data-ce="del" data-i="${i}">${ic('trash')}</button></div></div>`).join('')}</div>`);
+      const m = $('#amain');
+      m.oninput = e => { const el = e.target.closest('[data-ce]'); if (!el) return; const c = CF[+el.dataset.i]; if (el.dataset.ce === 'l') c.l[el.dataset.l] = el.value; if (el.dataset.ce === 'd') c.d.de = el.value; };
+      m.onclick = async e => { const el = e.target.closest('button[data-ce]'); if (!el) return; const i = +el.dataset.i; const k = el.dataset.ce;
+        if (k === 'up' && i > 0) { [CF[i - 1], CF[i]] = [CF[i], CF[i - 1]]; draw(); }
+        if (k === 'down' && i < CF.length - 1) { [CF[i + 1], CF[i]] = [CF[i], CF[i + 1]]; draw(); }
+        if (k === 'add') { const n = await promptText('Neue Kategorie', 'Name (Deutsch)', ''); if (!n || !n.trim()) return; let id = C.norm(n).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'kat'; while (CF.some(c => c.id === id)) id += '-2'; CF.push({ id, l: { de: n.trim(), en: n.trim(), ar: n.trim() }, d: {} }); draw(); }
+        if (k === 'del') { const c = CF[i]; if (CF.length < 2) return; const rest = CF.filter(x => x !== c); const target = await pickCat(`„${c.l.de}“ löschen`, `${count(c.id)} Produkte kommen in:`, rest); if (!target) return; for (const p of ST.products(true).filter(p => p.cat === c.id)) { if (p.custom) ST.saveCustom(Object.assign({}, ST.get('customProducts', []).find(x => x.id === p.id), { cat: target })); else ST.saveOverride(p.id, { cat: target }); } CF.splice(i, 1); save(true); }
+        if (k === 'save') save(); };
+    };
+    const save = quiet => { ST.saveCats(CF.map(c => ({ id: c.id, l: c.l, d: c.d.de ? { de: c.d.de, en: c.d.en || c.d.de, ar: c.d.ar || c.d.de } : undefined }))); if (window.SHOP) SHOP.searchIndex = null; ST.log('produkt', 'Kategorien gespeichert'); C.toast('Kategorien gespeichert ✓'); draw(); };
+    draw();
+  };
+  function pickCat(title, label, list) {
+    return new Promise(res => { const ov = C.sheet({ title, kind: 'modal' }); ov.body.innerHTML = `<label class="fld"><span>${esc(label)}</span><select class="in" id="pcSel">${list.map(c => `<option value="${esc(c.id)}">${esc(c.l.de)}</option>`).join('')}</select></label>`; ov.foot.innerHTML = `<button class="btn ghost" data-r="0">Abbrechen</button><button class="btn danger" data-r="1">Löschen</button>`; ov.addEventListener('click', e => { const b = e.target.closest('[data-r],[data-act=close]'); if (!b) return; const v = $('#pcSel', ov).value; C.closeAll(); res(b.dataset.r === '1' ? v : null); }); });
+  }
   /* new product with a simple engraving/print zone the owner draws on the photo */
   A.newProduct = function () {
     const ov = C.sheet({ title: 'Neues Produkt', kind: 'modal', wide: true });
@@ -334,6 +415,7 @@
     const fm = DOCS.formatsFor(zs);
     const ov = C.sheet({ title: 'Dateien für die Produktion', kind: 'modal', wide: true });
     ov.body.innerHTML = `<div class="fd-head"><img src="${esc(it.preview || '')}" alt="" width="84" height="84"><div><b>${it.qty} × ${esc(L(it.name, 'de'))}</b><small>${esc(DOCS.linesText(it, 'de'))}</small><p class="fd-tech">${ic('wand')} Technik: <b>${kinds.map(k => KIND_L[k] || k).join(' + ')}</b> · ${zs.length} Feld${zs.length > 1 ? 'er' : ''}</p></div></div>
+      ${(() => { const p = ST.product(it.pid); const sf = p ? p.fields.filter(f => f.type === 'spotify') : []; return sf.map(f => { const u = ENG.spotifyUri(it.D.f[f.id]); return u ? `<div class="fd rec"><div><b>${ic('wand')} Spotify-Code (Original von Spotify)</b><p>Diese Datei kommt direkt von Spotify und ist garantiert scanbar. SVG für den Laser, PNG für den Druck. Link des Kunden: <a href="https://open.spotify.com/${u.split(':').slice(1).join('/')}" target="_blank" rel="noopener">Song öffnen</a></p></div><div class="vbtns"><a class="btn sm" target="_blank" rel="noopener" href="${esc(ENG.spotifyCodeUrl(u, 'svg').replace('/000000/white/', '/ffffff/black/'))}" download>${ic('download')} SVG</a><a class="btn ghost sm" target="_blank" rel="noopener" href="${esc(ENG.spotifyCodeUrl(u, 'png').replace('/000000/white/', '/ffffff/black/'))}" download>PNG</a></div></div>` : ''; }).join(''); })()}
       <p class="hint">Wähle die Datei für deine Maschine. <b>Empfohlen</b> ist schon passend zu diesem Produkt markiert. Alle Dateien haben die echte Größe in Millimetern.</p>
       <div class="fd-list">${fm.map(f => `<div class="fd${f.rec ? ' rec' : ''}"><div><b>${esc(f.t)}${f.rec ? ' <span class="badge st-zugestellt">Empfohlen</span>' : ''}</b><p>${esc(f.d)}</p></div><button class="btn sm${f.rec ? '' : ' ghost'}" data-a="fdl" data-f="${f.id}" data-no="${o.no}" data-i="${i}">${ic('download')} .${f.ext.toUpperCase()}</button></div>`).join('')}</div>`;
     ov.foot.innerHTML = `<button class="btn ghost" data-act="close">Schließen</button><button class="btn" data-a="fall" data-no="${o.no}" data-i="${i}">${ic('download')} Alle Formate als ZIP</button>`;
@@ -391,7 +473,9 @@
       case 'csv-cust': return dl(`Kunden_Werbung_${today()}.csv`, Promise.resolve(new Blob(['﻿' + ['Name;E-Mail;Telefon', ...ST.customers().filter(c => c.marketing).map(c => [c.name, c.email, c.phone].map(v => '"' + String(v || '').replace(/"/g, '""') + '"').join(';'))].join('\n')], { type: 'text/csv' })));
       case 'pnew': C.go('#/admin/designer/neu'); return;
       case 'pnew-save': { if (!A._np || !A._np.img) { C.toast('Bitte zuerst ein Foto hochladen', 'err'); return; } const f = $('[data-aform=pnew]'); if (!f.elements.name.value.trim() || !f.elements.price.value) { C.toast('Name und Preis fehlen', 'err'); return; } const p = A._npProduct(false); ST.saveCustom(p); ST.log('produkt', 'Neues Produkt: ' + p.name.de); C.closeAll(); C.toast('Produkt angelegt'); C.go('#/admin/produkte/' + p.id); return; }
-      case 'pdel': if (await C.confirm('Produkt löschen?', 'Löschen', 'Zurück')) { ST.deleteCustom(el.dataset.id); C.go('#/admin/produkte'); } return;
+      case 'pdel': { const p = ST.product(el.dataset.id); if (await C.confirm(`„${L(p.name, 'de')}“ löschen? Es verschwindet aus dem Shop.${p.custom ? '' : ' Du kannst es unter „Gelöscht“ wiederherstellen.'}`, 'Löschen', 'Zurück')) { ST.deleteProduct(el.dataset.id); if (SHOP.searchIndex) SHOP.searchIndex = null; ST.log('produkt', 'Gelöscht: ' + L(p.name, 'de')); C.toast('Gelöscht'); C.go('#/admin/produkte'); C.dispatch({ keepScroll: true }); } return; }
+      case 'prestore': ST.restoreProduct(el.dataset.id); C.toast('Wiederhergestellt'); C.dispatch({ keepScroll: true }); return;
+      case 'pdelview': SEL.pdel = !SEL.pdel; A.products(); return;
       case 'cp-del': { const l = ST.coupons(); l.splice(+el.dataset.i, 1); ST.saveCoupons(l); re(); return; }
       case 'rv-ok': case 'rv-hide': case 'rv-del': { let l = ST.get('reviews', []); const r = l.find(x => x.id === el.dataset.id); if (a === 'rv-del') l = l.filter(x => x !== r); else { r.ok = a === 'rv-ok'; r.hidden = a === 'rv-hide'; } ST.setReviews(l); re(); return; }
       case 'rv-reply': { const txt = await promptText('Antwort auf Bewertung', 'Antwort (öffentlich sichtbar)', ''); if (!txt) return; const l = ST.get('reviews', []); l.find(x => x.id === el.dataset.id).reply = txt; ST.setReviews(l); re(); return; }
@@ -426,7 +510,7 @@
     return false;
   };
   A.onChange = function (el) {
-    if (el.dataset.pf) { const k = el.dataset.pf; const v = el.type === 'checkbox' ? el.checked : +el.value; ST.saveOverride(el.dataset.id, { [k]: v }); ST.log('produkt', `${el.dataset.id}: ${k} → ${v}`); C.toast('Gespeichert'); if (el.type === 'checkbox') el.closest('.prow').classList.toggle('off', k === 'active' && !v); return true; }
+    if (el.dataset.pf) { const k = el.dataset.pf; const v = el.type === 'checkbox' ? el.checked : (k === 'salePrice' && !el.value ? null : +el.value); ST.saveOverride(el.dataset.id, { [k]: v }); ST.log('produkt', `${el.dataset.id}: ${k} → ${v}`); C.toast('Gespeichert'); if (el.type === 'checkbox') el.closest('.prow').classList.toggle('off', k === 'active' && !v); return true; }
     if (el.dataset.cp) { const l = ST.coupons(); l[+el.dataset.i].on = el.checked; ST.saveCoupons(l); return true; }
     return false;
   };
@@ -436,7 +520,7 @@
     if (k === 'note') { ST.updateOrder(f.dataset.no, o => { o.notes = (o.notes || []).concat([{ by, at: Date.now(), text: g('text') }]); }); re(); return; }
     if (k === 'product') {
       const id = f.dataset.id; const p = ST.product(id);
-      const patch = { name: { de: g('name_de'), en: g('name_en'), ar: g('name_ar') }, desc: { de: g('desc_de'), en: g('desc_en'), ar: g('desc_ar') }, price: +g('price'), salePrice: g('salePrice') ? +g('salePrice') : null, saleEnd: g('saleEnd'), stock: +g('stock'), prod: +g('prod'), tax: +g('tax'), cat: g('cat'), occ: fd.getAll('occ'), sd: !!fd.get('sd'), active: !!fd.get('active'), best: !!fd.get('best') };
+      const patch = { name: { de: g('name_de'), en: g('name_en'), ar: g('name_ar') }, desc: { de: g('desc_de'), en: g('desc_en'), ar: g('desc_ar') }, mat: { de: g('mat_de'), en: g('mat_en'), ar: g('mat_ar') }, size: { de: g('size_de'), en: g('size_en'), ar: g('size_ar') }, price: +g('price'), salePrice: g('salePrice') ? +g('salePrice') : null, saleEnd: g('saleEnd'), stock: +g('stock'), prod: +g('prod'), tax: +g('tax'), cat: g('cat'), occ: fd.getAll('occ'), sd: !!fd.get('sd'), active: !!fd.get('active'), best: !!fd.get('best') };
       if (p.custom) { ST.saveCustom(Object.assign({}, ST.get('customProducts', []).find(x => x.id === id), patch)); } else ST.saveOverride(id, patch);
       if (SHOP.searchIndex) SHOP.searchIndex = null;
       ST.log('produkt', 'Bearbeitet: ' + patch.name.de, by); C.toast('Gespeichert'); re(); return;

@@ -60,7 +60,7 @@
         <div class="dz-l">
           ${P.views.length ? `<div class="dz-views">${P.views.map((v, i) => `<button class="dz-vt" data-dz="view" data-i="${i}" aria-pressed="${i === vi}"><img src="${esc(v.thumb || v.img)}" alt=""><span>${i + 1}${v.zones.length ? ' · ' + v.zones.length + ' Felder' : ' · Beispiel'}</span></button>`).join('')}<label class="dz-vt add">${ic('plus')}<span>Foto hinzufügen</span><input type="file" accept="image/*" data-dzfile="add"></label></div>` : ''}
           <div class="dz-stage" id="dzStage">${P.views.length ? `<canvas id="dzCv"></canvas><div class="dz-ov" id="dzOv"></div>` : `<label class="drop dz-first">${ic('camera')}<b>Produktfoto hochladen</b><small>Am besten ein klares Foto ohne Text, gern quadratisch</small><input type="file" accept="image/*" data-dzfile="first"></label>`}</div>
-          ${P.views.length ? `<div class="dz-tools"><button class="btn sm" data-dz="addtext">${ic('text')} Textfeld hinzufügen</button><button class="btn teal sm" data-dz="addphoto">${ic('image')} Fotofeld hinzufügen</button>${sel >= 0 ? `<button class="btn ghost sm" data-dz="dup">${ic('copy')} Duplizieren</button><button class="btn ghost sm danger" data-dz="del">${ic('trash')} Feld löschen</button>` : ''}${P.views.length > 1 ? `<button class="btn ghost sm" data-dz="delview">${ic('trash')} Dieses Foto entfernen</button>` : ''}</div>` : ''}
+          ${P.views.length ? `<div class="dz-tools"><button class="btn sm" data-dz="addtext">${ic('text')} Textfeld hinzufügen</button><button class="btn teal sm" data-dz="addphoto">${ic('image')} Fotofeld hinzufügen</button><button class="btn ghost sm" data-dz="addspotify"><b style="color:#1DB954">●</b> Spotify-Code</button>${sel >= 0 ? `<button class="btn ghost sm" data-dz="dup">${ic('copy')} Duplizieren</button><button class="btn ghost sm danger" data-dz="del">${ic('trash')} Feld löschen</button>` : ''}${P.views.length > 1 ? `<button class="btn ghost sm" data-dz="delview">${ic('trash')} Dieses Foto entfernen</button>` : ''}</div>` : ''}
         </div>
         <div class="dz-r">${isNew || P.custom ? basicsHTML() : ''}${selHTML()}${listHTML()}</div>
       </div>`);
@@ -75,7 +75,7 @@
       <fieldset class="occs"><legend>Anlässe</legend>${CAT_EXTRA.occ.map(o => `<label class="check"><input type="checkbox" data-dzocc="${o}"${(P.occ || []).includes(o) ? ' checked' : ''}><span>${t('occ_' + o, null, 'de')}</span></label>`).join('')}</fieldset></section>`;
   }
   function listHTML() {
-    const zs = []; P.views.forEach((v, i) => v.zones.forEach((z, k) => { if (z.t === 'text' || z.t === 'photo' || z.t === 'cal') zs.push({ z, i, k }); }));
+    const zs = []; P.views.forEach((v, i) => v.zones.forEach((z, k) => { if (['text', 'photo', 'cal', 'spcode'].includes(z.t)) zs.push({ z, i, k }); }));
     return `<section class="a-card"><h2>Alle Felder <small class="muted">${zs.length}</small></h2>${zs.length ? `<div class="dz-list">${zs.map(({ z, i, k }) => { const f = field(sfOf(z)); return `<button data-dz="pick" data-v="${i}" data-k="${k}" aria-pressed="${i === vi && k === sel}">${ic(z.t === 'photo' ? 'image' : 'text')}<span><b>${esc(f ? labelOf(f) : z.tpl || '–')}</b><small>Foto ${i + 1} · ${z.t === 'photo' ? 'Kundenfoto' : z.tpl ? 'Vorlage ' + esc(z.tpl) : (f && f.fonts ? f.fonts.length + ' Schriften' : 'Text') + (f && f.colors ? ' · ' + f.colors.length + ' Farben' : '')}</small></span></button>`; }).join('')}</div>` : '<p class="muted">Noch keine Felder. Füge links ein Text- oder Fotofeld hinzu.</p>'}</section>`;
   }
   function labelOf(f) { return f.lab ? f.lab.de : t(f.label, null, 'de'); }
@@ -91,6 +91,14 @@
         <span class="lb">Filter, die der Kunde wählen kann</span><div class="dz-checks">${PHFX.map(([k, l]) => `<label class="check"><input type="checkbox" data-dzphfx="${k}"${(f.fx || ['none']).includes(k) ? ' checked' : ''}><span>${l}</span></label>`).join('')}</div>
         <label class="size"><span>Deckkraft</span><input type="range" min="40" max="100" data-dzz="alpha" value="${Math.round((z.alpha == null ? 1 : z.alpha) * 100)}"><output>${Math.round((z.alpha == null ? 1 : z.alpha) * 100)} %</output></label>
         <label class="check"><input type="checkbox" data-dzf="optional"${f.optional ? ' checked' : ''}><span>Foto ist freiwillig</span></label></section>`;
+    }
+    if (z.t === 'spcode') {
+      const fx = (z.fx && z.fx.k) || 'print';
+      return `<section class="a-card dz-sel"><h2>Spotify-Code</h2><p class="hint">Der Kunde fügt den Spotify-Link seines Songs ein. Der echte, scanbare Code erscheint hier. Das Feld sollte etwa 4 : 1 (breit) sein.</p>
+        ${labHTML(f)}
+        <div class="grid3"><label class="fld"><span>Technik</span><select class="in" data-dzz="fx">${TECH.map(([k, l]) => `<option value="${k}"${fx === k ? ' selected' : ''}>${l}</option>`).join('')}</select></label><label class="fld"><span>Breite im Druck (mm)</span><input class="in" type="number" min="5" max="1000" data-dzz="mm" value="${z.mm || 50}"></label></div>
+        <label class="check"><input type="checkbox" data-dzf="optional"${f.optional ? ' checked' : ''}><span>Feld ist freiwillig</span></label>
+        <h3 class="dz-h3">Farben für den Kunden</h3><div class="dz-colors">${COLORS.map(c => { const on = (f.colors || []).some(x => x.id === c.id); return `<label class="dz-col${on ? ' on' : ''}" title="${esc(c.l.de)}"><input type="checkbox" data-dzcol="${c.id}"${on ? ' checked' : ''}><i style="--c:${c.hex}"${c.foil ? ' class="foil"' : ''}></i><small>${esc(c.l.de)}</small></label>`; }).join('')}</div></section>`;
     }
     if (!f || f.type === 'stone' || f.type === 'date') return `<section class="a-card dz-sel"><h2>${ic('text')} Feld</h2><p class="muted">Dieses Feld (${esc(f ? labelOf(f) : '')}) ist ein Spezialfeld. Du kannst es verschieben und in der Größe ändern.</p></section>`;
     const fonts = f.fonts || [f.font || 'times'];
@@ -144,7 +152,7 @@
     const ov = $('#dzOv'), cv = $('#dzCv'); if (!ov || !cv || !V()) return;
     const s = cv.clientWidth / V().w;
     ov.innerHTML = V().zones.map((z, k) => {
-      if (!['text', 'photo', 'cal'].includes(z.t)) return '';
+      if (!['text', 'photo', 'cal', 'spcode'].includes(z.t)) return '';
       const f = field(sfOf(z)); const lab = f ? labelOf(f) : (z.tpl || 'Text');
       let cx, cy, w, h, r = 0;
       if (z.b) { [cx, cy, w, h, r] = z.b; r = r || 0; } else { const q = quad(z); const xs = q.map(p => p[0]), ys = q.map(p => p[1]); cx = (Math.min(...xs) + Math.max(...xs)) / 2; cy = (Math.min(...ys) + Math.max(...ys)) / 2; w = Math.max(...xs) - Math.min(...xs); h = Math.max(...ys) - Math.min(...ys); }
@@ -200,6 +208,12 @@
     }
     sel = v.zones.length - 1; dirty = true; Z.render();
   }
+  function addSpotify() {
+    const v = V(); const w = v.w, h = v.h; const id = newId('spotify');
+    P.fields.push({ id, type: 'spotify', label: 'f_spotify', def: '', colors: DEF_COLORS() });
+    v.zones.push({ t: 'spcode', f: id, b: [Math.round(w / 2), Math.round(h * .8), Math.round(w * .44), Math.round(w * .11), 0], fx: { k: 'print' }, mm: 50 });
+    sel = v.zones.length - 1; dirty = true; Z.render();
+  }
   function curField() { const z = V() && V().zones[sel]; return z ? field(sfOf(z)) : null; }
   async function readPhoto(file) {
     const r = await ST.readImage(file, 1100); const url = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(r.blob); });
@@ -213,6 +227,7 @@
       case 'pick': vi = +el.dataset.v; sel = +el.dataset.k; Z.render(); return true;
       case 'addtext': addZone('text'); return true;
       case 'addphoto': addZone('photo'); return true;
+      case 'addspotify': addSpotify(); return true;
       case 'dup': { if (!z) return true; const c = clone(z); if (c.b) { c.b[0] += 20; c.b[1] += 20; } if (c.q) c.q = c.q.map(p => [p[0] + 20, p[1] + 20]); if (f && !c.tpl && !c.sf) { const nf = clone(f); nf.id = newId(f.type === 'photo' ? 'ph' : 'text'); P.fields.push(nf); c.f = nf.id; } V().zones.push(c); sel = V().zones.length - 1; dirty = true; Z.render(); return true; }
       case 'del': { if (!z) return true; V().zones.splice(sel, 1); const id = sfOf(z); const used = P.views.some(v => v.zones.some(x => sfOf(x) === id || x.f === id)); if (!used && z.f) P.fields = P.fields.filter(x => x.id !== z.f && x.sf !== z.f); sel = -1; dirty = true; Z.render(); return true; }
       case 'delview': if (P.views.length > 1) { P.views.splice(vi, 1); vi = 0; sel = -1; dirty = true; Z.render(); } return true;

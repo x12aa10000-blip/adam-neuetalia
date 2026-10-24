@@ -118,13 +118,26 @@
       const list = CATALOG.map(p => Object.assign({}, p, ov[p.id] || {}));
       for (const c of custom) list.push(Object.assign({ custom: 1 }, c, ov[c.id] || {}));
       for (const p of list) { if (p.active == null) p.active = true; if (p.stock == null) p.stock = 25; }
+      ST.applyCats();
+      const I0 = window.I18N; if (I0) for (const p of list) for (const o of (p.opts || [])) { if (o.lab) { const k = 'olab_' + p.id + '_' + o.id; for (const l of ['de', 'en', 'ar']) I0[l][k] = o.lab[l] || o.lab.de; o.label = k; } }
       // labels the owner typed in the product designer (3 languages)
       const I = window.I18N; if (I) for (const p of list) for (const f of (p.fields || [])) if (f.lab) { const k = 'lab_' + p.id + '_' + f.id; for (const l of ['de', 'en', 'ar']) if (I[l]) I[l][k] = f.lab[l] || f.lab.de; f.label = k; }
       PCACHE = list;
     }
-    return all ? PCACHE : PCACHE.filter(p => p.active && !p.hidden);
+    return all ? PCACHE : PCACHE.filter(p => p.active && !p.hidden && !p.deleted && CAT_EXTRA.cats.includes(p.cat));
   };
   ST.product = id => ST.products(true).find(p => p.id === id);
+  /* categories the owner can rename, add, sort and delete: [{id, l:{de,en,ar}, d:{de,en,ar}}] */
+  ST.catCfg = () => ST.get('catCfg', null);
+  ST.applyCats = function () {
+    const cfg = ST.catCfg(); const I = window.I18N;
+    if (!cfg || !window.CAT_EXTRA) return;
+    CAT_EXTRA.cats = cfg.map(c => c.id);
+    if (I) for (const c of cfg) for (const l of ['de', 'en', 'ar']) { if (c.l && c.l[l]) I[l]['cat_' + c.id] = c.l[l]; if (c.d && c.d[l]) I[l]['catd_' + c.id] = c.d[l]; }
+  };
+  ST.saveCats = function (cfg) { ST.set('catCfg', cfg); ST.invalidate(); ST.applyCats(); };
+  ST.deleteProduct = function (id) { const p = ST.product(id); if (!p) return; if (p.custom) ST.deleteCustom(id); else ST.saveOverride(id, { deleted: true, active: false }); };
+  ST.restoreProduct = function (id) { ST.saveOverride(id, { deleted: false, active: true }); };
   ST.saveOverride = function (id, patch) { const ov = ST.get('prodOv', {}); ov[id] = Object.assign({}, ov[id] || {}, patch); ST.set('prodOv', ov); ST.invalidate(); };
   ST.saveCustom = function (p) { const list = ST.get('customProducts', []); const i = list.findIndex(x => x.id === p.id); if (i >= 0) list[i] = p; else list.push(p); ST.set('customProducts', list); ST.invalidate(); };
   ST.deleteCustom = function (id) { ST.set('customProducts', ST.get('customProducts', []).filter(x => x.id !== id)); ST.invalidate(); };

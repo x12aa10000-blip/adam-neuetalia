@@ -13,6 +13,7 @@
     if (f.show.gte != null) return +v >= f.show.gte;
     return true;
   }
+  const SPOTIFY_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#1DB954"/><path d="M6.5 9.3c3.8-1.1 8.1-.8 11.2 1M7.2 12.4c3.1-.9 6.5-.6 9.2.9M7.9 15.3c2.5-.7 5-.5 7.1.7" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
   const masterOf = (p, f) => f.sf ? ENG.fieldById(p, f.sf) : f;
   const fontsOf = (p, f) => { const m = masterOf(p, f); return (m && m.fonts) || [m && m.font || 'times']; };
   const zonesFor = (p, fid) => p.views.flatMap((v, vi) => v.zones.map(z => ({ z, vi }))).filter(({ z }) => z.f === fid || ENG.styleField(z) === fid || (z.tpl && z.tpl.includes('{' + fid)));
@@ -61,10 +62,11 @@
       <div class="buy-col">
         <div class="ptechs">${SHOP.techTag(p)}${p.fields.length ? `<span class="ptag t-custom">${t('tag_custom')}</span>` : ''}</div>
         <h1>${esc(L(p.name))}</h1>
-        <div class="pricebox"><span id="price">${SHOP.priceHTML(p, D)}</span><span class="vat">${t('incl_vat')}</span>${saleEnd ? `<span class="countdown" data-end="${esc(saleEnd)}"></span>` : ''}</div>
+        <div class="pricebox"><span id="price">${SHOP.priceHTML(p, D)}</span>${ST.onSale(p) ? `<span class="psale2">−${Math.round((1 - p.salePrice / p.price) * 100)} %</span>` : ''}<span class="vat">${t('incl_vat')}</span>${saleEnd ? `<span class="countdown" data-end="${esc(saleEnd)}"></span>` : ''}</div>
         ${reviews.length ? `<a class="stars" href="#reviews">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5 - Math.round(avg))} <span>${avg.toFixed(1)} · ${t('n_reviews', { n: reviews.length })}</span></a>` : ''}
         <p class="pdesc">${esc(L(p.desc))}</p>
         <form id="cfg" class="cfg" data-form="cfg" novalidate></form>
+        ${p.fields.length ? `<button type="button" class="btn ghost block see-btn only-s" data-act="zoom">${ic('eye')} ${t('see_design_long')}</button>` : ''}
         <div class="eta">
           ${sameDay ? `<p class="eta-hot">${ic('bike')} ${t('eta_same', { h: Math.floor(mins / 60), m: mins % 60 })}</p>` : ''}
           <p>${ic('store')} ${t('eta_pickup', { d: C.date(ready) })}</p>
@@ -98,7 +100,7 @@
       ${related.length ? `<section class="sec-s"><h2>${t('goes_with')}</h2>${SHOP.grid(related)}</section>` : ''}
       ${recent.length ? `<section class="sec-s"><h2>${t('recently')}</h2>${SHOP.grid(recent)}</section>` : ''}
     </div>
-    <div class="sticky-buy only-s"><span id="sprice">${SHOP.priceHTML(p, D)}</span><button class="btn" data-act="add"${p.stock <= 0 ? ' disabled' : ''}>${ic('bag')} ${editId ? t('update_cart') : t('add_cart')}</button></div>`, 'pdp');
+    <div class="sticky-buy only-s"><button class="btn ghost sp-eye" data-act="zoom" type="button">${ic('eye')} ${t('see_design')}</button><span id="sprice">${SHOP.priceHTML(p, D)}</span><button class="btn" data-act="add"${p.stock <= 0 ? ' disabled' : ''}>${ic('bag')} ${editId ? t('update_cart') : t('add_cart')}</button></div>`, 'pdp');
     P.fields();
     P.draw(true);
     P.countdown();
@@ -122,6 +124,12 @@
     let h = '';
     for (const o of (p.opts || [])) {
       const v = D.opt[o.id] || o.def;
+      const vimg = c => { const V = p.views.find(w => w.when && w.when.opt === o.id && w.when.eq === c.id); return V ? (V.thumb || V.img) : ''; };
+      if (o.choices.some(c => vimg(c))) {
+        const cur = o.choices.find(c => c.id === v) || o.choices[0];
+        h += `<div class="fld"><span class="lb">${t(o.label)}<small>${esc(L(cur.l))}${cur.price ? ' · +' + eur(cur.price) : ''}</small></span><div class="vchips">${o.choices.map(c => `<button type="button" data-opt="${o.id}" data-val="${esc(c.id)}" aria-pressed="${c.id === v}" title="${esc(L(c.l))}">${vimg(c) ? `<img src="${esc(vimg(c))}" alt="" width="72" height="72" loading="lazy">` : `<i style="background:${esc(c.hex || '#eee')}"></i>`}<span>${esc(L(c.l))}</span>${c.price ? `<small>+${eur(c.price)}</small>` : ''}</button>`).join('')}</div></div>`;
+        continue;
+      }
       h += `<div class="fld"><span class="lb">${t(o.label)}</span>${o.choices.length > 5 ? `<select class="in" data-opt="${o.id}">${o.choices.map(c => `<option value="${esc(c.id)}"${c.id === v ? ' selected' : ''}>${esc(L(c.l))}${c.price ? ' (+' + eur(c.price) + ')' : ''}</option>`).join('')}</select>` :
         `<div class="seg">${o.choices.map(c => `<button type="button" data-opt="${o.id}" data-val="${esc(c.id)}" aria-pressed="${c.id === v}">${c.hex ? `<i class="odot" style="background:${esc(c.hex)}"></i>` : ''}${esc(L(c.l))}${c.price ? `<small>+${eur(c.price)}</small>` : ''}</button>`).join('')}</div>`}</div>`;
     }
@@ -137,8 +145,15 @@
           ${f.upper ? `<p class="hint">${t('upper_hint')}</p>` : ''}
           ${fonts.length > 1 ? `<div class="fonts" role="radiogroup" aria-label="${esc(t('font'))}">${fonts.map(id => `<button type="button" role="radio" data-font="${f.id}" data-val="${id}" aria-checked="${id === curFont}" style="font-family:'${ENG.fam(id)}'">${esc(P.fontSample(f, val, id))}</button>`).join('')}</div>` : ''}
           ${master && f.colors ? `<div class="sws" role="radiogroup" aria-label="${esc(t('color'))}">${f.colors.map((c, i) => `<button type="button" role="radio" class="sw" data-color="${f.id}" data-val="${c.id}" aria-checked="${(D.color[f.id] || f.colors[0].id) === c.id}" style="--c:${c.hex}" title="${esc(L(c.l))}"><span class="vh">${esc(L(c.l))}</span></button>`).join('')}<span class="swl">${esc(L((f.colors.find(c => c.id === (D.color[f.id] || f.colors[0].id)) || f.colors[0]).l))}</span></div>` : ''}
-          ${master && f.sz !== false ? `<label class="size"><span>${t('size')}</span><input type="range" min="70" max="125" step="1" value="${Math.round((D.size[f.id] || 1) * 100)}" data-size="${f.id}"><output>${Math.round((D.size[f.id] || 1) * 100)} %</output></label>` : ''}
-          <div class="symbols">${ENG.SYMBOLS.slice(0, 5).map(s => `<button type="button" data-sym="${f.id}" data-val="${s}" aria-label="${s}">${s}</button>`).join('')}</div>
+          ${master && f.sz !== false ? `<label class="size"><span>${t('size')}</span><input type="range" min="60" max="160" step="1" value="${Math.round((D.size[f.id] || 1) * 100)}" data-size="${f.id}"><output>${Math.round((D.size[f.id] || 1) * 100)} %</output></label>` : ''}
+          <div class="symbols" aria-label="${esc(t('symbols'))}">${ENG.SYMBOLS.map(s => `<button type="button" data-sym="${f.id}" data-val="${s}" aria-label="${s}"><canvas data-symcv="${s}" width="40" height="40"></canvas></button>`).join('')}</div>
+        </div>`;
+      } else if (f.type === 'spotify') {
+        const u = ENG.spotifyUri(val);
+        h += `<div class="fld spf" data-fid="${f.id}"><label class="lb" for="f_${f.id}"><span class="sp-ico">${SPOTIFY_ICON}</span> ${lab}${f.optional ? `<small>${t('optional')}</small>` : ''}</label>
+          <input class="in" id="f_${f.id}" data-field="${f.id}" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/track/…" value="${esc(val)}">
+          <p class="hint" data-sphint="${f.id}">${val && !u ? `<span class="warn">${t('sp_bad')}</span>` : u ? `${ic('check')} ${t('sp_ok')}` : t('sp_how')}</p>
+          ${u ? `<div class="sp-real"><img src="${esc(ENG.spotifyCodeUrl(u))}" alt="Spotify Code" width="320" height="80" loading="lazy" referrerpolicy="no-referrer"><small>${t('sp_scan')}</small></div>` : ''}
         </div>`;
       } else if (f.type === 'date') {
         h += `<div class="fld"><label class="lb" for="f_${f.id}">${lab}</label><input class="in" type="date" id="f_${f.id}" data-field="${f.id}" value="${esc(val)}"></div>`;
@@ -157,6 +172,7 @@
     }
     if (p.fields.some(f => f.type === 'photo')) h += `<p class="hint">${t('photo_privacy')}</p>${IN_APP ? `<p class="hint warn">${ic('alert')} ${t('wv_hint')}</p>` : '<p class="hint warn" id="wvHint" hidden></p>'}`;
     box.innerHTML = h;
+    $$('[data-symcv]', box).forEach(c => ENG.drawSymbol(c, c.dataset.symcv));
     $$('[data-thumb]', box).forEach(async img => { const ph = D.ph[img.dataset.thumb]; if (ph) img.src = await ST.photoUrl(ph.src); });
     P.price();
   };
@@ -189,6 +205,7 @@
       const f = ENG.fieldById(p, el.dataset.field); let v = el.value;
       if (f.max && v.length > f.max) v = v.slice(0, f.max);
       D.f[f.id] = v; touch();
+      if (f.type === 'spotify') { clearTimeout(P._spT); P._spT = setTimeout(() => { const pos = el.selectionStart; P.fields(); const n = $('#f_' + f.id); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) { } } }, 700); }
       const cnt = $(`[data-count="${f.id}"]`); if (cnt) cnt.textContent = `${v.length}/${f.max || 30}`;
       const master = masterOf(p, f);
       $$(`[data-font="${master.id}"]`).forEach(b => { b.textContent = P.fontSample(master, D.f[master.id] != null ? D.f[master.id] : master.def, b.dataset.val); });
@@ -205,7 +222,7 @@
     const { p, D } = CUR;
     if (el.dataset.font) { D.font[el.dataset.font] = el.dataset.val; touch(); ENG.loadFont(el.dataset.val).then(() => P.draw(true)); $$(`[data-font="${el.dataset.font}"]`).forEach(b => b.setAttribute('aria-checked', String(b === el))); goView(pageOf(p, el.dataset.font)); return true; }
     if (el.dataset.color) { const f = ENG.fieldById(p, el.dataset.color); D.color[f.id] = el.dataset.val; touch(); $$(`[data-color="${f.id}"]`).forEach(b => b.setAttribute('aria-checked', String(b === el))); const l = el.parentElement.querySelector('.swl'); if (l) l.textContent = L(f.colors.find(c => c.id === el.dataset.val).l); goView(pageOf(p, f.id)); P.draw(true); return true; }
-    if (el.dataset.opt && el.dataset.val) { D.opt[el.dataset.opt] = el.dataset.val; touch(); P.fields(); goView(CUR.vi); P.draw(true); return true; }
+    if (el.dataset.opt && el.dataset.val) { D.opt[el.dataset.opt] = el.dataset.val; touch(); P.fields(); const k = p.views.findIndex(w => w.when && w.when.opt === el.dataset.opt && w.when.eq === el.dataset.val); goView(k >= 0 ? k : CUR.vi); P.draw(true); return true; }
     if (el.dataset.sym) { const inp = $('#f_' + el.dataset.sym); if (!inp) return true; const s = inp.selectionStart != null ? inp.selectionStart : inp.value.length; inp.value = inp.value.slice(0, s) + el.dataset.val + inp.value.slice(inp.selectionEnd || s); inp.focus(); P.onInput(inp); return true; }
     if (el.dataset.phfx) { D.ph[el.dataset.phfx].fx = el.dataset.val; touch(); $$(`[data-phfx="${el.dataset.phfx}"]`).forEach(b => b.setAttribute('aria-pressed', String(b === el))); P.draw(true); return true; }
     if (el.dataset.view != null) { const V = p.views[+el.dataset.view]; if (V && V.when) { D.opt[V.when.opt] = V.when.eq; touch(); P.fields(); P.price(); } goView(+el.dataset.view); P.draw(true); return true; }
@@ -298,6 +315,8 @@
         const z = zonesFor(p, f.id); if (!z.length) continue;
         if (!D.ph[f.id]) return { f, msg: t('need_photo', { n: t(f.label) }) };
       }
+      if (f.type === 'spotify' && !f.optional && !ENG.spotifyUri(D.f[f.id])) return { f, msg: t('sp_need') };
+      if (f.type === 'spotify' && !f.optional && f.def && ENG.spotifyUri(D.f[f.id]) === ENG.spotifyUri(f.def)) return { f, msg: t('sp_change') };
       if ((f.type === 'text' || f.type === 'textarea') && !f.optional) { const v = D.f[f.id] != null ? D.f[f.id] : f.def; if (!String(v).trim()) return { f, msg: t('need_text', { n: t(f.label) }) }; }
     }
     return null;

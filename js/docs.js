@@ -19,6 +19,7 @@
     for (const f of p.fields) {
       if (f.show) { const o = (p.opts || []).find(o => o.id === f.show.opt); const v = (D.opt && D.opt[f.show.opt]) || (o && o.def); if (f.show.gte != null && +v < f.show.gte) continue; }
       if (f.type === 'photo') { const ph = D.ph && D.ph[f.id]; if (ph && ph.src) out.push([t(f.label, null, lang), '✓ ' + t('photo_ok_short', null, lang)]); continue; }
+      if (f.type === 'spotify') { const u = ENG.spotifyUri(D.f[f.id]); if (u) out.push([t(f.label, null, lang), 'open.spotify.com/' + u.split(':').slice(1).join('/')]); continue; }
       let v = D.f[f.id] != null ? D.f[f.id] : f.def; if (v == null || v === '') continue;
       if (f.type === 'date') v = C.date(v, { day: '2-digit', month: '2-digit', year: 'numeric' }, lang);
       if (f.type === 'stone') { const c = (f.choices || []).find(c => c.id === v); v = c ? L(c.l, lang) : v; }
@@ -305,7 +306,7 @@
     const p = ST.product(it.pid); if (!p) return [];
     const out = [];
     const sel = ENG.viewFor(p, it.D, p.views.findIndex(v => v.when));
-    for (const v of p.views.filter((v, k) => !v.when || k === sel)) for (const z of v.zones) { if (!['text', 'photo', 'cal'].includes(z.t)) continue; if (!ENG.zoneVisible(z, p, it.D)) continue; if (z.t === 'photo' && !(it.D.ph && it.D.ph[z.f] && it.D.ph[z.f].src)) continue; if (z.t === 'text' && !ENG.textOf(z, p, it.D).trim()) continue; if (out.some(o => o.z === z)) continue; out.push({ z, p }); }
+    for (const v of p.views.filter((v, k) => !v.when || k === sel)) for (const z of v.zones) { if (!['text', 'photo', 'cal', 'spcode'].includes(z.t)) continue; if (z.t === 'spcode' && !ENG.spotifyUri(it.D.f[z.f])) continue; if (!ENG.zoneVisible(z, p, it.D)) continue; if (z.t === 'photo' && !(it.D.ph && it.D.ph[z.f] && it.D.ph[z.f].src)) continue; if (z.t === 'text' && !ENG.textOf(z, p, it.D).trim()) continue; if (out.some(o => o.z === z)) continue; out.push({ z, p }); }
     return out;
   };
   /** technique of a zone in plain words */

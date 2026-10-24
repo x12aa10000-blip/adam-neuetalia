@@ -139,4 +139,33 @@
   K('as_sub', 'Antwortet sofort · Ideen, Preise, Versand', 'Replies instantly · ideas, prices, delivery', 'بيرد فوراً · أفكار، أسعار، توصيل');
   K('as_hello', 'Hallo! 👋 Ich helfe dir beim Geschenk. Erzähl mir: für wen, welcher Anlass und wie viel möchtest du ausgeben? Du kannst mir auch Fragen zu Versand, Abholung oder Zahlung stellen.', 'Hi! 👋 I’ll help you with your gift. Tell me who it’s for, the occasion and your budget. You can also ask about delivery, pick-up or payment.', 'أهلاً! 👋 أنا بساعدك تختار هديتك. احكيلي لمين، شو المناسبة، وقديش حابب تدفع. وفيك تسألني عن التوصيل، الاستلام أو الدفع.');
   K('as_ph', 'Schreib deine Frage …', 'Type your question …', 'اكتب سؤالك …');
+  K('see_design', 'Vorschau', 'Preview', 'معاينة');
+  K('see_design_long', 'So sieht dein Design aus – Vorschau öffnen', 'See how your design looks', 'شوف كيف طالع تصميمك');
+  K('symbols', 'Symbole', 'Symbols', 'رموز');
+  /* Spotify */
+  K('f_spotify', 'Spotify-Link deines Songs', 'Spotify link of your song', 'رابط الأغنية من Spotify');
+  K('f_songname', 'Songname', 'Song name', 'اسم الأغنية');
+  K('sp_how', 'In Spotify beim Song auf ⋯ → Teilen → Link kopieren tippen und hier einfügen.', 'In Spotify tap ⋯ → Share → Copy link on the song and paste it here.', 'بتطبيق Spotify اضغط على ⋯ جنب الأغنية ← مشاركة (Teilen) ← نسخ الرابط، وحطه هون.');
+  K('sp_ok', 'Link erkannt – der Spotify-Code ist auf deinem Produkt.', 'Link recognised – the Spotify code is on your product.', 'تمام، الرابط صحيح – كود Spotify صار على منتجك.');
+  K('sp_bad', 'Das ist kein Spotify-Link. Er beginnt mit https://open.spotify.com/…', 'That’s not a Spotify link. It starts with https://open.spotify.com/…', 'هاد مش رابط Spotify. لازم يبلش بـ https://open.spotify.com/…');
+  K('sp_scan', 'So wird dein Code gedruckt – teste ihn gleich mit der Spotify-Kamera (Suche → Kamera-Symbol).', 'This is how your code is printed – test it now with the Spotify camera (Search → camera icon).', 'هيك بينطبع الكود – جربه هلق بكاميرا Spotify (بحث ← رمز الكاميرا).');
+  K('sp_need', 'Bitte füge den Spotify-Link deines Songs ein.', 'Please paste the Spotify link of your song.', 'حط رابط الأغنية من Spotify لو سمحت.');
+  /* more FAQ */
+  const FQ = {
+    spotify: ['Wie funktioniert der Spotify-Code?', 'How does the Spotify code work?', 'كيف بيشتغل كود Spotify؟', 'Kopiere in Spotify den Link deines Lieblingssongs (⋯ → Teilen → Link kopieren) und füge ihn beim Produkt ein. Wir drucken oder gravieren den echten Spotify-Code. Wer ihn mit der Spotify-App scannt, hört sofort euren Song.', 'Copy the link of your favourite song in Spotify (⋯ → Share → Copy link) and paste it on the product. We print or engrave the real Spotify code. Scanning it with the Spotify app plays your song right away.', 'انسخ رابط أغنيتك من Spotify (⋯ ← مشاركة ← نسخ الرابط) وحطه عند المنتج. منطبع أو منحفر كود Spotify الحقيقي، وأي حدا بيعمله سكان بتطبيق Spotify بتشتغل الأغنية فوراً.'],
+    box: ['Kann ich mehrere Geschenke in eine Box packen?', 'Can I put several gifts in one box?', 'فيني حط كذا هدية ببوكس واحد؟', 'Ja! Im Box-Baukasten wählst du Box, Füllung und Schleife, legst so viele personalisierte Geschenke und Extras hinein, wie du willst, und schreibst eine Grußkarte. Du siehst die fertige Box sofort.', 'Yes! In the box builder you pick the box, filling and ribbon, add as many personalised gifts and extras as you like and write a greeting card. You see the finished box instantly.', 'أكيد! بـ "صمّم بوكسك" بتختار البوكس والحشوة والشريطة، وبتحط قد ما بدك هدايا مخصصة وإضافات، وبتكتب كرت تهنئة، وبتشوف البوكس جاهز فوراً.'],
+    arabic: ['Könnt ihr auch auf Arabisch schreiben?', 'Can you write in Arabic?', 'فيكن تكتبوا بالعربي؟', 'Ja – jede Personalisierung geht auf Arabisch, Deutsch, Englisch und Türkisch. Für arabische Namen gibt es eigene Schriften wie Ruqaa, Kufi und Amiri.', 'Yes – every personalisation works in Arabic, German, English and Turkish. Arabic names get their own fonts such as Ruqaa, Kufi and Amiri.', 'أكيد – كل التخصيص بيمشي بالعربي والألماني والإنجليزي والتركي، وفي خطوط عربية خاصة متل الرقعة والكوفي والأميري.'],
+    custom: ['Habt ihr etwas nicht im Shop – macht ihr auch Sonderwünsche?', 'Do you take special requests?', 'بتعملوا طلبات خاصة مش موجودة بالموقع؟', 'Sehr gern. Schreib uns auf WhatsApp, was du dir vorstellst – Hochzeitsgeschenke in Mengen, Firmengeschenke oder ein ganz eigenes Design.', 'Gladly. Message us on WhatsApp with your idea – wedding favours in bulk, corporate gifts or a completely custom design.', 'أكيد. راسلنا على واتساب واحكيلنا شو ببالك – هدايا أعراس بالجملة، هدايا شركات، أو تصميم خاص فيك.']
+  };
+  for (const k in FQ) { K('faq_' + k, FQ[k][0], FQ[k][1], FQ[k][2]); K('faqa_' + k, FQ[k][3], FQ[k][4], FQ[k][5]); }
+  K('faq_h', 'Häufige Fragen', 'Frequently asked questions', 'الأسئلة الأكثر شيوعاً');
+  K('faq_more', 'Alle Fragen & Antworten', 'All questions & answers', 'كل الأسئلة والأجوبة');
+  K('cat_sets', 'Geschenksets', 'Gift sets', 'أطقم هدايا');
+  K('catd_sets', 'Fertige Sets mit Uhr, Schmuck, Teddy und mehr – schön verpackt.', 'Ready sets with watch, jewellery, teddy and more – beautifully packed.', 'أطقم جاهزة فيها ساعة ومجوهرات ودبدوب وأكتر – مغلفة بشكل حلو.');
+  K('cat_spotify', 'Spotify-Geschenke', 'Spotify gifts', 'هدايا Spotify');
+  K('catd_spotify', 'Euer Lied als scanbarer Spotify-Code – auf Kette, Plakette oder Tasse.', 'Your song as a scannable Spotify code – on a necklace, plaque or mug.', 'أغنيتكم ككود Spotify بينعمله سكان – على سلسلة أو لوحة أو كوب.');
+  K('all_by_cat', 'Alle Geschenke nach Kategorie', 'All gifts by category', 'كل الهدايا حسب القسم');
+  K('occ_abschluss', 'Abschluss & Uni', 'Graduation', 'التخرج والنجاح');
+  K('sp_change', 'Bitte füge den Link zu eurem eigenen Song ein (das ist nur ein Beispiel-Song).', 'Please paste the link to your own song (this is just a sample song).', 'حط رابط أغنيتك إنت لو سمحت (هاي بس أغنية مثال).');
+  K('n_more', '+ {n} weitere', '+ {n} more', '+ {n} كمان');
 })();

@@ -162,9 +162,10 @@
   ENG.heartPath = heartPath;
 
   /* ---------------- symbols inside text ---------------- */
-  const SYM = { '♥': 'heart', '♡': 'heartO', '∞': 'inf', '★': 'star', '✦': 'spark', '✝': 'cross', '☾': 'moon', '✿': 'flower' };
+  const SYM = { '♥': 'heart', '♡': 'heartO', '∞': 'inf', '♾': 'infH', '★': 'star', '✦': 'spark', '✧': 'sparkO', '✿': 'flower', '☘': 'clover', '♛': 'crown', '◆': 'diamond', '♪': 'note', '☀': 'sun', '☾': 'moon', '☪': 'crescent', '✝': 'cross' };
+  const SYMRE = new RegExp('[' + Object.keys(SYM).join('') + ']', 'g'); ENG.SYMRE = SYMRE;
   ENG.SYMBOLS = Object.keys(SYM);
-  function symW(k, fs) { return ({ heart: .78, heartO: .78, inf: 1.1, star: .82, spark: .7, cross: .55, moon: .7, flower: .8 })[k] * fs * .62; }
+  function symW(k, fs) { return ({ heart: .78, heartO: .78, inf: 1.1, infH: 1.25, star: .82, spark: .7, sparkO: .7, cross: .55, moon: .7, flower: .8, clover: .8, crown: .95, diamond: .7, note: .62, sun: .85, crescent: .9 })[k] * fs * .62; }
   function drawSym(c, k, x, base, fs, stroke) {
     const w = symW(k, fs), h = fs * .5, y = base - fs * .52;
     c.save(); c.beginPath();
@@ -173,9 +174,19 @@
     else if (k === 'star' || k === 'spark') { const cx = x + w / 2, cy = y + h / 2, R = w / 2, r = R * (k === 'star' ? .45 : .22), n = k === 'star' ? 5 : 4; for (let i = 0; i < n * 2; i++) { const a = -Math.PI / 2 + i * Math.PI / n, rr = i % 2 ? r : R; i ? c.lineTo(cx + rr * Math.cos(a), cy + rr * Math.sin(a)) : c.moveTo(cx + rr * Math.cos(a), cy + rr * Math.sin(a)); } c.closePath(); c.fill(); }
     else if (k === 'cross') { const t = w * .26; c.rect(x + w / 2 - t / 2, y - h * .1, t, h * 1.2); c.rect(x, y + h * .2, w, t); c.fill(); }
     else if (k === 'moon') { const cx = x + w / 2, cy = y + h / 2, R = h * .55; c.arc(cx, cy, R, 0, Math.PI * 2); c.fill(); c.globalCompositeOperation = 'destination-out'; c.beginPath(); c.arc(cx + R * .45, cy - R * .2, R * .85, 0, Math.PI * 2); c.fill(); }
+    else if (k === 'infH') { const cx = x + w * .42, cy = y + h / 2, a = w * .4, b = h * .42; c.lineWidth = Math.max(1, fs * .05); c.moveTo(cx, cy); c.bezierCurveTo(cx + a * .4, cy - b * 1.3, cx + a, cy - b * 1.3, cx + a, cy); c.bezierCurveTo(cx + a, cy + b * 1.3, cx + a * .4, cy + b * 1.3, cx, cy); c.bezierCurveTo(cx - a * .4, cy - b * 1.3, cx - a, cy - b * 1.3, cx - a, cy); c.bezierCurveTo(cx - a, cy + b * 1.3, cx - a * .4, cy + b * 1.3, cx, cy); c.stroke(); c.beginPath(); heartPath(c, x + w * .74, y - h * .05, w * .3, h * .5); c.fill(); }
+    else if (k === 'sparkO') { const cx = x + w / 2, cy = y + h / 2, R = w / 2, r = R * .25; for (let i = 0; i < 8; i++) { const a = -Math.PI / 2 + i * Math.PI / 4, rr = i % 2 ? r : R; i ? c.lineTo(cx + rr * Math.cos(a), cy + rr * Math.sin(a)) : c.moveTo(cx + rr * Math.cos(a), cy + rr * Math.sin(a)); } c.closePath(); c.lineWidth = Math.max(1, fs * .04); c.lineJoin = 'round'; c.stroke(); }
+    else if (k === 'clover') { const cx = x + w / 2, cy = y + h / 2, s2 = w * .48; for (let i = 0; i < 4; i++) { c.save(); c.translate(cx, cy); c.rotate(i * Math.PI / 2); c.beginPath(); heartPath(c, -s2 / 2, -s2 * 1.02, s2, s2); c.fill(); c.restore(); } c.beginPath(); c.lineWidth = Math.max(1, fs * .04); c.moveTo(cx, cy); c.quadraticCurveTo(cx + w * .1, cy + h * .5, cx + w * .3, cy + h * .7); c.stroke(); }
+    else if (k === 'crown') { const yb = y + h * 1.05, yt = y; c.moveTo(x, yb); c.lineTo(x, yt + h * .35); c.lineTo(x + w * .25, yt + h * .62); c.lineTo(x + w * .5, yt); c.lineTo(x + w * .75, yt + h * .62); c.lineTo(x + w, yt + h * .35); c.lineTo(x + w, yb); c.closePath(); c.fill(); for (const px of [0, .5, 1]) { c.beginPath(); c.arc(x + w * px, yt + (px === .5 ? 0 : h * .35) - h * .06, h * .1, 0, Math.PI * 2); c.fill(); } }
+    else if (k === 'diamond') { const cx = x + w / 2; c.moveTo(cx, y - h * .1); c.lineTo(x + w, y + h * .45); c.lineTo(cx, y + h * 1.05); c.lineTo(x, y + h * .45); c.closePath(); c.fill(); }
+    else if (k === 'note') { const lw = Math.max(1.2, fs * .06); c.ellipse(x + w * .35, y + h * .88, w * .32, h * .2, -.4, 0, Math.PI * 2); c.fill(); c.beginPath(); c.lineWidth = lw; c.moveTo(x + w * .64, y + h * .85); c.lineTo(x + w * .64, y - h * .15); c.quadraticCurveTo(x + w * 1.05, y + h * .1, x + w * .95, y + h * .45); c.stroke(); }
+    else if (k === 'sun') { const cx = x + w / 2, cy = y + h / 2, R = h * .3; c.arc(cx, cy, R, 0, Math.PI * 2); c.fill(); c.lineWidth = Math.max(1, fs * .045); c.lineCap = 'round'; for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4; c.beginPath(); c.moveTo(cx + Math.cos(a) * R * 1.45, cy + Math.sin(a) * R * 1.45); c.lineTo(cx + Math.cos(a) * R * 2.05, cy + Math.sin(a) * R * 2.05); c.stroke(); } }
+    else if (k === 'crescent') { const cx = x + w * .38, cy = y + h / 2, R = h * .55; c.arc(cx, cy, R, 0, Math.PI * 2); c.fill(); c.globalCompositeOperation = 'destination-out'; c.beginPath(); c.arc(cx + R * .42, cy - R * .12, R * .82, 0, Math.PI * 2); c.fill(); c.globalCompositeOperation = 'source-over'; c.beginPath(); const sx = x + w * .8, sy = y + h * .4, SR = h * .22; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? SR * .45 : SR; i ? c.lineTo(sx + rr * Math.cos(a), sy + rr * Math.sin(a)) : c.moveTo(sx + rr * Math.cos(a), sy + rr * Math.sin(a)); } c.closePath(); c.fill(); }
     else if (k === 'flower') { const cx = x + w / 2, cy = y + h / 2, R = h * .3; for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5; c.moveTo(cx + Math.cos(a) * R * 1.4 + R * .8, cy + Math.sin(a) * R * 1.4); c.arc(cx + Math.cos(a) * R * 1.4, cy + Math.sin(a) * R * 1.4, R * .8, 0, Math.PI * 2); } c.fill(); }
     c.restore();
   }
+  /** draws one symbol centred on a small canvas (for the symbol buttons) */
+  ENG.drawSymbol = function (cv, ch) { const k = SYM[ch]; if (!k) return; const x = cv.getContext('2d'); x.clearRect(0, 0, cv.width, cv.height); x.fillStyle = x.strokeStyle = '#333'; const fs = cv.height * 1.15; const w = symW(k, fs); drawSym(x, k, (cv.width - w) / 2, cv.height * .5 + fs * .27, fs, false); };
   function runs(txt) { const out = []; let cur = ''; for (const ch of Array.from(txt)) { if (SYM[ch]) { if (cur) out.push({ t: cur }); out.push({ s: SYM[ch] }); cur = ''; } else cur += ch; } if (cur) out.push({ t: cur }); return out; }
 
   /* ---------------- text formatting ---------------- */
@@ -253,7 +264,7 @@
   function inkBox(c, lines, fs, lh) {
     let top = Infinity, bot = -Infinity;
     lines.forEach((ln, i) => {
-      const m = c.measureText(ln.replace(/[♥♡∞★✦✝☾✿]/g, 'o') || 'o');
+      const m = c.measureText(ln.replace(SYMRE, 'o') || 'o');
       const b = i * fs * lh;
       top = Math.min(top, b - (m.actualBoundingBoxAscent || fs * .7));
       bot = Math.max(bot, b + (m.actualBoundingBoxDescent || fs * .2));
@@ -274,12 +285,12 @@
     const rtl = isAr(txt);
     c.font = cssFont(fontId, fs, txt);
     // fit width
-    const fitW = W * (z.fit || 1);
+    const grow = Math.max(1, sizeK || 1); const fitW = W * (z.fit || 1) * grow;
     let mw = Math.max(...lines.map(l => lineWidth(c, l, fs, ls)), 1);
     if (mw > fitW) { fs *= fitW / mw; c.font = cssFont(fontId, fs, txt); mw = fitW; }
     // fit height (multi-line)
     let [t, b] = inkBox(c, lines, fs, lh);
-    const maxH = H * (z.fitH || (lines.length > 1 ? 1 : 3));
+    const maxH = H * (z.fitH || (lines.length > 1 ? 1 : 3)) * grow;
     if (b - t > maxH) { const s = maxH / (b - t); fs *= s; c.font = cssFont(fontId, fs, txt); [t, b] = inkBox(c, lines, fs, lh); }
     c.fillStyle = '#fff'; c.strokeStyle = '#fff'; c.textBaseline = 'alphabetic'; c.direction = 'ltr';
     // vertical: center ink box in zone, or baseline at z.base (fraction of h)
@@ -294,7 +305,7 @@
       let x = al === 'left' ? pad : al === 'right' ? pad + W - lw : pad + (W - lw) / 2;
       if (rtl && al === 'left') x = pad + W - lw;
       const base = base0 + i * fs * lh;
-      if (z.bend && !rtl && !/[♥♡∞★✦✝☾✿]/.test(ln)) drawArc(c, ln, pad + W / 2, base, fs, ls, z.bend * k, stroke);
+      if (z.bend && !rtl && !(SYMRE.lastIndex = 0, SYMRE.test(ln))) drawArc(c, ln, pad + W / 2, base, fs, ls, z.bend * k, stroke);
       else drawLine(c, ln, x, base, fs, ls, rtl, stroke);
     });
     let out = c0;
@@ -462,6 +473,61 @@
   }
   ENG.photoFlat = photoFlat;
 
+  /* ---------------- Spotify code ---------------- */
+  /** turns a Spotify share link (or URI) into a spotify:… URI, or '' */
+  ENG.spotifyUri = function (raw) {
+    raw = String(raw || '').trim(); if (!raw) return '';
+    let m = /spotify:(track|album|playlist|artist|episode|show):([A-Za-z0-9]{10,40})/.exec(raw); if (m) return 'spotify:' + m[1] + ':' + m[2];
+    m = /open\.spotify\.com\/(?:intl-[a-z-]+\/)?(track|album|playlist|artist|episode|show)\/([A-Za-z0-9]{10,40})/.exec(raw); if (m) return 'spotify:' + m[1] + ':' + m[2];
+    return '';
+  };
+  /** official Spotify code image (bars white on black) */
+  ENG.spotifyCodeUrl = (uri, fmt) => `https://scannables.scdn.co/uri/plain/${fmt || 'png'}/000000/white/640/${uri}`;
+  const SPC = new Map();
+  ENG.spotifyImg = function (uri) {
+    if (!uri) return Promise.resolve(null);
+    if (SPC.has(uri)) return SPC.get(uri);
+    const p = new Promise(res => {
+      const im = new Image(); im.crossOrigin = 'anonymous';
+      const to = setTimeout(() => res(null), 8000);
+      im.onload = () => { clearTimeout(to); try { const c = cv(8, 8); c.getContext('2d').drawImage(im, 0, 0, 8, 8); c.getContext('2d').getImageData(0, 0, 1, 1); res(im); } catch (e) { res(null); } };
+      im.onerror = () => { clearTimeout(to); res(null); };
+      im.src = ENG.spotifyCodeUrl(uri);
+    });
+    SPC.set(uri, p); return p;
+  };
+  /** white mask of a Spotify code (logo + 23 bars). Uses the real code when the image could be loaded, otherwise a preview pattern from the link */
+  function spFlat(z, uri, img, k) {
+    const [fw, fh] = flatSize(z); const W = Math.max(8, fw * k), H = Math.max(4, fh * k);
+    const c0 = cv(W, H), x = c0.getContext('2d');
+    if (img) {
+      const t2 = cv(img.naturalWidth || img.width, img.naturalHeight || img.height), tx = t2.getContext('2d'); tx.drawImage(img, 0, 0);
+      const d = tx.getImageData(0, 0, t2.width, t2.height); const a = d.data;
+      for (let i = 0; i < a.length; i += 4) { const v = (a[i] + a[i + 1] + a[i + 2]) / 3; a[i] = a[i + 1] = a[i + 2] = 255; a[i + 3] = v; }
+      tx.putImageData(d, 0, 0);
+      const r = Math.min(W / t2.width, H / t2.height); x.drawImage(t2, (W - t2.width * r) / 2, (H - t2.height * r) / 2, t2.width * r, t2.height * r);
+      return { cv: c0, pu: 0, pv: 0, real: true };
+    }
+    // preview pattern (same layout as a real code): logo circle + 23 rounded bars
+    const ar = 4, ww = Math.min(W, H * ar), hh = ww / ar, ox = (W - ww) / 2, oy = (H - hh) / 2;
+    x.fillStyle = '#fff'; x.strokeStyle = '#fff';
+    const R = hh * .32, lx = ox + hh * .5, ly = oy + hh / 2;
+    x.beginPath(); x.arc(lx, ly, R, 0, Math.PI * 2); x.fill();
+    x.globalCompositeOperation = 'destination-out'; x.lineCap = 'round';
+    [[.42, .085, -.12], [.3, .07, .06], [.2, .055, .22]].forEach(([rr, lw, dy]) => { x.lineWidth = R * lw * 2.2; x.beginPath(); x.ellipse(lx, ly + R * dy, R * rr * 1.6, R * rr * .62, 0, Math.PI * 1.08, Math.PI * 1.92); x.stroke(); });
+    x.globalCompositeOperation = 'source-over';
+    let h = 2166136261; const key = uri || 'neuetalia'; for (let i = 0; i < key.length; i++) { h ^= key.charCodeAt(i); h = Math.imul(h, 16777619); }
+    const rnd = () => { h ^= h << 13; h ^= h >>> 17; h ^= h << 5; return ((h >>> 0) % 1000) / 1000; };
+    const x0 = ox + hh * 1.05, x1 = ox + ww - hh * .12, step = (x1 - x0) / 22, bw = step * .52;
+    for (let i = 0; i < 23; i++) {
+      const lvl = i === 0 || i === 22 ? 0 : i === 11 ? 7 : Math.floor(rnd() * 8);
+      const bh = hh * (.18 + lvl * .1); const bx = x0 + i * step - bw / 2;
+      x.beginPath(); if (x.roundRect) x.roundRect(bx, ly - bh / 2, bw, bh, bw / 2); else x.rect(bx, ly - bh / 2, bw, bh); x.fill();
+    }
+    return { cv: c0, pu: 0, pv: 0, real: false };
+  }
+  ENG.spFlat = spFlat;
+
   /* ---------------- calendar ---------------- */
   function calFlat(z, dateStr, fontId, color, k) {
     const [fw, fh] = flatSize(z); const W = fw * k, H = fh * k;
@@ -570,6 +636,8 @@
     if (!showOrig) await Promise.all(ENG.neededFonts(P, D).map(ENG.loadFont));
     const photos = {};
     if (!showOrig) for (const z of V.zones) if (z.t === 'photo') { const ph = D.ph && D.ph[z.f]; if (ph && ph.src) photos[z.f] = await ENG.img(ph.src); }
+    const codes = {};
+    if (!showOrig) for (const z of V.zones) if (z.t === 'spcode') { const u = ENG.spotifyUri(D.f[z.f] != null ? D.f[z.f] : defOf(P, z.f)); codes[z.f] = { uri: u, img: await Promise.race([ENG.spotifyImg(u), new Promise(r => setTimeout(() => r(null), 2500))]) }; }
     const over = (!showOrig && V.over) ? await ENG.img(V.over) : null; // e.g. clock hands / puzzle lines on top of the design
     if (token !== canvas._tok || !base) return;
     const maxW = opts.maxW || V.w;
@@ -611,6 +679,11 @@
           const m = calFlat(z, dv, fontFor(P, z, D), col, k);
           const fx = Object.assign({}, z.fx || {});
           putLayer(ctx, { cv: fx.blur ? blurCanvas(m.cv, fx.blur * k) : m.cv, blend: fx.blend || 'source-over', alpha: fx.alpha || 1 }, z, zoneMap(z), m.pu, m.pv, sc, z.clipImg, z.feather);
+        } else if (z.t === 'spcode') {
+          const cd = codes[z.f] || {}; const m = spFlat(z, cd.uri, cd.img, k);
+          const layers = textLayers(Object.assign({}, z, { fx: Object.assign({ k: 'print' }, z.fx || {}) }), { mask: m.cv, fs: m.cv.height * 1.2 }, colorFor(P, z, D), k);
+          const map = zoneMap(z);
+          for (const L of layers) putLayer(ctx, L, z, map, 0, 0, sc, z.clipImg, z.feather);
         } else if (z.t === 'stone') {
           const v = D.f[z.f] != null ? D.f[z.f] : defOf(P, z.f);
           const f = fieldById(P, z.f); const ch = f && f.choices && f.choices.find(c => c.id === v);
@@ -649,6 +722,11 @@
       const fid = fontFor(P, z, D); await ENG.loadFont(fid);
       const dv = (D.f[z.f] != null ? D.f[z.f] : defOf(P, z.f));
       return calFlat(z, dv, fid, opts.black ? '#000' : '#000', k).cv;
+    }
+    if (z.t === 'spcode') {
+      const u = ENG.spotifyUri(D.f[z.f] != null ? D.f[z.f] : defOf(P, z.f)); if (!u) return null;
+      const m = spFlat(z, u, await ENG.spotifyImg(u), k); if (!m.real) return null;
+      return tint(m.cv, opts.black ? '#000' : ((colorFor(P, z, D) || {}).hex || (z.fx && z.fx.color) || '#000'));
     }
     if (z.t === 'photo') {
       const ph = D.ph && D.ph[z.f]; if (!ph || !ph.src) return null;

@@ -617,3 +617,84 @@ body.as-open .as-btn{display:none}
   .pg-box .bx-head h1{font-size:26px}
   .bx-side{gap:6px}.bx-sum{padding:8px 12px}.bx-sum b{font-size:18px}
 }
+/* side sheets must open in RTL too (the rtl start-transform was stronger than the open state) */
+html .ov.in .ov-panel,html[dir="rtl"] .ov.in .ov-panel,html[dir="rtl"] .ov.in .ov-panel.start{transform:none}
+/* phones: product photo scrolls away normally; preview opens from the buttons */
+@media (max-width:860px){
+  .stage-col{position:relative!important;top:auto!important;z-index:auto!important}
+  .stage-col .stage canvas{max-height:none!important;width:100%!important}
+  html:has(.pg-pdp){scroll-padding-top:80px!important}
+  .see-btn{margin:4px 0 10px;min-height:50px}
+  .sticky-buy{gap:8px}
+  .sticky-buy .sp-eye{flex:none;min-height:48px;padding:0 12px;font-size:14px;background:#fff}
+  .sticky-buy .sp-eye .ic{width:18px;height:18px}
+  .sticky-buy .btn:last-child{flex:1}
+  .sticky-buy #sprice .price{font-size:17px}
+}
+@media (min-width:861px){.see-btn{display:none!important}}
+.symbols{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.symbols button{width:42px;height:42px;display:grid;place-items:center;padding:0}
+.symbols button canvas{width:26px;height:26px}
+.symbols button:hover{background:var(--pink-xl)}
+.spf .lb{justify-content:flex-start;gap:8px}.sp-ico{display:inline-grid}
+.sp-real{display:grid;gap:6px;justify-items:center;padding:12px;border-radius:12px;background:#121212;margin-top:6px}
+.sp-real img{width:100%;max-width:320px;height:auto}
+.sp-real small{color:#cfcfcf;font-size:12.5px;text-align:center}
+.spf .hint .ic{width:16px;height:16px;color:#1DB954}
+/* admin: variants & categories */
+.oe-g{border:1px solid var(--s2);border-radius:12px;padding:12px;margin-bottom:12px;display:grid;gap:10px}
+.oe-gh{display:flex;gap:8px;align-items:start}.oe-gh .grid3{flex:1}
+.oe-cs{display:grid;gap:8px}
+.oe-c{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;padding:10px;border-radius:10px;background:var(--s1)}
+.oe-c.def{box-shadow:inset 0 0 0 2px var(--pink)}
+.oe-img{width:64px;height:64px;border-radius:8px;overflow:hidden;background:#fff;display:grid;place-items:center}
+.oe-img img{width:100%;height:100%;object-fit:cover}.oe-img i{width:36px;height:36px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.oe-f .grid3 .in{min-height:40px;font-size:14px}
+.oe-row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end;margin-top:6px}
+.oe-row .mini-f{min-width:90px}.oe-row input[type=color]{width:52px;height:40px;border:0;padding:0;background:none}
+.ce-list{display:grid;gap:8px}
+.ce{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:14px;align-items:center;margin:0}
+.ce-ord{display:grid;justify-items:center;gap:2px}.ce-ord .ibtn{width:34px;height:30px;font-size:12px}
+.ce-side{display:grid;gap:6px;justify-items:end}
+@media (max-width:800px){.ce{grid-template-columns:auto minmax(0,1fr)}.ce-side{grid-column:1/-1;display:flex;justify-content:flex-end;align-items:center}}
+/* sale badge */
+.psale{position:absolute;top:10px;inset-inline-start:52px;z-index:2;padding:4px 10px;border-radius:999px;background:#e5243b;color:#fff;font-size:12.5px;font-weight:800;pointer-events:none}
+.pricebox .psale2{display:inline-block;padding:3px 10px;border-radius:999px;background:#e5243b;color:#fff;font-size:14px;font-weight:800}
+.price.sale s{color:var(--soft);font-weight:500}
+@media (max-width:560px){.psale{top:6px;inset-inline-start:44px;font-size:11px;padding:3px 8px}}
+.vchips{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px}
+.vchips button{display:grid;gap:4px;justify-items:center;padding:6px;border-radius:12px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--s2);font-size:12.5px;line-height:1.2;text-align:center}
+.vchips img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px}
+.vchips i{width:40px;height:40px;border-radius:50%;margin:16px 0}
+.vchips small{color:var(--pink-d);font-weight:700}
+.vchips button[aria-pressed="true"]{box-shadow:inset 0 0 0 2.5px var(--pink-d);background:var(--pink-xl)}
+/* language switch in the top bar (all screens) */
+.topbar .wrap{justify-content:space-between;gap:12px}
+.topbar .tb-msg{display:inline-flex;gap:8px;align-items:center;min-width:0}
+.tb-langs{display:inline-flex;gap:2px;flex:none;margin-inline-start:auto;background:rgba(255,255,255,.18);border-radius:999px;padding:2px}
+.tb-langs button{min-height:26px;padding:0 10px;border-radius:999px;color:#fff;font-size:12.5px;font-weight:600}
+.tb-langs button[aria-pressed="true"]{background:#fff;color:var(--pink-d)}
+.tb-langs .only-s{display:none}
+@media (max-width:860px){.tb-langs .hide-s{display:none!important}.tb-langs .only-s{display:inline!important}.topbar .tb-2{display:none}.topbar .wrap{min-height:36px}.tb-langs button{min-width:34px;padding:0 8px;font-size:13px}}
+@media (max-width:700px){.topbar .tb-msg{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;flex:1}.topbar span+span.tb-msg{display:none}}
+.faq-sec .faq details{border-radius:var(--r);border:1px solid var(--s2);background:#fff}
+.faq summary{font-family:var(--f-sans)}
+.faq details[open] summary{color:var(--pink-d)}
+.faq summary::after{color:var(--pink-d)}
+.bycat{display:grid;gap:clamp(30px,4vw,54px)}
+.bc .sh{margin-bottom:14px}.bc .ttl small{font-size:15px;font-weight:500}
+.bc-more{margin-top:12px;width:100%}
+
+/* ---- round 4 polish ---- */
+.ft-main.wrap,.ft-legal.wrap{padding-inline:clamp(16px,4vw,40px)}
+.pcard .pimg{overflow:hidden}
+.pcard .pimg img{transition:transform .6s var(--ease)}
+@media (hover:hover){.pcard:hover .pimg img{transform:scale(1.045)}}
+.rail{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 48px),transparent)}
+html[dir="rtl"] .rail{-webkit-mask-image:linear-gradient(270deg,#000 0,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(270deg,#000 0,#000 calc(100% - 48px),transparent)}
+.circ .ph{transition:transform .3s var(--ease),box-shadow .3s}
+@media (hover:hover){.circ:hover .ph{transform:translateY(-4px);box-shadow:0 14px 26px -16px rgba(224,86,154,.55)}}
+.pname{line-height:1.35}
+.price{letter-spacing:.01em}
+:focus-visible{outline:2px solid var(--pink-d,#e0569a);outline-offset:2px}
+@media (max-width:600px){.stage-col{margin-inline:calc(-1 * max(14px,env(safe-area-inset-left,0px)))!important}}

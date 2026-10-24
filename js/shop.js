@@ -52,6 +52,7 @@
     const alt = p.views[1] && !p.views[1].when && p.views[1].thumb;
     return `<article class="pcard${opt.big ? ' big' : ''}">
       <a class="pimg" href="#/p/${esc(p.id)}" aria-label="${esc(L(p.name))}"><img src="${esc(v.thumb || v.img)}" alt="" loading="lazy" width="560" height="560">${alt ? `<img class="alt" src="${esc(alt)}" alt="" loading="lazy">` : ''}${p.stock <= 0 ? `<span class="soldout">${t('sold_out')}</span>` : ''}</a>
+      ${ST.onSale(p) ? `<span class="psale">−${Math.round((1 - p.salePrice / p.price) * 100)} %</span>` : ''}
       <span class="ptags">${S.techTag(p)}${(p.fields || []).length ? `<span class="ptag t-custom">${t('tag_custom')}</span>` : ''}</span>
       <button class="wish${wished ? ' on' : ''}" data-act="wish" data-id="${esc(p.id)}" aria-pressed="${wished}" aria-label="${esc(t('wishlist'))}">${ic('heart')}</button>
       <a class="pmeta" href="#/p/${esc(p.id)}"><span class="pname">${esc(L(p.name))}</span>${S.priceHTML(p)}<span class="pvat">${t('vat_short', { n: p.tax || 19 })}</span></a>
@@ -59,7 +60,7 @@
     </article>`;
   };
   S.grid = list => `<div class="pgrid">${list.map(p => S.card(p)).join('')}</div>`;
-  S.catImg = function (cat) { const p = ST.products().find(p => p.cat === cat && p.best) || ST.products().find(p => p.cat === cat); return p ? p.views[0].thumb : ''; };
+  S.catImg = function (cat) { const p = ST.products().find(p => p.cat === cat && p.best) || ST.products().find(p => p.cat === cat || (p.also || []).includes(cat)); return p ? p.views[0].thumb : ''; };
 
   /* ---------------- shell ---------------- */
   const LOGO = () => `<a class="logo" href="#/" aria-label="Adam &amp; Neuetalia"><small>Adam &amp;</small><b><i>N</i>EUETALI<em>A</em></b></a>`;
@@ -69,7 +70,7 @@
     const bar = mins > 0 && ST.isWorkday(new Date()) ? t('bar_today', { t: s.cutoff }) : t('bar_pickup');
     const path = C.path();
     const on = h => path.startsWith(h.slice(1)) ? ' class="on"' : '';
-    return `<div class="topbar"><div class="wrap"><span>${ic('gift')} ${esc(t('top_welcome'))}</span><span>${ic('bike')} ${esc(bar)}</span></div></div>
+    return `<div class="topbar"><div class="wrap"><span class="tb-msg">${ic('gift')} ${esc(t('top_welcome'))}</span><span class="tb-msg tb-2">${ic('bike')} ${esc(bar)}</span><div class="tb-langs" role="group" aria-label="Sprache · Language · اللغة">${[['de', 'Deutsch', 'DE'], ['en', 'English', 'EN'], ['ar', 'العربية', 'ع']].map(([l, x, sh]) => `<button data-lang="${l}" aria-pressed="${l === C.lang()}" lang="${l}"><span class="hide-s">${x}</span><span class="only-s">${sh}</span></button>`).join('')}</div></div></div>
     <header class="hd"><div class="wrap hd-in">
       <button class="ibtn only-s" data-act="menu" aria-label="${esc(t('menu'))}">${ic('menu')}</button>
       ${LOGO()}
@@ -80,7 +81,6 @@
         <a class="hd-act hide-s" href="#/konto">${ic('user')}<span>${me ? esc(me.name.split(' ')[0]) : t('login')}<small>${me ? t('account') : t('register')}</small></span></a>
         <a class="hd-act hide-s" href="#/wunschliste" aria-label="${esc(t('wishlist'))}">${ic('heart')}</a>
         <button class="hd-act" data-act="cart" aria-label="${esc(t('cart'))}">${ic('bag')}<span class="hide-s">${t('cart')}</span>${n ? `<i class="cnt">${n}</i>` : ''}</button>
-        <div class="langs hide-s" role="group" aria-label="Sprache · Language · اللغة">${[['de', 'DE'], ['en', 'EN'], ['ar', 'ع']].map(([l, x]) => `<button data-lang="${l}" aria-pressed="${l === C.lang()}" lang="${l}">${x}</button>`).join('')}</div>
       </div></div></header>`;
   };
   S.footer = function () {
@@ -88,8 +88,7 @@
     const logos = [['', 'Lastschrift'], ['', 'American Express'], ['', 'GLS'], ['', 'Online-Überweisung'], ['kl', 'Klarna.'], ['', 'dpd'], ['', 'Vorkasse'], ['visa', 'VISA'], ['', 'Hermes'], ['', 'Rechnung'], ['pp', 'PayPal'], ['dhl', 'DHL']];
     return `<footer class="ft">
       <div class="wrap ft-main">
-        <div class="ft-brand">${LOGO()}<p>${t('ft_about')}</p>
-          <div class="langs" role="group" aria-label="Sprache · Language · اللغة">${[['de', 'Deutsch'], ['en', 'English'], ['ar', 'العربية']].map(([l, x]) => `<button data-lang="${l}" aria-pressed="${l === C.lang()}" lang="${l}">${x}</button>`).join('')}</div></div>
+        <div class="ft-brand">${LOGO()}<p>${t('ft_about')}</p></div>
         <div><h3>${t('ft_links')}</h3><div class="ft-links">
           <a href="#/c/alle">${t('nav_ready')}</a><a href="#/box">${t('nav_box')}</a><a href="#/anlass">${t('nav_occ')}</a><a href="#/gutschein">${t('nav_gift')}</a>
           <a href="#/verfolgen">${t('track_title')}</a><a href="#/hilfe">${t('nav_help')}</a><a href="#/hilfe/rueckgabe">${t('ft_returns')}</a><a href="#/hilfe/versand">${t('help_ship')}</a>
@@ -202,7 +201,7 @@
     const s = ST.settings();
     const all = ST.products();
     const best = all.filter(p => p.best).concat(all.filter(p => !p.best)).slice(0, 12);
-    const fresh = all.filter(p => p.np).slice(0, 8);
+    const fresh = all.filter(p => p.np && ST.minPrice(p) >= 20).reverse().sort((a, b) => (b.best ? 1 : 0) - (a.best ? 1 : 0)).slice(0, 8);
     const camp = S.campaign();
     const occs = ['liebe', 'muttertag', 'hochzeit', 'geburtstag', 'familie', 'ramadan'];
     const used = new Set(); const occImg = o => { const list = all.filter(p => (p.occ || []).includes(o)).sort((a, b) => (b.best ? 1 : 0) - (a.best ? 1 : 0)); const p = list.find(p => !used.has(p.views[0].img)) || list[0]; if (!p) return ''; used.add(p.views[0].img); return p.views[0].thumb || p.views[0].img; };
@@ -279,6 +278,11 @@
     ${camp ? `<section class="split blush rev" style="margin-top:clamp(52px,7vw,96px)"><div class="sp-img"><img src="${esc(occImg('liebe'))}" alt="" loading="lazy"></div><div class="sp-txt rv"><span class="eyb">${t('camp_eyb')}</span><h2>${esc(camp.title)}</h2><p class="lead">${esc(camp.text)}</p><div><a class="btn" href="${camp.href}">${esc(camp.cta)}</a></div></div></section>` : ''}
 
     <section class="split dark" style="margin-top:14px"><div class="sp-img"><div class="gc-card"><img src="${S.giftcardImg()}" alt="" loading="lazy"></div></div><div class="sp-txt rv"><span class="eyb" style="color:#ffd1e5">${t('nav_gift')}</span><h2>${t('gc_h')}</h2><p class="lead">${t('gc_p')}</p><div><a class="btn" href="#/gutschein">${t('gc_cta')}</a></div></div></section>
+
+    <section class="sec faq-sec"><div class="wrap narrow">
+      <div class="sh rv"><h2 class="ttl">${t('faq_h')}</h2><a class="more" href="#/hilfe">${t('faq_more')}</a></div>
+      <div class="faq">${['ship', 'pickup', 'spotify', 'box', 'proof', 'arabic', 'photo', 'pay', 'returns', 'custom'].map(q => `<details><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div>
+    </div></section>
 
     <section class="sec"><div class="wrap"><div class="news rv"><h2>${t('news_h')}</h2><p>${t('news_p')}</p><form data-form="news"><input class="in" type="email" name="email" required placeholder="${esc(t('email'))}" aria-label="${esc(t('email'))}"><button class="btn">${t('news_btn')}</button></form></div></div></section>
     `, 'home');
@@ -361,7 +365,7 @@
   let F = { sort: 'rec', occ: '', max: 0, who: '' };
   S.list = function (kind, val) {
     let list = ST.products(), title = t('nav_shop'), sub = '';
-    if (kind === 'c' && val !== 'alle') { list = list.filter(p => p.cat === val); title = t('cat_' + val); sub = t('catd_' + val); }
+    if (kind === 'c' && val !== 'alle') { list = list.filter(p => p.cat === val || (p.also || []).includes(val)); title = t('cat_' + val); sub = t('catd_' + val); }
     if (kind === 'o') { list = list.filter(p => (p.occ || []).includes(val)); title = t('occ_' + val); sub = t('occd'); }
     if (kind === 's') { list = S.search(val); title = t('results_for', { q: val }); }
     if (kind === 'w') { const w = ST.wishlist(); list = w.map(id => ST.product(id)).filter(Boolean); title = t('wishlist'); sub = list.length ? '' : t('wish_empty'); }
@@ -388,7 +392,7 @@
       ${kind !== 'w' ? `<div class="ltools"><button class="btn ghost sm fbtn" data-act="ftoggle">${ic('filter')} ${t('filter')}</button>
         <label class="sel"><span class="vh">${t('sort')}</span><select data-filter="sort">${['rec', 'low', 'high', 'new'].map(v => `<option value="${v}"${F.sort === v ? ' selected' : ''}>${t('sort_' + v)}</option>`).join('')}</select></label>
         <span class="count">${t('n_products', { n: list.length })}</span></div>` : ''}
-      ${list.length ? S.grid(list) : `<div class="empty"><p>${kind === 'w' ? t('wish_empty') : t('no_results')}</p><a class="btn" href="#/c/alle">${t('nav_shop')}</a></div>`}
+      ${kind === 'c' && val === 'alle' && !F.occ && !F.max && !F.who && F.sort === 'rec' ? `<div class="bycat">${CATS().map(c => { const ps = list.filter(p => p.cat === c || (p.also || []).includes(c)); return ps.length ? `<section class="bc"><div class="sh"><h2 class="ttl">${t('cat_' + c)} <small class="muted">${ps.length}</small></h2><a class="more" href="#/c/${c}">${t('see_all')}</a></div>${S.grid(ps.slice(0, 8))}${ps.length > 8 ? `<a class="btn ghost bc-more" href="#/c/${c}">${t('n_more', { n: ps.length - 8 })}</a>` : ''}</section>` : ''; }).join('')}</div>` : list.length ? S.grid(list) : `<div class="empty"><p>${kind === 'w' ? t('wish_empty') : t('no_results')}</p><a class="btn" href="#/c/alle">${t('nav_shop')}</a></div>`}
     </div></div>`, 'list');
   };
   S.setFilter = function (k, v) { if (k === 'maxx') { F.max = +v > 0 ? +v : 0; C.dispatch({ keepScroll: true }); return; } F[k] = k === 'max' ? (+v >= +((($('[data-filter=max]') || {}).max) || 1e9) ? 0 : +v) : v; C.dispatch({ keepScroll: true }); };
@@ -421,7 +425,7 @@
   /* ---------------- HELP & LEGAL ---------------- */
   S.help = function (topic) {
     const s = ST.settings();
-    const qs = ['ship', 'pickup', 'local', 'prod', 'proof', 'change', 'returns', 'photo', 'pay', 'gift'];
+    const qs = ['ship', 'pickup', 'local', 'prod', 'proof', 'spotify', 'box', 'arabic', 'change', 'returns', 'photo', 'pay', 'gift', 'custom'];
     S.page(`<div class="wrap narrow help">
       <h1>${t('nav_help')}</h1><p class="lead">${t('help_lead')}</p>
       <div class="faq">${qs.map(q => `<details id="q-${q}"${(topic === 'versand' && q === 'ship') || (topic === 'rueckgabe' && q === 'returns') ? ' open' : ''}><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div>
