@@ -62,7 +62,7 @@
   K('tag_laser', 'Laser', 'Laser', 'ليزر');
   K('tag_emb', 'Stick', 'Embroidery', 'تطريز');
   K('tag_foil', 'Folie', 'Foil', 'ورق ذهبي');
-  K('tag_custom', 'Personalisierbar', 'Customisable', 'تخصيص');
+  K('tag_custom', 'Anpassung', 'Customise', 'تخصيص');
   K('promo_code', 'Jetzt kaufen und {n} % sparen mit dem Code', 'Buy now and save {n}% with the code', 'اشترِ الآن ووفّر {n}% مع الكود');
 
   /* new categories, occasions and fields */

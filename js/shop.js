@@ -52,7 +52,7 @@
     const alt = p.views[1] && !p.views[1].when && p.views[1].thumb;
     return `<article class="pcard${opt.big ? ' big' : ''}">
       <a class="pimg" href="#/p/${esc(p.id)}" aria-label="${esc(L(p.name))}"><img src="${esc(v.thumb || v.img)}" alt="" loading="lazy" width="560" height="560">${alt ? `<img class="alt" src="${esc(alt)}" alt="" loading="lazy">` : ''}${p.stock <= 0 ? `<span class="soldout">${t('sold_out')}</span>` : ''}</a>
-      ${S.techTag(p)}
+      ${(p.fields || []).length ? `<span class="ptag t-custom">${t('tag_custom')}</span>` : S.techTag(p)}
       <button class="wish${wished ? ' on' : ''}" data-act="wish" data-id="${esc(p.id)}" aria-pressed="${wished}" aria-label="${esc(t('wishlist'))}">${ic('heart')}</button>
       <a class="pmeta" href="#/p/${esc(p.id)}"><span class="pname">${esc(L(p.name))}</span>${S.priceHTML(p)}<span class="pvat">${t('vat_short', { n: p.tax || 19 })}</span></a>
       <div class="prow2">${S.starsOf(p) || '<span></span>'}<a class="padd" href="#/p/${esc(p.id)}" aria-label="${esc(t('personalise'))}">${ic('plus')}</a></div>
