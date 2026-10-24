@@ -57,7 +57,7 @@
     if (el.dataset.crop) return; // handled inside the crop sheet
     if (el.dataset.dz) { e.preventDefault(); return DESIGNER.onClick(el); }
     if (el.dataset.a) { e.preventDefault(); return ADMIN.onClick(el); }
-    if (el.dataset.lang) { C.setLang(el.dataset.lang); SHOP.searchIndex = null; C.dispatch({ keepScroll: true }); return; }
+    if (el.dataset.lang) { C.setLang(el.dataset.lang); SHOP.searchIndex = null; C.dispatch({ keepScroll: true }); ASSIST.relabel(); return; }
     if (el.dataset.hero != null) { SHOP._heroShow && SHOP._heroShow(+el.dataset.hero); return; }
     if (el.dataset.sugg) { const i = $('#sq'); if (i) { i.value = el.dataset.sugg; i.dispatchEvent(new Event('input')); i.focus(); } return; }
     if (onCO() && CHECKOUT.onClick(el)) return;
@@ -123,7 +123,7 @@
       case 'hero': { const n = $('#heroName').value.trim(); const href = ($('#heroLink') || {}).getAttribute ? $('#heroLink').getAttribute('href') : '#/c/alle'; C.go(n && !href.includes('?') ? href + '?n=' + encodeURIComponent(n) : href); return; }
       case 'giftcard': {
         let amt = g('amt') === 'x' ? +g('amtx') : +g('amt');
-        if (!(amt >= 10 && amt <= 500)) { C.toast(t('gc_amount_bad'), 'err'); return; }
+        if (!(amt >= 5 && amt <= 100000)) { C.toast(t('gc_amount_bad'), 'err'); return; }
         if (!g('to') || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(g('toEmail'))) { C.toast(t('need_fields'), 'err'); return; }
         const p = ST.product('gutschein'); const small = await thumbOf(SHOP.giftcardImg());
         const cart = ST.cart(); cart.push({ id: ST.uid('i'), pid: 'gutschein', D: { f: { to: g('to'), toEmail: g('toEmail'), from: g('from'), msg: g('msg') }, font: {}, color: {}, size: {}, ph: {}, opt: {} }, qty: 1, unit: amt, tax: 0, name: p.name, preview: small, at: Date.now() });
@@ -155,4 +155,6 @@
   ST.seed();
   if (document.fonts) ['400 16px ui-sans', '500 16px ui-serif'].forEach(f => document.fonts.load(f).catch(() => { }));
   C.dispatch();
+  ASSIST.mount();
+  window.addEventListener('hashchange', () => ASSIST.mount());
 })();

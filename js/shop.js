@@ -52,7 +52,7 @@
     const alt = p.views[1] && !p.views[1].when && p.views[1].thumb;
     return `<article class="pcard${opt.big ? ' big' : ''}">
       <a class="pimg" href="#/p/${esc(p.id)}" aria-label="${esc(L(p.name))}"><img src="${esc(v.thumb || v.img)}" alt="" loading="lazy" width="560" height="560">${alt ? `<img class="alt" src="${esc(alt)}" alt="" loading="lazy">` : ''}${p.stock <= 0 ? `<span class="soldout">${t('sold_out')}</span>` : ''}</a>
-      ${(p.fields || []).length ? `<span class="ptag t-custom">${t('tag_custom')}</span>` : S.techTag(p)}
+      <span class="ptags">${S.techTag(p)}${(p.fields || []).length ? `<span class="ptag t-custom">${t('tag_custom')}</span>` : ''}</span>
       <button class="wish${wished ? ' on' : ''}" data-act="wish" data-id="${esc(p.id)}" aria-pressed="${wished}" aria-label="${esc(t('wishlist'))}">${ic('heart')}</button>
       <a class="pmeta" href="#/p/${esc(p.id)}"><span class="pname">${esc(L(p.name))}</span>${S.priceHTML(p)}<span class="pvat">${t('vat_short', { n: p.tax || 19 })}</span></a>
       <div class="prow2">${S.starsOf(p) || '<span></span>'}<a class="padd" href="#/p/${esc(p.id)}" aria-label="${esc(t('personalise'))}">${ic('plus')}</a></div>
@@ -217,7 +217,7 @@
         <h2>${ic('sparkle')} ${t('finder_h')}</h2>
         <label class="vh" for="fdOcc">${t('finder_occ')}</label><select class="in" id="fdOcc" name="occ"><option value="">${t('finder_occ')}</option>${occOpts.map(o => `<option value="${o}">${t('occ_' + o)}</option>`).join('')}</select>
         <label class="vh" for="fdWho">${t('finder_who')}</label><select class="in" id="fdWho" name="who"><option value="">${t('finder_who')}</option><option value="fuersie">${t('who_her')}</option><option value="fuerihn">${t('who_him')}</option><option value="kinder">${t('who_kids')}</option></select>
-        <label class="vh" for="fdMax">${t('finder_budget')}</label><select class="in" id="fdMax" name="max"><option value="0">${t('finder_budget')}</option>${[25, 40, 60, 100].map(v => `<option value="${v}">${t('price_to')} ${eur(v)}</option>`).join('')}</select>
+        <label class="fd-bud"><span class="vh">${t('finder_budget')}</span><input class="in" id="fdMax" name="max" type="number" min="1" step="any" inputmode="decimal" placeholder="${esc(t('finder_budget_ph'))}"><b>€</b></label>
         <button class="btn">${ic('search')} ${t('finder_go')}</button>
         <p class="finder-pop">${t('finder_pop')}</p>
         <nav class="chips finder-chips">${['geburtstag', 'liebe', 'hochzeit', 'muttertag', 'ramadan', 'kinder'].map(o => `<a href="#/o/${o}">${t('occ_' + o)}</a>`).join('')}</nav>
@@ -379,7 +379,7 @@
     const cur = F.max || maxAll;
     const side = kind === 'w' ? '' : `<aside class="fside" id="fside"><h2>${t('filter')} ${ic('filter')}</h2>
       <details open><summary>${t('nav_occ')}</summary>${occs.map(o => kind === 'o' ? `<a href="#/o/${o}"${val === o ? ' aria-current="page"' : ''}>${t('occ_' + o)}<small>${ST.products().filter(p => (p.occ || []).includes(o)).length}</small></a>` : `<button type="button" class="fo" data-act="fset" data-k="occ" data-v="${F.occ === o ? '' : o}" aria-pressed="${F.occ === o}">${t('occ_' + o)}<small>${all.filter(p => (p.occ || []).includes(o)).length}</small></button>`).join('')}</details>
-      <details open><summary>${t('price_range')}</summary><div class="prange"><input type="range" min="10" max="${maxAll}" step="5" value="${cur}" data-filter="max" aria-label="${esc(t('price_to'))}"><output><b>${eur(0)}</b><b>${eur(cur)}</b></output></div></details>
+      <details open><summary>${t('price_range')}</summary><div class="prange"><input type="range" min="5" max="${maxAll}" step="1" value="${Math.min(cur, maxAll)}" data-filter="max" aria-label="${esc(t('price_to'))}" oninput="this.nextElementSibling.lastElementChild.textContent=this.value+' €'"><output><b>${eur(0)}</b><b>${eur(Math.min(cur, maxAll))}</b></output><label class="fd-bud"><span class="vh">${t('price_to')}</span><input class="in" type="number" min="1" step="any" inputmode="decimal" placeholder="${esc(t('finder_budget_ph'))}" value="${F.max || ''}" data-filter="maxx"><b>€</b></label></div></details>
       <details${kind === 'c' ? ' open' : ''}><summary>${t('categories')}</summary>${CATS().map(c => `<a href="#/c/${c}"${kind === 'c' && val === c ? ' aria-current="page"' : ''}>${t('cat_' + c)}<small>${ST.products().filter(p => p.cat === c).length}</small></a>`).join('')}</details>
       ${F.occ || F.max || F.who ? `<div style="padding:8px 16px 0"><button class="btn ghost sm block" data-act="freset">${t('reset')}</button></div>` : ''}
     </aside>`;
@@ -391,7 +391,7 @@
       ${list.length ? S.grid(list) : `<div class="empty"><p>${kind === 'w' ? t('wish_empty') : t('no_results')}</p><a class="btn" href="#/c/alle">${t('nav_shop')}</a></div>`}
     </div></div>`, 'list');
   };
-  S.setFilter = function (k, v) { F[k] = k === 'max' ? (+v >= +((($('[data-filter=max]') || {}).max) || 1e9) ? 0 : +v) : v; C.dispatch({ keepScroll: true }); };
+  S.setFilter = function (k, v) { if (k === 'maxx') { F.max = +v > 0 ? +v : 0; C.dispatch({ keepScroll: true }); return; } F[k] = k === 'max' ? (+v >= +((($('[data-filter=max]') || {}).max) || 1e9) ? 0 : +v) : v; C.dispatch({ keepScroll: true }); };
   S.setFinder = function (o) { F = { sort: 'rec', occ: o.occ || '', max: +o.max || 0, who: o.who || '' }; };
   S.resetFilter = function () { F = { sort: F.sort, occ: '', max: 0, who: '' }; C.dispatch({ keepScroll: true }); };
   S.occPage = function () {
@@ -407,7 +407,7 @@
       <form class="gcp-form" data-form="giftcard">
         <h1>${t('gc_title')}</h1><p class="lead">${t('gc_lead')}</p>
         <fieldset><legend>${t('gc_amount')}</legend><div class="seg">${amounts.map((a, i) => `<label><input type="radio" name="amt" value="${a}"${i === 1 ? ' checked' : ''}><span>${eur(a)}</span></label>`).join('')}<label><input type="radio" name="amt" value="x"><span>${t('gc_other')}</span></label></div>
-          <input class="in" name="amtx" type="number" min="10" max="500" step="5" placeholder="${esc(t('gc_other_ph'))}" hidden></fieldset>
+          <input class="in" name="amtx" type="number" min="5" step="any" inputmode="decimal" placeholder="${esc(t('gc_other_ph'))}" hidden></fieldset>
         <label class="fld"><span>${t('gc_to')}</span><input class="in" name="to" required maxlength="40"></label>
         <label class="fld"><span>${t('gc_to_email')}</span><input class="in" name="toEmail" type="email" required></label>
         <label class="fld"><span>${t('gc_from')}</span><input class="in" name="from" maxlength="40"></label>

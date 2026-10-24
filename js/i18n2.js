@@ -20,6 +20,7 @@
   K('finder_who', 'Für wen?', 'For whom?', 'المتلقي');
   K('finder_budget', 'Budget', 'Budget', 'الميزانية');
   K('finder_pop', 'Beliebt', 'Popular', 'الأكثر طلباً');
+  K('finder_budget_ph', 'Budget in € (beliebig)', 'Budget in € (any amount)', 'ميزانيتك باليورو (أي مبلغ)');
   K('finder_go', 'Geschenk finden', 'Find a gift', 'ابحث عن الهدية');
   K('who_her', 'Für sie', 'For her', 'لها');
   K('who_him', 'Für ihn', 'For him', 'له');
@@ -130,4 +131,12 @@
   K('card_tpl_baby', 'Herzlichen Glückwunsch zum kleinen Wunder!', 'Congratulations on your little miracle!', 'مبروك المولود الجديد، يتربى بعزكم!');
   K('card_tpl_neuetalia', 'Ein kleines Lächeln für dich.', 'A little smile for you.', 'ابتسامة صغيرة إلك.');
   K('card_tpl_minimal', 'Mit den besten Wünschen.', 'With best wishes.', 'مع أطيب الأمنيات.');
+  K('gc_other_ph', 'Eigener Betrag in € (ab 5 €)', 'Your own amount in € (from €5)', 'اكتب المبلغ اللي بدك ياه باليورو (من 5 يورو)');
+  K('gc_amount_bad', 'Bitte einen Betrag ab 5 € eingeben.', 'Please enter an amount from €5.', 'اكتب مبلغ من 5 يورو وطالع.');
+  /* gift assistant */
+  K('as_btn', 'Geschenk-Assistent', 'Gift assistant', 'مساعد الهدايا');
+  K('as_title', 'Neuetalia Geschenk-Assistent', 'Neuetalia gift assistant', 'مساعد الهدايا من نيوتاليا');
+  K('as_sub', 'Antwortet sofort · Ideen, Preise, Versand', 'Replies instantly · ideas, prices, delivery', 'بيرد فوراً · أفكار، أسعار، توصيل');
+  K('as_hello', 'Hallo! 👋 Ich helfe dir beim Geschenk. Erzähl mir: für wen, welcher Anlass und wie viel möchtest du ausgeben? Du kannst mir auch Fragen zu Versand, Abholung oder Zahlung stellen.', 'Hi! 👋 I’ll help you with your gift. Tell me who it’s for, the occasion and your budget. You can also ask about delivery, pick-up or payment.', 'أهلاً! 👋 أنا بساعدك تختار هديتك. احكيلي لمين، شو المناسبة، وقديش حابب تدفع. وفيك تسألني عن التوصيل، الاستلام أو الدفع.');
+  K('as_ph', 'Schreib deine Frage …', 'Type your question …', 'اكتب سؤالك …');
 })();

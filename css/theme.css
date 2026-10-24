@@ -532,3 +532,88 @@ html[dir="rtl"] .bx-steps button{padding:0 8px 0 16px}
 .finder-box b{display:block;color:var(--purple)}.finder-box small{color:var(--muted);font-size:13px;line-height:1.35;display:block}
 .finder-box .ic{margin-inline-start:auto;color:var(--purple);flex:none}
 @media (max-width:1000px){.finder-box,.finder-pop,.finder-chips{display:none}}
+
+/* tags: technique + "Anpassung" side by side */
+.ptags{position:absolute;top:10px;inset-inline-end:10px;z-index:2;display:flex;flex-wrap:wrap;gap:4px;justify-content:flex-end;max-width:calc(100% - 60px);pointer-events:none}
+.ptags .ptag{position:static}
+/* free budget inputs */
+.fd-bud{position:relative;display:block}
+.fd-bud .in{padding-inline-end:34px}
+.fd-bud b{position:absolute;top:50%;inset-inline-end:14px;transform:translateY(-50%);color:var(--pink-d);font-weight:700;pointer-events:none}
+.prange .fd-bud{margin-top:4px}.prange .fd-bud .in{min-height:40px;font-size:14px}
+.bx-ai .row .fd-bud{flex:1 1 150px}
+
+/* phones: never scroll sideways, popups always centred (no sideways transforms) */
+html{overflow-x:hidden;overflow-x:clip}
+body{overflow-x:clip;max-width:100vw}
+#app,.main{max-width:100%}
+html .ov.modal .ov-panel{left:0;right:0;margin-inline:auto;width:min(560px,calc(100% - 24px));transform:translateY(-46%)}
+html .ov.modal .ov-panel.wide{width:min(980px,calc(100% - 24px))}
+html .ov.modal.in .ov-panel{transform:translateY(-50%)}
+html .ov-panel{max-width:100%}
+img,canvas,video{max-width:100%}
+.ov-body,.cinfo,.co-main,.co-side,.sumbox,.co-sec{min-width:0}
+.cinfo b,.clist li,.ml span,.pname{overflow-wrap:anywhere}
+@media (max-width:560px){
+  .wrap{padding-inline:max(14px,env(safe-area-inset-left,0px))}
+  h1{font-size:clamp(26px,7.4vw,34px)}
+  .co{gap:14px}.co-sec{padding:16px}.sumbox{padding:16px}
+  .pays{grid-template-columns:1fr 1fr}
+  .pay{padding:12px}
+  .dates span{width:64px}
+  .ov.modal .ov-foot{justify-content:stretch}.ov.modal .ov-foot .btn{flex:1}
+  .paydemo .pl.big{font-size:24px}.paysum{font-size:28px}
+  .pgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .pcard{padding:6px 6px 10px}
+  .pname{font-size:14px}.pmeta .price{font-size:15.5px}.pvat{display:none}
+  .ptags{top:6px;inset-inline-end:6px}.ptag{font-size:11px;padding:3px 8px}
+  .wish{width:32px;height:32px;top:6px;inset-inline-start:6px}
+  .lhead{padding:16px 14px 10px}
+  .tile b{font-size:30px}
+  .sh h2{font-size:24px}
+  .bx-sec{padding:14px}
+  .acc-auth>.auth-box{margin:12px}
+}
+
+/* ---------- gift assistant ---------- */
+.as-btn{position:fixed;z-index:60;bottom:calc(20px + env(safe-area-inset-bottom,0px));inset-inline-end:20px;display:inline-flex;align-items:center;gap:8px;min-height:52px;padding:0 18px 0 14px;border-radius:999px;background:linear-gradient(135deg,var(--purple),#b14dff 55%,var(--pink));color:#fff;font-weight:700;font-size:15px;box-shadow:0 12px 30px -10px rgba(100,37,254,.75);animation:asIn .5s var(--ease)}
+.as-btn .ic{width:24px;height:24px}
+.as-btn[hidden]{display:none}
+@keyframes asIn{from{transform:translateY(20px) scale(.9);opacity:0}}
+body.as-open .as-btn{display:none}
+.as-panel{position:fixed;z-index:85;bottom:calc(16px + env(safe-area-inset-bottom,0px));inset-inline-end:16px;width:min(400px,calc(100vw - 32px));height:min(620px,calc(100dvh - 120px));display:flex;flex-direction:column;background:#fff;border-radius:22px;box-shadow:0 24px 70px -20px rgba(51,51,51,.55);overflow:hidden;animation:asIn .3s var(--ease)}
+.as-head{display:flex;align-items:center;gap:10px;padding:12px 10px 12px 14px;background:linear-gradient(135deg,var(--purple),#b14dff 55%,var(--pink));color:#fff}
+.as-head>i{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;flex:none}
+.as-head div{flex:1;min-width:0}.as-head b{display:block;font-size:15.5px}.as-head small{font-size:12px;opacity:.9}
+.as-head .ibtn{color:#fff;width:38px;height:38px}
+.as-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--s1)}
+.as-m{max-width:88%;display:grid;gap:8px}
+.as-m p{margin:0;padding:10px 13px;border-radius:16px;font-size:15px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.as-m.bot{align-self:flex-start}.as-m.bot p{background:#fff;border:1px solid var(--s2);border-end-start-radius:4px}
+.as-m.me{align-self:flex-end}.as-m.me p{background:var(--pink);color:#fff;border-end-end-radius:4px}
+.as-ps{display:grid;gap:6px}
+.as-p{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 6px;border-radius:12px;background:#fff;border:1px solid var(--s2);text-decoration:none}
+.as-p:hover{border-color:var(--pink)}
+.as-p img{width:56px;height:56px;border-radius:10px;object-fit:cover;flex:none}
+.as-p span{flex:1;min-width:0}.as-p b{display:block;font-size:14px;font-weight:600;line-height:1.3}.as-p em{font-style:normal;color:var(--pink-d);font-weight:700;font-size:14px}
+.as-p .ic{color:var(--pink-d);width:18px;height:18px;flex:none}
+.as-chips{display:flex;flex-wrap:wrap;gap:6px}
+.as-chips button{min-height:36px;padding:0 13px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--pink);color:var(--pink-d);font-weight:600;font-size:13.5px}
+.as-chips button:hover{background:var(--pink-xl)}
+.as-dots{display:inline-flex!important;gap:4px}.as-dots i{width:7px;height:7px;border-radius:50%;background:var(--soft);animation:asDot 1s infinite}.as-dots i:nth-child(2){animation-delay:.15s}.as-dots i:nth-child(3){animation-delay:.3s}
+@keyframes asDot{50%{opacity:.25;transform:translateY(-3px)}}
+.as-form{display:flex;gap:8px;padding:10px;border-top:1px solid var(--s2);background:#fff}
+.as-form .in{min-height:46px;border-radius:999px}
+.as-form .btn{min-height:46px;width:46px;padding:0;border-radius:50%;flex:none}
+@media (max-width:860px){
+  .as-btn{bottom:calc(84px + env(safe-area-inset-bottom,0px));inset-inline-end:12px;min-height:46px;padding:0 14px 0 11px;font-size:14px}
+  .pg-pdp~.as-btn{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .as-panel{inset:auto 0 0 0;width:100%;height:min(86dvh,680px);border-radius:22px 22px 0 0;bottom:0}
+}
+@media (max-width:860px){
+  .as-btn{min-height:44px;width:44px;padding:0;justify-content:center;border-radius:50%}
+  .as-btn span{display:none}
+  .pg-box .bx-head .lead{display:none}
+  .pg-box .bx-head h1{font-size:26px}
+  .bx-side{gap:6px}.bx-sum{padding:8px 12px}.bx-sum b{font-size:18px}
+}
