@@ -42,6 +42,7 @@
   K('v5_cats_all', 'Alle Kategorien', 'All categories', 'كل الأقسام');
   K('v5_popular', 'Beliebt', 'Popular', 'الأكثر طلباً');
   K('v5_new', 'Neu', 'New', 'جديد');
+  K('v5_best', 'Bestseller', 'Bestseller', 'الأكثر مبيعاً');
   K('v5_free_text', 'Kostenlose Abholung im Laden', 'Free pick-up in store', 'استلام مجاني من المحل');
 
   /* ---------------- icons (same style as the core set) ---------------- */
@@ -59,12 +60,16 @@
   V.ic = (n, cls) => XI[n] ? `<svg class="ic${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true">${XI[n]}</svg>` : ic(n, cls);
 
   /* ---------------- website settings ---------------- */
-  const SECTIONS = ['hero', 'cats', 'best', 'wall', 'new', 'feats', 'occ', 'about', 'carousel', 'reviews', 'camp', 'gift', 'locs', 'faq', 'news'];
+  /* home page sections (new premium layout first; older blocks can be switched on in the admin) */
+  const SECTIONS = ['hero', 'quick', 'usp', 'best', 'occ', 'promos', 'cats', 'new', 'wall', 'finder', 'reviews', 'about', 'locs', 'faq', 'news', 'mosaic', 'feats', 'carousel', 'camp', 'gift'];
+  const SEC_OFF = ['mosaic', 'feats', 'carousel', 'camp', 'gift'];
   V.SECTIONS = SECTIONS;
   const L3 = (de, en, ar) => ({ de: de || '', en: en || '', ar: ar || '' });
+  const BRAND0 = '#fe90be';
   const SDEF = () => ({
-    brand: '#c2608b', accent: '#3aa7a3', logo: '', logoH: 46,
-    sections: SECTIONS.map(id => ({ id, on: true })),
+    v: 2, brand: BRAND0, accent: '#01cac9', logo: '', logoH: 46,
+    sections: SECTIONS.map(id => ({ id, on: !SEC_OFF.includes(id) })),
+    slides: [{ img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' }, { img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' }, { img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' }],
     tiles: { her: { img: '', t: L3() }, him: { img: '', t: L3() }, promo: { img: '', t: L3(), p: L3() }, kids: { img: '', t: L3() }, all: { img: '', t: L3() }, custom: { img: '', t: L3(), p: L3() } },
     texts: {},
     locations: [{ id: 'l1', name: 'Adam & Neuetalia', street: 'Steindamm 62', zip: '20099', city: 'Hamburg', phone: '+49 177 6449312', hours: L3('Mo–Sa 09:00–22:00 · So 09:00–16:00', 'Mon–Sat 09:00–22:00 · Sun 09:00–16:00', 'الإثنين–السبت 09:00–22:00 · الأحد 09:00–16:00') }],
@@ -75,21 +80,33 @@
   const merge = (a, b) => { if (!isObj(b)) return a; for (const k in b) { if (isObj(b[k]) && isObj(a[k])) merge(a[k], b[k]); else if (b[k] !== undefined) a[k] = b[k]; } return a; };
   const SITE = {
     get() {
-      const c = merge(SDEF(), JSON.parse(JSON.stringify(ST.get('site', {}))));
-      for (const id of SECTIONS) if (!c.sections.some(s => s.id === id)) c.sections.push({ id, on: true });
+      const raw = JSON.parse(JSON.stringify(ST.get('site', {})));
+      // settings saved before the new home page: take the new section order and the pink brand colour again
+      if (!raw.v || raw.v < 2) { delete raw.sections; if (!raw.brand || /^#c2608b$/i.test(raw.brand)) delete raw.brand; if (/^#3aa7a3$/i.test(raw.accent || '')) delete raw.accent; raw.v = 2; }
+      const c = merge(SDEF(), raw);
+      for (const id of SECTIONS) if (!c.sections.some(s => s.id === id)) c.sections.push({ id, on: !SEC_OFF.includes(id) });
+      while (c.slides.length < 3) c.slides.push({ img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' });
       return c;
     },
-    save(c) { ST.set('site', c); SITE.apply(); },
+    save(c) { c.v = 2; ST.set('site', c); SITE.apply(); },
     /** text from the website settings, else the built-in translation */
     tx(key, fb, v) { const o = SITE.get().texts[key]; const s = o && (o[C.lang()] || o.de); return s ? s : t(fb || key, v); },
     apply() {
       const c = SITE.get(); const r = document.documentElement.style;
-      const b = hex(c.brand) ? c.brand : '#c2608b';
-      r.setProperty('--brand', b); r.setProperty('--brand-d', mix(b, '#000000', .16)); r.setProperty('--brand-l', mix(b, '#ffffff', .8)); r.setProperty('--brand-xl', mix(b, '#ffffff', .93));
-      r.setProperty('--sh-btn', `0 6px 16px -8px ${mix(b, '#000000', .2)}aa`);
-      r.setProperty('--accent', hex(c.accent) ? c.accent : '#3aa7a3');
+      const P = V.palette(hex(c.brand) ? c.brand : BRAND0);
+      for (const k in P) r.setProperty('--' + k, P[k]);
+      r.setProperty('--accent', hex(c.accent) ? c.accent : '#01cac9');
       r.setProperty('--logo-h', (+c.logoH || 46) + 'px');
     }
+  };
+  /* one colour → a matching family (button colour, darker text colour, light tints) */
+  function hsl(hx) { let [r, g, b] = [1, 3, 5].map(i => parseInt(hx.slice(i, i + 2), 16) / 255); const mx = Math.max(r, g, b), mn = Math.min(r, g, b); let h = 0, s = 0; const l = (mx + mn) / 2; if (mx !== mn) { const d = mx - mn; s = l > .5 ? d / (2 - mx - mn) : d / (mx + mn); h = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h /= 6; } return [h * 360, s, l]; }
+  function hx(h, s, l) { const f = n => { const k = (n + h / 30) % 12; const a = s * Math.min(l, 1 - l); const v = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); return Math.round(v * 255).toString(16).padStart(2, '0'); }; return '#' + f(0) + f(8) + f(4); }
+  V.palette = function (c) {
+    const [h, s, l] = hsl(c);
+    const btn = l > .7 ? hx(h, Math.min(s, .82), .67) : c;
+    const [, bs, bl] = hsl(btn);
+    return { brand: btn, 'brand-d': hx(h, Math.min(bs, .62), Math.max(.3, bl - .22)), 'brand-l': hx(h, Math.min(s, .9), .92), 'brand-xl': hx(h, Math.min(s, .9), .975), 'brand-soft': c, 'sh-btn': `0 8px 20px -10px ${hx(h, Math.min(bs, .7), Math.max(.25, bl - .15))}` };
   };
   window.SITE = SITE;
   function hex(s) { return /^#[0-9a-f]{6}$/i.test(String(s || '')); }
@@ -183,7 +200,7 @@
     const v = p.views[0];
     const alt = p.views[1] && !p.views[1].when && p.views[1].thumb;
     const custom = (p.fields || []).length;
-    const tag = custom ? `<span class="ptag t-custom">${t('tag_custom')}</span>` : SHOP.techTag(p);
+    const tag = (p.best ? `<span class="ptag t-best">${t('v5_best')}</span>` : '') + (custom ? `<span class="ptag t-custom">${t('tag_custom')}</span>` : SHOP.techTag(p));
     return `<article class="pcard${opt.big ? ' big' : ''}">
       <a class="pimg" href="#/p/${esc(p.id)}" aria-label="${esc(L(p.name))}"><img src="${esc(v.thumb || v.img)}" alt="" loading="lazy" width="560" height="560">${alt ? `<img class="alt" src="${esc(alt)}" alt="" loading="lazy">` : ''}${p.stock <= 0 ? `<span class="soldout">${t('sold_out')}</span>` : ''}</a>
       ${ST.onSale(p) ? `<span class="psale">−${Math.round((1 - p.salePrice / p.price) * 100)} %</span>` : ''}
@@ -363,7 +380,7 @@
   const HOME_IMG = { her: 'rosenbox-herz', him: 'np-tasse-fussball', promo: 'geschenkbox-liebe', kids: 'np-tasse-emoji', all: 'np-kissen-satin' };
   const TILE_DEF = { her: ['who_her', '#/o/fuersie'], him: ['who_him', '#/o/fuerihn'], kids: ['who_kids', '#/o/kinder'], all: ['who_all', '#/c/alle'], promo: ['tile_gifts', '#/c/alle'], custom: ['tile_custom', '#/box'] };
   const tl = (o, key) => (o && (o[C.lang()] || o.de)) || t(key);
-  SHOP.home = function () {
+  V.homeBlocks = function () {
     const S = SHOP; const cfg = SITE.get(); const s = ST.settings();
     const all = ST.products();
     const best = all.filter(p => p.best).concat(all.filter(p => !p.best)).slice(0, 12);
@@ -420,8 +437,8 @@
         <div class="faq">${['ship', 'pickup', 'spotify', 'box', 'proof', 'arabic', 'photo', 'pay', 'returns', 'custom'].map(q => `<details><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div></div></section>`,
       news: () => `<section class="sec"><div class="wrap"><div class="news rv"><h2>${esc(SITE.tx('news_h'))}</h2><p>${esc(SITE.tx('news_p'))}</p><form data-form="news"><input class="in" type="email" name="email" required placeholder="${esc(t('email'))}" aria-label="${esc(t('email'))}"><button class="btn">${t('news_btn')}</button></form></div></div></section>`
     };
-    S.page(cfg.sections.filter(x => x.on && B[x.id]).map(x => B[x.id]()).join(''), 'home');
-    S.heroInit(); S.wallInit(); S.carouInit();
+    B.mosaic = B.hero; delete B.hero;
+    return B;
   };
 
   /* ---------------- calm form validation with a message under each field ---------------- */
