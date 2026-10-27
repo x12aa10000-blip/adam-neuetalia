@@ -12,7 +12,7 @@
   const BOXES = [
     { id: 'kraft', price: 4.9, c: '#c89b6d', c2: '#a97b4f', l: L3('Kraftkarton', 'Kraft box', 'كرتون طبيعي') },
     { id: 'rosa', price: 6.9, c: '#f7a9c9', c2: '#ef86b2', l: L3('Rosa Box', 'Pink box', 'بوكس زهري') },
-    { id: 'zebra', price: 7.9, c: '#ffffff', c2: '#FE90BE', pattern: 'swirl', l: L3('Neuetalia-Box', 'Neuetalia box', 'بوكس نيوتاليا') },
+    { id: 'zebra', price: 7.9, c: '#ffffff', c2: '#efb7cd', pattern: 'swirl', l: L3('Neuetalia-Box', 'Neuetalia box', 'بوكس نيوتاليا') },
     { id: 'schwarz', price: 9.9, c: '#262326', c2: '#111', gold: 1, l: L3('Schwarz & Gold', 'Black & gold', 'أسود وذهبي') },
     { id: 'samt', price: 12.9, c: '#8f1730', c2: '#6c0f22', velvet: 1, l: L3('Samtbox Rot', 'Red velvet box', 'بوكس مخمل أحمر') }
   ];
@@ -47,6 +47,22 @@
   ];
   const CARD_FONTS = ['greatvibes', 'dancing', 'playfair', 'montserrat', 'caveat', 'ruqaa', 'amiri', 'marhey'];
   B.opts = { BOXES, SIZES, FILLS, RIBBONS, EXTRAS, CARDS };
+  /* the owner can upload real box photos (PNG), rename boxes, change prices, add new boxes and switch boxes/extras off (admin › Website) */
+  let siteRef = null;
+  B.applySite = function () {
+    if (!window.SITE) return; const raw = ST.get('site', null); if (raw === siteRef) return; siteRef = raw;
+    const c = SITE.get();
+    for (const [id, o] of Object.entries(c.boxes || {})) {
+      let b = BOXES.find(x => x.id === id);
+      if (!b) { b = { id, price: 9.9, c: '#f3e6ea', c2: '#c2608b', l: L3('Box', 'Box', 'بوكس'), custom: 1 }; BOXES.push(b); }
+      b.img = o.img || ''; if (o.l) b.l = Object.assign({}, b.l, o.l); if (o.price !== undefined && o.price !== '' && o.price !== null) b.price = +o.price; b.off = !!o.off; b.inner = o.inner || null;
+    }
+    for (const [id, o] of Object.entries(c.extras || {})) {
+      const e = EXTRAS.find(x => x.id === id); if (!e) continue;
+      e.img = o.img || ''; if (o.l) e.l = Object.assign({}, e.l, o.l); if (o.price !== undefined && o.price !== '' && o.price !== null) e.price = +o.price; e.off = !!o.off;
+    }
+  };
+  const imgAttr = s => window.V5 ? V5.src(s) : `src="${esc(s)}"`;
 
   const NOBOX = ['aermel-stick', 'rosenbox-xxl', 'familienschild', 'cocktail-set'];
   const needsPhoto = p => p.fields.some(f => f.type === 'photo' && !f.optional);
@@ -66,7 +82,7 @@
   const cap = () => byId(SIZES, S.size).cap;
   const itemCount = () => S.items.reduce((a, i) => a + i.qty, 0);
   B.price = function (s) {
-    s = s || S;
+    s = s || S; B.applySite();
     const base = byId(BOXES, s.box).price + byId(SIZES, s.size).add + byId(FILLS, s.fill).add;
     const ex = Object.entries(s.extras || {}).reduce((a, [k, n]) => a + (byId(EXTRAS, k).price * n), 0);
     const items = (s.items || []).reduce((a, i) => { const p = ST.product(i.pid); return a + (p ? ST.unitPrice(p, i.D) * i.qty : 0); }, 0);
@@ -110,8 +126,59 @@
   function noiseFill(x, X, Y, W, H, amt, seed) { const R = rng(seed || 3); for (let i = 0; i < W * H / 90; i++) { x.fillStyle = R() > .5 ? `rgba(255,255,255,${R() * amt})` : `rgba(0,0,0,${R() * amt * .8})`; x.fillRect(X + R() * W, Y + R() * H, 1.4, 1.4); } }
   function petal(x, px, py, s, rot, col) { x.save(); x.translate(px, py); x.rotate(rot); const g = x.createRadialGradient(-s * .2, -s * .2, s * .1, 0, 0, s); g.addColorStop(0, shade(col, .25)); g.addColorStop(.7, col); g.addColorStop(1, shade(col, -.35)); x.fillStyle = g; x.beginPath(); x.moveTo(0, -s); x.bezierCurveTo(s * .9, -s * .8, s, s * .5, 0, s); x.bezierCurveTo(-s, s * .5, -s * .9, -s * .8, 0, -s); x.fill(); x.restore(); }
   /** photo-like top view of the open gift box with the real (personalised) products inside */
+  /* real box photo (PNG) as the box, the products placed inside its opening */
+  async function placeItems(x, s, aX, aY, aW, aH, k, R) {
+    const list = []; for (const it of s.items) for (let q = 0; q < it.qty; q++) list.push(it);
+    const n = list.length;
+    let cols = 1, bestS = 0; for (let c = 1; c <= Math.max(1, n); c++) { const r = Math.ceil(n / c); const sz2 = Math.min(aW / c, aH / r) - (c * r - n) * 2; if (sz2 > bestS) { bestS = sz2; cols = c; } } const rows = Math.max(1, Math.ceil(n / cols));
+    const cw = aW / cols, ch = aH / rows;
+    for (let i = 0; i < n; i++) {
+      const it = await itemCut(list[i]); if (!it) continue;
+      const col = i % cols, row = Math.floor(i / cols), inRow = Math.min(cols, n - row * cols);
+      const cx = aX + (aW - inRow * cw) / 2 + cw * col + cw / 2 + (R() - .5) * 8 * k, cy = aY + ch * row + ch / 2 + (R() - .5) * 6 * k;
+      const c = it.cv; const big = n <= 2 ? 1 : 1.12; const maxW = cw * (it.cut ? big : .86), maxH = ch * (it.cut ? big : .86); const r = Math.min(maxW / c.width, maxH / c.height);
+      const dw = c.width * r, dh = c.height * r;
+      x.save(); x.translate(cx, cy); x.rotate((R() - .5) * (it.cut ? .14 : .08));
+      x.shadowColor = 'rgba(30,10,20,.4)'; x.shadowBlur = 16 * k; x.shadowOffsetX = 5 * k; x.shadowOffsetY = 9 * k;
+      if (it.cut) x.drawImage(c, -dw / 2, -dh / 2, dw, dh);
+      else { const pad = 7 * k; x.fillStyle = '#fff'; rr(x, -dw / 2 - pad, -dh / 2 - pad, dw + 2 * pad, dh + 2 * pad, 6 * k); x.fill(); x.shadowColor = 'transparent'; x.save(); rr(x, -dw / 2, -dh / 2, dw, dh, 4 * k); x.clip(); x.drawImage(c, -dw / 2, -dh / 2, dw, dh); x.restore(); }
+      x.restore();
+    }
+    return n;
+  }
+  async function drawPngBox(cv, s, W, bx) {
+    const H = Math.round(W * .86); cv.width = W; cv.height = H; const x = cv.getContext('2d'); const k = W / 900; const R = rng(17);
+    const bg = x.createRadialGradient(W * .45, H * .35, 40 * k, W / 2, H / 2, W * .75); bg.addColorStop(0, '#fdfbfa'); bg.addColorStop(1, '#efe8e4'); x.fillStyle = bg; x.fillRect(0, 0, W, H);
+    const im = await ENG.img(bx.img);
+    const sz = byId(SIZES, s.size); const sc = sz.id === 's' ? .8 : sz.id === 'm' ? .9 : 1;
+    let X = W * .1, Y = H * .08, dw = W * .8, dh = H * .8;
+    if (im && im.width) { const r = Math.min(W * .9 * sc / im.width, H * .84 * sc / im.height); dw = im.width * r; dh = im.height * r; X = (W - dw) / 2; Y = (H - dh) / 2; x.save(); x.shadowColor = 'rgba(60,30,40,.32)'; x.shadowBlur = 38 * k; x.shadowOffsetY = 18 * k; x.drawImage(im, X, Y, dw, dh); x.restore(); }
+    const inn = bx.inner || [.17, .3, .66, .52];
+    const aX = X + dw * inn[0], aY = Y + dh * inn[1], aW = dw * inn[2], aH = dh * inn[3];
+    const ex = []; for (const [id, n] of Object.entries(s.extras || {})) for (let q = 0; q < n; q++) ex.push(byId(EXTRAS, id));
+    const n = await placeItems(x, s, aX, aY, aW, aH - (ex.length ? 50 * k : 0), k, R);
+    if (!n) { x.fillStyle = 'rgba(255,255,255,.92)'; rr(x, W / 2 - 190 * k, aY + aH / 2 - 26 * k, 380 * k, 52 * k, 26 * k); x.fill(); x.fillStyle = '#6c6670'; x.font = `600 ${20 * k}px "ui-pop", "ui-ar2", sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(t('box_empty_canvas'), W / 2, aY + aH / 2); }
+    for (let i = 0; i < Math.min(ex.length, 12); i++) {
+      const e = ex[i]; const span = Math.min(ex.length, 12); const px = aX + aW / 2 + (i - (span - 1) / 2) * Math.min(56 * k, (aW - 40 * k) / span), py = aY + aH - 26 * k;
+      x.save(); x.translate(px, py); x.rotate((R() - .5) * .4); x.shadowColor = 'rgba(0,0,0,.3)'; x.shadowBlur = 10 * k; x.shadowOffsetY = 5 * k;
+      const ei = e.img ? await ENG.img(e.img) : null;
+      if (ei && ei.width) { const r = 52 * k / Math.max(ei.width, ei.height); x.drawImage(ei, -ei.width * r / 2, -ei.height * r / 2, ei.width * r, ei.height * r); }
+      else { x.font = `${42 * k}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(e.e, 0, 0); }
+      x.restore();
+    }
+    if (s.card && s.card.on) {
+      const cc = ENG.canvas(10, 10); await B.drawCard(cc, s.card, 560);
+      const cwid = 200 * k + 30 * k, chei = cwid * cc.height / cc.width;
+      x.save(); x.translate(W - cwid / 2 - 24 * k, H - chei / 2 - 18 * k); x.rotate(-.08);
+      x.shadowColor = 'rgba(40,20,30,.35)'; x.shadowBlur = 20 * k; x.shadowOffsetY = 9 * k; x.fillStyle = '#fff'; x.fillRect(-cwid / 2, -chei / 2, cwid, chei); x.shadowColor = 'transparent';
+      x.drawImage(cc, -cwid / 2, -chei / 2, cwid, chei); x.restore();
+    }
+    return cv;
+  }
   B.drawBox = async function (cv, s, W) {
-    s = s || S; W = W || 900; const H = Math.round(W * .86);
+    s = s || S; W = W || 900; B.applySite();
+    { const bx0 = byId(BOXES, s.box); if (bx0 && bx0.img) return drawPngBox(cv, s, W, bx0); }
+    const H = Math.round(W * .86);
     cv.width = W; cv.height = H; const x = cv.getContext('2d'); const k = W / 900;
     const bx = byId(BOXES, s.box), rb = byId(RIBBONS, s.ribbon), sz = byId(SIZES, s.size);
     const R = rng(17);
@@ -285,7 +352,7 @@
   B.leave = function () { };
   B.useState = function (st) { const keep = S && S.editId; S = st; S.editId = keep || null; S.step = 2; save(); };
   B.show = function (sub, q) {
-    q = q || {};
+    q = q || {}; B.applySite();
     if (q.edit) B.loadFromCart(q.edit);
     else if (!S) { S = ST.get('boxDraft', null) || fresh(); if (!S.card) S.card = fresh().card; }
     const P = B.price(); const n = itemCount();
@@ -293,7 +360,7 @@
       <ol class="bx-steps">${STEPS.map((k, i) => `<li><button data-act="bx-step" data-v="${i + 1}" aria-current="${S.step === i + 1 ? 'step' : 'false'}"${i + 1 < S.step ? ' class="done"' : ''}><i>${i + 1 < S.step ? ic('check') : i + 1}</i><span>${t(k)}</span></button></li>`).join('')}</ol></div>`;
     let body = '';
     if (S.step === 1) body = `
-      <section class="bx-sec"><h2>${t('box_pick')}</h2><div class="bx-opts">${BOXES.map(b => `<button class="bx-opt" data-act="bx-set" data-k="box" data-v="${b.id}" aria-pressed="${S.box === b.id}"><i class="bx-sw" style="--a:${b.c};--b:${b.c2}"${b.pattern ? ' data-p="1"' : ''}></i><b>${esc(L(b.l))}</b><small>${eur(b.price)}</small></button>`).join('')}</div></section>
+      <section class="bx-sec"><h2>${t('box_pick')}</h2><div class="bx-opts">${BOXES.filter(b => !b.off || S.box === b.id).map(b => `<button class="bx-opt" data-act="bx-set" data-k="box" data-v="${b.id}" aria-pressed="${S.box === b.id}">${b.img ? `<img class="bx-png" ${imgAttr(b.img)} alt="">` : `<i class="bx-sw" style="--a:${b.c};--b:${b.c2}"${b.pattern ? ' data-p="1"' : ''}></i>`}<b>${esc(L(b.l))}</b><small>${eur(b.price)}</small></button>`).join('')}</div></section>
       <section class="bx-sec"><h2>${t('box_size')}</h2><div class="bx-opts">${SIZES.map(z => `<button class="bx-opt" data-act="bx-set" data-k="size" data-v="${z.id}" aria-pressed="${S.size === z.id}"><b>${esc(L(z.l))}</b><small>${esc(L(z.d))}${z.add ? ' · +' + eur(z.add) : ''}</small></button>`).join('')}</div></section>
       <section class="bx-sec"><h2>${t('box_fill')}</h2><div class="bx-opts">${FILLS.map(f => `<button class="bx-opt" data-act="bx-set" data-k="fill" data-v="${f.id}" aria-pressed="${S.fill === f.id}"><b>${esc(L(f.l))}</b><small>${f.add ? '+' + eur(f.add) : t('free')}</small></button>`).join('')}</div></section>
       <section class="bx-sec"><h2>${t('box_ribbon')}</h2><div class="sws">${RIBBONS.map(r => `<button class="sw" data-act="bx-set" data-k="ribbon" data-v="${r.id}" role="radio" aria-checked="${S.ribbon === r.id}" style="--c:${r.hex}" title="${esc(L(r.l))}"><span class="vh">${esc(L(r.l))}</span></button>`).join('')}<span class="swl">${esc(L(byId(RIBBONS, S.ribbon).l))}</span></div></section>
@@ -305,7 +372,7 @@
       if (qF) { const r = SHOP.search(qF); list = list.filter(p => r.includes(p)); }
       body = `<section class="bx-sec"><h2>${t('box_items_h')} <small class="bx-cap${n > cap() ? ' over' : ''}">${n}/${cap()}</small></h2>
         ${S.items.length ? `<div class="bx-mine">${S.items.map(it => itemRow(it)).join('')}</div>` : `<p class="muted">${t('box_items_empty')}</p>`}</section>
-        <section class="bx-sec"><h2>${t('box_extras')}</h2><div class="bx-extras">${EXTRAS.map(e => { const c = S.extras[e.id] || 0; return `<div class="bx-ex${c ? ' on' : ''}"><span class="e">${e.e}</span><b>${esc(L(e.l))}</b><small>${eur(e.price)}</small><div class="qty sm"><button data-act="bx-ex" data-v="${e.id}" data-d="-1" aria-label="−">${ic('minus')}</button><output>${c}</output><button data-act="bx-ex" data-v="${e.id}" data-d="1" aria-label="+">${ic('plus')}</button></div></div>`; }).join('')}</div></section>
+        <section class="bx-sec"><h2>${t('box_extras')}</h2><div class="bx-extras">${EXTRAS.filter(e => !e.off || S.extras[e.id]).map(e => { const c = S.extras[e.id] || 0; return `<div class="bx-ex${c ? ' on' : ''}"><span class="e">${e.img ? `<img ${imgAttr(e.img)} alt="">` : e.e}</span><b>${esc(L(e.l))}</b><small>${eur(e.price)}</small><div class="qty sm"><button data-act="bx-ex" data-v="${e.id}" data-d="-1" aria-label="−">${ic('minus')}</button><output>${c}</output><button data-act="bx-ex" data-v="${e.id}" data-d="1" aria-label="+">${ic('plus')}</button></div></div>`; }).join('')}</div></section>
         <section class="bx-sec"><h2>${t('box_add_h')}</h2>
           <div class="row" style="margin-bottom:10px"><input class="in" type="search" id="bxQ" placeholder="${esc(t('search_ph'))}" value="${esc(qF)}"></div>
           <nav class="chips"><button data-act="bx-cat" data-v="" aria-pressed="${!catF}">${t('all')}</button>${CAT_EXTRA.cats.map(c => `<button data-act="bx-cat" data-v="${c}" aria-pressed="${catF === c}">${t('cat_' + c)}</button>`).join('')}</nav>
@@ -418,6 +485,7 @@
   };
   /* lines for cart, emails, invoice and admin */
   B.lines = function (it, lang) {
+    B.applySite();
     const c = (it.D && it.D.box) || {}; const out = [];
     out.push([t('box_pick', null, lang), L(byId(BOXES, c.box).l, lang) + ' · ' + L(byId(SIZES, c.size).l, lang)]);
     out.push([t('box_fill', null, lang), L(byId(FILLS, c.fill).l, lang) + ' · ' + t('box_ribbon', null, lang) + ' ' + L(byId(RIBBONS, c.ribbon).l, lang)]);

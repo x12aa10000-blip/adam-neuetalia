@@ -97,7 +97,7 @@
       eu: { on: true, price: 14.9, days: 4 }
     },
     wrap: 3.9,
-    payments: { paypal: true, card: true, klarna: true, applepay: true, vorkasse: true, cash: true },
+    payments: { paypal: true, card: true, klarna: false, applepay: false, vorkasse: true, cash: true },
     approvalDefault: true,
     cancelMinutes: 60,
     holidays: ['2026-01-01', '2026-04-03', '2026-04-06', '2026-05-01', '2026-05-14', '2026-05-25', '2026-10-03', '2026-10-31', '2026-12-25', '2026-12-26', '2027-01-01'],

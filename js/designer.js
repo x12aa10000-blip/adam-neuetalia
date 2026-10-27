@@ -7,6 +7,7 @@
   window.DESIGNER = Z;
   const A = () => window.ADMIN;
   const T = (k, v) => t(k, v, 'de');
+  const AL = () => (ST.get('adminLang', 'ar') === 'ar' ? 'ar' : 'de'); // admin language (Arabic by default)
   const clone = o => JSON.parse(JSON.stringify(o));
   const L3 = (de, en, ar) => ({ de, en: en || de, ar: ar || de });
 
@@ -61,10 +62,10 @@
     Z.render();
   };
   Z.render = function () {
-    const title = isNew ? 'Neues Produkt' : esc(L(P.name, 'de'));
+    const title = isNew ? 'Neues Produkt' : esc(L(P.name, AL()));
     A().shell('produkte', `<a class="link back" href="#/admin/produkte${isNew ? '' : '/' + esc(P.id)}">${ic('back')} ${isNew ? 'Produkte' : 'Zurück zum Produkt'}</a>
       <div class="a-head"><h1>${ic('wand')} ${title}</h1><div class="vbtns">${!isNew && !P.custom ? `<button class="btn ghost sm" data-dz="reset">${ic('rotateL')} Original wiederherstellen</button>` : ''}${!isNew ? `<a class="btn ghost sm" href="#/p/${esc(P.id)}?preview=1" target="_blank">${ic('eye')} Im Shop testen</a>` : ''}<button class="btn sm" data-dz="save">${ic('check')} Speichern</button></div></div>
-      <p class="muted small" style="margin:-8px 0 16px">Lege auf dem Produktfoto fest, wo Kunden <b>Text</b> schreiben oder ein <b>Foto</b> einsetzen können. Felder verschieben, an den Ecken größer/kleiner ziehen, oben drehen. Rechts bestimmst du Schriften, Farben und Technik.</p>
+      <p class="muted small" style="margin:-8px 0 16px">Lege auf dem Produktfoto fest, wo Kunden <b>Text</b> schreiben oder ein <b>Foto</b> einsetzen können. Felder verschieben, an einer Seite oder Ecke ziehen (nur diese Seite bewegt sich), oben drehen. Rechts bestimmst du Schriften, Farben und Technik.</p>
       <div class="dz">
         <div class="dz-l">
           ${P.views.length ? `<div class="dz-views">${P.views.map((v, i) => `<button class="dz-vt" data-dz="view" data-i="${i}" aria-pressed="${i === vi}"><img src="${esc(v.thumb || v.img)}" alt=""><span>${i + 1}${v.zones.length ? ' · ' + v.zones.length + ' Felder' : ' · Beispiel'}</span></button>`).join('')}<label class="dz-vt add">${ic('plus')}<span>Foto hinzufügen</span><input type="file" accept="image/*" data-dzfile="add"></label></div>` : ''}
@@ -78,16 +79,16 @@
   };
   function basicsHTML() {
     return `<section class="a-card"><h2>Produkt</h2>
-      <div class="grid3">${['de', 'en', 'ar'].map(l => `<label class="fld"><span>Name ${l.toUpperCase()}${l === 'de' ? ' *' : ''}</span><input class="in" data-dzp="name.${l}" value="${esc(P.name[l] || '')}"${l === 'ar' ? ' dir="rtl"' : ''}></label>`).join('')}</div>
-      <label class="fld"><span>Beschreibung (Deutsch)</span><textarea class="in" rows="2" data-dzp="desc.de">${esc(P.desc.de || '')}</textarea></label>
-      <div class="grid3"><label class="fld"><span>Preis € *</span><input class="in" type="number" step="0.1" min="0" data-dzp="price" value="${P.price}"></label><label class="fld"><span>Kategorie</span><select class="in" data-dzp="cat">${CAT_EXTRA.cats.map(c => `<option value="${c}"${P.cat === c ? ' selected' : ''}>${t('cat_' + c, null, 'de')}</option>`).join('')}</select></label><label class="fld"><span>Fertigung (Tage)</span><input class="in" type="number" min="0" max="20" data-dzp="prod" value="${P.prod || 2}"></label></div>
-      <fieldset class="occs"><legend>Anlässe</legend>${CAT_EXTRA.occ.map(o => `<label class="check"><input type="checkbox" data-dzocc="${o}"${(P.occ || []).includes(o) ? ' checked' : ''}><span>${t('occ_' + o, null, 'de')}</span></label>`).join('')}</fieldset></section>`;
+      <div class="grid3">${['de', 'en', 'ar'].map(l => `<label class="fld"><span>Name ${l.toUpperCase()}</span><input class="in" data-dzp="name.${l}" value="${esc(P.name[l] || '')}"${l === 'ar' ? ' dir="rtl"' : ''}></label>`).join('')}</div>
+      <div class="grid3">${['de', 'en', 'ar'].map(l => `<label class="fld"><span>Beschreibung ${l.toUpperCase()}</span><textarea class="in" rows="3" data-dzp="desc.${l}"${l === 'ar' ? ' dir="rtl"' : ''}>${esc(P.desc[l] || '')}</textarea></label>`).join('')}</div>
+      <div class="grid3"><label class="fld"><span>Preis € *</span><input class="in" type="number" step="0.1" min="0" data-dzp="price" value="${P.price}"></label><label class="fld"><span>Kategorie</span><select class="in" data-dzp="cat">${CAT_EXTRA.cats.map(c => `<option value="${c}"${P.cat === c ? ' selected' : ''}>${t('cat_' + c, null, AL())}</option>`).join('')}</select></label><label class="fld"><span>Fertigung (Tage)</span><input class="in" type="number" min="0" max="20" data-dzp="prod" value="${P.prod || 2}"></label></div>
+      <fieldset class="occs"><legend>Anlässe</legend>${CAT_EXTRA.occ.map(o => `<label class="check"><input type="checkbox" data-dzocc="${o}"${(P.occ || []).includes(o) ? ' checked' : ''}><span>${t('occ_' + o, null, AL())}</span></label>`).join('')}</fieldset></section>`;
   }
   function listHTML() {
     const zs = []; P.views.forEach((v, i) => v.zones.forEach((z, k) => { if (['text', 'photo', 'cal', 'spcode'].includes(z.t)) zs.push({ z, i, k }); }));
     return `<section class="a-card"><h2>Alle Felder <small class="muted">${zs.length}</small></h2>${zs.length ? `<div class="dz-list">${zs.map(({ z, i, k }) => { const f = field(sfOf(z)); return `<button data-dz="pick" data-v="${i}" data-k="${k}" aria-pressed="${i === vi && k === sel}">${ic(z.t === 'photo' ? 'image' : 'text')}<span><b>${esc(f ? labelOf(f) : z.tpl || '–')}</b><small>Foto ${i + 1} · ${z.t === 'photo' ? 'Kundenfoto' : z.tpl ? 'Vorlage ' + esc(z.tpl) : (f && f.fonts ? f.fonts.length + ' Schriften' : 'Text') + (f && f.colors ? ' · ' + f.colors.length + ' Farben' : '')}</small></span></button>`; }).join('')}</div>` : '<p class="muted">Noch keine Felder. Füge links ein Text- oder Fotofeld hinzu.</p>'}</section>`;
   }
-  function labelOf(f) { return f.lab ? f.lab.de : t(f.label, null, 'de'); }
+  function labelOf(f) { return f.lab ? (f.lab[AL()] || f.lab.de) : t(f.label, null, AL()); }
   function selHTML() {
     const z = sel >= 0 && V() && V().zones[sel]; if (!z) return '';
     const f = field(sfOf(z));
@@ -132,7 +133,7 @@
       <div class="dz-fonts">${Object.keys(window.FONTMETA).map(id => { const m = window.FONTMETA[id]; const on = fonts.includes(id); return `<label class="dz-font${on ? ' on' : ''}${fonts[0] === id ? ' def' : ''}"><input type="checkbox" data-dzfont="${id}"${on ? ' checked' : ''}><span class="smp" style="font-family:'${ENG.fam(id)}'">${m.ar ? 'اسم' : esc(sample(f))}</span><small>${esc(m.label)}</small>${on && fonts[0] !== id ? `<button type="button" class="dz-star" data-dz="fontdef" data-v="${id}" title="Als Standard">★</button>` : ''}</label>`; }).join('')}</div>
       <h3 class="dz-h3">Farben für den Kunden <small class="muted">${(f.colors || []).length || 'keine (Farbe wie Technik)'} · die erste ist Standard</small></h3>
       <div class="dz-colors">${COLORS.map(c => { const on = (f.colors || []).some(x => x.id === c.id); return `<label class="dz-col${on ? ' on' : ''}" title="${esc(c.l.de)}"><input type="checkbox" data-dzcol="${c.id}"${on ? ' checked' : ''}><i style="--c:${c.hex}"${c.foil ? ' class="foil"' : ''}></i><small>${esc(c.l.de)}</small></label>`; }).join('')}
-        ${(f.colors || []).filter(c => !COLORS.some(x => x.id === c.id)).map(c => `<label class="dz-col on" title="${esc(L(c.l, 'de'))}"><input type="checkbox" data-dzcol="${esc(c.id)}" checked><i style="--c:${esc(c.hex)}"></i><small>${esc(L(c.l, 'de'))}</small></label>`).join('')}</div>
+        ${(f.colors || []).filter(c => !COLORS.some(x => x.id === c.id)).map(c => `<label class="dz-col on" title="${esc(L(c.l, AL()))}"><input type="checkbox" data-dzcol="${esc(c.id)}" checked><i style="--c:${esc(c.hex)}"></i><small>${esc(L(c.l, AL()))}</small></label>`).join('')}</div>
       <div class="dz-row"><input type="color" id="dzNewCol" value="#e0569a" class="dz-pick"><input class="in" id="dzNewColN" placeholder="Name der Farbe, z. B. Bordeaux" style="flex:1;min-width:160px"><button class="btn ghost sm" data-dz="addcol">${ic('plus')} Eigene Farbe</button></div>`}
     </section>`;
   }
@@ -171,7 +172,7 @@
       return `<div class="dz-z ${z.t === 'photo' ? 'ph' : 'tx'}${k === sel ? ' on' : ''}${z.t === 'photo' && z.clip === 'heart' ? ' heart' : ''}${z.t === 'photo' && (z.clip === 'circle' || z.clip === 'ellipse') ? ' round' : ''}" data-k="${k}" style="left:${(cx - w / 2) * s}px;top:${(cy - h / 2) * s}px;width:${w * s}px;height:${h * s}px;transform:rotate(${r}deg)">
         <span class="dz-tag">${ic(z.t === 'photo' ? 'image' : 'text')} ${esc(lab)}</span>
         ${k === sel && z.clip && z.clip.poly ? `<svg class="dz-poly-svg" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="${z.clip.poly.map(p => p[0] * 100 + ',' + p[1] * 100).join(' ')}"/>${z.clip.poly.map((p, i) => { const q = z.clip.poly[(i + 1) % z.clip.poly.length]; return `<line data-h="edge" data-i="${i}" x1="${p[0] * 100}" y1="${p[1] * 100}" x2="${q[0] * 100}" y2="${q[1] * 100}"/>`; }).join('')}</svg>${z.clip.poly.map((p, i) => `<i class="dz-pt${i === pSel ? ' on' : ''}" data-h="pt" data-i="${i}" style="left:${p[0] * 100}%;top:${p[1] * 100}%"></i>`).join('')}` : ''}
-        ${k === sel ? `<i class="dz-h" data-h="nw"></i><i class="dz-h" data-h="ne"></i><i class="dz-h" data-h="sw"></i><i class="dz-h" data-h="se"></i>${z.b ? '<i class="dz-h rot" data-h="rot"></i>' : ''}` : ''}</div>`;
+        ${k === sel ? `<i class="dz-h" data-h="nw"></i><i class="dz-h" data-h="ne"></i><i class="dz-h" data-h="sw"></i><i class="dz-h" data-h="se"></i><i class="dz-h" data-h="n"></i><i class="dz-h" data-h="s"></i><i class="dz-h" data-h="e"></i><i class="dz-h" data-h="w"></i>${z.b ? '<i class="dz-h rot" data-h="rot"></i>' : ''}` : ''}</div>`;
     }).join('');
   };
   function bindStage() {
@@ -186,7 +187,7 @@
       try { ov.setPointerCapture(e.pointerId); } catch (er) { }
       if (h === 'edge') return;
       if (h === 'pt') { pSel = +e.target.dataset.i; e.target.parentNode.querySelectorAll('.dz-pt').forEach(x => x.classList.toggle('on', x === e.target)); }
-      drag = { h, i: +e.target.dataset.i, p0: pt(e), b0: z.b ? z.b.slice() : null, q0: z.q ? clone(z.q) : null };
+      drag = { h, i: +e.target.dataset.i, p0: pt(e), b0: z.b ? z.b.slice() : null, q0: z.q ? clone(z.q) : null, fs0: z.fs };
     });
     ov.addEventListener('pointermove', e => {
       if (!drag) return; const z = V().zones[sel]; if (!z) return;
@@ -196,11 +197,28 @@
         if (drag.h === 'pt' && z.clip && z.clip.poly) { const rr = (r || 0) * Math.PI / 180; const lx = (p[0] - cx) * Math.cos(-rr) - (p[1] - cy) * Math.sin(-rr), ly = (p[0] - cx) * Math.sin(-rr) + (p[1] - cy) * Math.cos(-rr); z.clip.poly[drag.i] = [r3(Math.min(1, Math.max(0, lx / w + .5))), r3(Math.min(1, Math.max(0, ly / h + .5)))]; }
         else if (drag.h === 'move') { z.b[0] = cx + dx; z.b[1] = cy + dy; }
         else if (drag.h === 'rot') { let a = Math.atan2(p[1] - cy, p[0] - cx) * 180 / Math.PI + 90; if (a > 180) a -= 360; const snap = Math.round(a / 45) * 45; if (Math.abs(a - snap) < 3 || e.shiftKey) a = snap; z.b[4] = Math.round(a * 10) / 10; }
-        else { const rr = (r || 0) * Math.PI / 180; const lx = (p[0] - cx) * Math.cos(-rr) - (p[1] - cy) * Math.sin(-rr), ly = (p[0] - cx) * Math.sin(-rr) + (p[1] - cy) * Math.cos(-rr); const nw = Math.max(20, Math.abs(lx) * 2), nh = Math.max(14, Math.abs(ly) * 2); if (z.fs) z.fs = z.fs * nh / z.b[3]; z.b[2] = nw; z.b[3] = nh; }
+        else {
+          // only the side (or corner) that is dragged moves; the opposite side stays where it is
+          const rr = (r || 0) * Math.PI / 180; const lx = (p[0] - cx) * Math.cos(-rr) - (p[1] - cy) * Math.sin(-rr), ly = (p[0] - cx) * Math.sin(-rr) + (p[1] - cy) * Math.cos(-rr);
+          const hx = /e$|^e/.test(drag.h) ? 1 : /w$|^w/.test(drag.h) ? -1 : 0, hy = drag.h[0] === 's' ? 1 : drag.h[0] === 'n' ? -1 : 0;
+          let x0 = -w / 2, x1 = w / 2, y0 = -h / 2, y1 = h / 2;
+          if (hx === 1) x1 = Math.max(x0 + 20, lx); if (hx === -1) x0 = Math.min(x1 - 20, lx);
+          if (hy === 1) y1 = Math.max(y0 + 14, ly); if (hy === -1) y0 = Math.min(y1 - 14, ly);
+          const nw = x1 - x0, nh = y1 - y0, ox = (x0 + x1) / 2, oy = (y0 + y1) / 2;
+          if (drag.fs0 && hy) z.fs = drag.fs0 * nh / h;
+          z.b[0] = cx + ox * Math.cos(rr) - oy * Math.sin(rr); z.b[1] = cy + ox * Math.sin(rr) + oy * Math.cos(rr); z.b[2] = nw; z.b[3] = nh;
+        }
       } else if (z.q) {
         const xs = drag.q0.map(q => q[0]), ys = drag.q0.map(q => q[1]); const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2, w = Math.max(...xs) - Math.min(...xs), h = Math.max(...ys) - Math.min(...ys);
         if (drag.h === 'move') z.q = drag.q0.map(q => [q[0] + dx, q[1] + dy]);
-        else { const sx = Math.max(20, Math.abs(p[0] - cx) * 2) / w, sy = Math.max(14, Math.abs(p[1] - cy) * 2) / h; z.q = drag.q0.map(q => [cx + (q[0] - cx) * sx, cy + (q[1] - cy) * sy]); if (z.clipImg) delete z.clipImg; }
+        else {
+          const X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys);
+          const hx = /e$|^e/.test(drag.h) ? 1 : /w$|^w/.test(drag.h) ? -1 : 0, hy = drag.h[0] === 's' ? 1 : drag.h[0] === 'n' ? -1 : 0;
+          let nx0 = X0, nx1 = X1, ny0 = Y0, ny1 = Y1;
+          if (hx === 1) nx1 = Math.max(X0 + 20, p[0]); if (hx === -1) nx0 = Math.min(X1 - 20, p[0]);
+          if (hy === 1) ny1 = Math.max(Y0 + 14, p[1]); if (hy === -1) ny0 = Math.min(Y1 - 14, p[1]);
+          z.q = drag.q0.map(q => [nx0 + (q[0] - X0) / (w || 1) * (nx1 - nx0), ny0 + (q[1] - Y0) / (h || 1) * (ny1 - ny0)]); if (z.clipImg) delete z.clipImg;
+        }
       }
       dirty = true; Z.overlay(); paintSoon();
     });
@@ -305,9 +323,10 @@
   };
   Z.save = function () {
     if (!P.views.length) { C.toast('Bitte zuerst ein Produktfoto hochladen', 'err'); return; }
-    if ((isNew || P.custom) && (!String(P.name.de || '').trim() || !(+P.price > 0))) { C.toast('Name (Deutsch) und Preis fehlen', 'err'); const i = $('[data-dzp="name.de"]'); if (i) i.focus(); return; }
-    for (const l of ['en', 'ar']) if (!P.name[l]) P.name[l] = P.name.de;
-    for (const l of ['en', 'ar']) if (!P.desc[l]) P.desc[l] = P.desc.de;
+    const anyName = ['de', 'ar', 'en'].map(l => String(P.name[l] || '').trim()).find(Boolean);
+    if ((isNew || P.custom) && (!anyName || !(+P.price > 0))) { C.toast('Name (eine Sprache reicht) und Preis fehlen', 'err'); const i = $('[data-dzp="name.ar"]') || $('[data-dzp="name.de"]'); if (i) i.focus(); return; }
+    // one language is enough: the other languages get the same text until the owner translates them
+    for (const k of ['name', 'desc']) { const first = ['de', 'ar', 'en'].map(l => String(P[k][l] || '').trim()).find(Boolean) || ''; for (const l of ['de', 'en', 'ar']) if (!String(P[k][l] || '').trim()) P[k][l] = first; }
     try {
       if (isNew || P.custom) { const c = clone(P); delete c.custom; ST.saveCustom(c); }
       else ST.saveOverride(P.id, { fields: clone(P.fields), views: clone(P.views) });
