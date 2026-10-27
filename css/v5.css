@@ -568,3 +568,19 @@ html .ov.modal.in .ov-panel,html[dir] .ov.modal.in .ov-panel,html[dir] .ov.modal
 .ws-tile .in{min-height:42px}
 .when{border-radius:20px}.when p{margin:2px 0 0}
 .thanks .lead{margin-inline:auto}
+/* ---------- edit mode (owner changes any text / picture in the shop) ---------- */
+.em-hidden{display:none!important}
+body.em-on .em-hidden{display:revert!important;opacity:.35;outline:2px dashed var(--soft)}
+body.em-on #app :is(h1,h2,h3,p,span,b,small,a,button,label,li,strong,em,dt,dd,summary,img):hover{outline:2px dashed var(--brand);outline-offset:2px;cursor:text}
+body.em-on #app img:hover{cursor:copy}
+.em-bar{position:fixed;z-index:95;bottom:calc(16px + env(safe-area-inset-bottom,0px));inset-inline-start:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:6px;border-radius:999px;background:var(--ink);color:#fff;box-shadow:var(--sh-l);font-size:14px;max-width:calc(100% - 24px)}
+html[dir="rtl"] .em-bar{transform:translateX(50%)}
+.em-bar span{display:inline-flex;gap:6px;align-items:center;padding:0 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.em-bar button{min-height:38px;padding:0 14px;border-radius:999px;color:#fff;font-weight:600;display:inline-flex;gap:6px;align-items:center;white-space:nowrap;background:rgba(255,255,255,.12)}
+.em-bar .em-done,.em-bar .em-start{background:var(--brand)}
+.em-bar .ic{width:18px;height:18px}
+@media (max-width:860px){.em-bar{bottom:calc(84px + env(safe-area-inset-bottom,0px))}.em-bar span{display:none}}
+.em-imgpv img{max-height:40vh;width:auto;margin:0 auto;border-radius:14px}
+.em-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.em-list li{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:12px;background:var(--s1);font-size:14px}
+.em-list s{color:var(--soft)}

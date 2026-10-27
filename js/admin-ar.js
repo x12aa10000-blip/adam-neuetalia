@@ -256,7 +256,8 @@
           ${o.img ? `<img ${V5.src(o.img)} alt="" style="object-fit:contain;background:#fff;aspect-ratio:2/1">` : `<span style="font-size:40px;text-align:center">${e.e}</span>`}<div class="vbtns">${upl('extra.' + e.id, W('PNG-Foto', 'صورة PNG'), 'image/png,image/webp,image/*')}${o.img ? `<button class="btn ghost sm" data-wsa="ex-x" data-k="${e.id}">${ic('trash')}</button>` : ''}</div>
           <label class="fld"><span>${W('Preis €', 'السعر €')}</span><input class="in" type="number" step="0.1" min="0" data-ws="extras.${e.id}.price" data-num="1" value="${o.price != null && o.price !== '' ? o.price : e.price}"></label></div>`; }).join('')}</div></section>`;
     }
-    A.shell('website', `<div class="a-head"><h1>${ic('image')} ${W('Website gestalten', 'تصميم الموقع')}</h1><div class="vbtns"><span id="wsSaved" class="muted small" style="opacity:.5;transition:opacity .3s">${W('Änderungen werden sofort gespeichert', 'التعديلات بتنحفظ تلقائياً')}</span><a class="btn ghost sm" href="index.html#/" target="_blank">${ic('eye')} ${W('Shop ansehen', 'شوف المتجر')}</a></div></div>
+    A.shell('website', `<div class="a-head"><h1>${ic('image')} ${W('Website gestalten', 'تصميم الموقع')}</h1><div class="vbtns"><span id="wsSaved" class="muted small" style="opacity:.5;transition:opacity .3s">${W('Änderungen werden sofort gespeichert', 'التعديلات بتنحفظ تلقائياً')}</span><a class="btn ghost sm" href="index.html#/" target="_blank">${ic('eye')} ${W('Shop ansehen', 'شوف المتجر')}</a><button class="btn sm" data-wsa="editmode">${ic('edit')} ${W('Alles direkt im Shop ändern', 'عدّل أي شي مباشرة بالمتجر')}</button></div></div>
+      <div class="callout" style="margin-bottom:14px"><b>${ic('edit')} ${W('Jeden Text und jedes Bild ändern', 'تعديل أي نص وأي صورة')}</b><p>${W('Drück auf „Alles direkt im Shop ändern“. Der Shop öffnet sich im Bearbeiten-Modus: tippe auf irgendeinen Text, um ihn zu ändern oder auszublenden, oder auf ein Bild, um es zu ersetzen. Unten rechts „Fertig“ drücken.', 'اكبس على „عدّل أي شي مباشرة بالمتجر“. المتجر بيفتح بوضع التعديل: اكبس على أي نص لتغيّره أو تخفيه، أو على أي صورة لتبدلها. وبس تخلص اكبس „خلصت“ تحت.')}</p></div>
       <nav class="chips" style="margin:0 0 16px">${tabs.map(([k, l]) => `<button data-wstab="${k}" aria-pressed="${wsTab === k}">${esc(l)}</button>`).join('')}</nav>${body}`);
     $('.a-main').classList.add('no-tr');
     V5.hydrate($('.a-main'));
@@ -297,6 +298,7 @@
       const tb = e.target.closest('[data-wstab]'); if (tb) { wsTab = tb.dataset.wstab; A.website(); return; }
       const b = e.target.closest('[data-wsa]'); if (!b) return; e.preventDefault();
       const a = b.dataset.wsa, i = +b.dataset.i;
+      if (a === 'editmode') { ST.set('editMode', true); location.href = 'index.html#/'; return; }
       if (a === 'brand' || a === 'accent') { WC[a] = b.dataset.v; }
       if (a === 'col-reset') { WC.brand = '#c2608b'; WC.accent = '#3aa7a3'; }
       if (a === 'logo-x') WC.logo = '';
