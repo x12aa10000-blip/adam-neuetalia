@@ -83,7 +83,7 @@
         <label><span>${t('finder_budget')}</span><span class="s8-eur"><input class="in" name="max" type="number" min="1" step="any" inputmode="decimal" placeholder="${esc(t('any'))}"><b>€</b></span></label>
         <button class="btn big">${ic('search')} ${t('finder_go')}</button></div></form></div></section>`; },
       news: () => { const coupon = ST.coupons().find(c => c.on && c.type === 'pct' && (!c.until || new Date(c.until) > new Date())); return `<section class="s8-band s8-ink"><div class="wrap s8-news rv"><div><h2>${esc(SITE.tx('news_h'))}</h2><p>${esc(SITE.tx('news_p'))}${coupon ? ' ' + esc(t('h_news_code', { c: coupon.code, n: coupon.value })) : ''}</p></div><form data-form="news"><input class="in" type="email" name="email" required placeholder="${esc(t('email'))}" aria-label="${esc(t('email'))}"><button class="btn big">${t('news_btn')}</button></form></div></section>`; },
-      gift: () => `<section class="s8-band s8-purple"><div class="wrap s8-band-in flip">
+      gift: () => `<section class="s8-band s8-purple"><div class="wrap s8-band-in s8-swap">
         <div class="s8-band-t rv"><h2>${esc(SITE.tx('gc2_h'))}</h2><p>${esc(SITE.tx('gc2_p'))}</p><a class="btn big" href="#/gutschein">${ic('cards')} ${esc(t('gc_cta'))}</a></div>
         <a class="s8-band-i gc rv" href="#/gutschein" tabindex="-1" aria-hidden="true"><img src="${SHOP.giftcardImg()}" alt="" loading="lazy"></a>
       </div></section>`
