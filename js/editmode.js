@@ -91,7 +91,7 @@
 
   /* ---------------- top bar of the editor ---------------- */
   function bar() {
-    const show = isAdmin() && shopView();
+    const show = on() && shopView();
     let b = $('.em-bar');
     if (!show) { if (b) b.remove(); document.body.classList.remove('em-on'); closePanel(); return; }
     document.body.classList.toggle('em-on', on());
@@ -232,7 +232,7 @@
     if (c && c.closest('.em-bar')) {
       ev.preventDefault(); ev.stopPropagation(); const k = c.dataset.em;
       if (k === 'on') { ST.set('editMode', true); C.toast(W('Tippe auf irgendetwas, um es zu ändern', 'اكبس على أي شي لتعدّله')); }
-      if (k === 'off') { ST.set('editMode', false); closePanel(); }
+      if (k === 'off') { ST.set('editMode', false); closePanel(); location.href = 'admin.html#/admin/website'; return; }
       if (k === 'list') EM.list();
       if (k === 'undo' && undo.length) { ST.set(KEY, JSON.parse(undo.pop())); css(); location.reload(); return; }
       bar(); apply(document.body); return;
