@@ -49,7 +49,7 @@
   function arrows(root) {
     if (matchMedia('(pointer:coarse)').matches) return;
     (root || document).querySelectorAll(STRIP).forEach(s => {
-      if (s.dataset.arw || s.matches('.thumbs,.dates,.dz-views') || s.closest('.ov,.adm') || s.parentElement.querySelector(':scope > .strip-nav')) return;
+      if (s.dataset.arw || s.matches('.thumbs,.dates,.dz-views,.chips,.qk-row') || s.closest('.ov,.adm') || s.parentElement.querySelector(':scope > .strip-nav')) return;
       if (s.closest('.rail-w')) return; // already has its own arrows
       if (!isStrip(s)) return;
       s.dataset.arw = '1';

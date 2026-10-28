@@ -61,13 +61,13 @@
 
   /* ---------------- website settings ---------------- */
   /* home page sections (new premium layout first; older blocks can be switched on in the admin) */
-  const SECTIONS = ['hero', 'quick', 'usp', 'best', 'occ', 'promos', 'cats', 'new', 'wall', 'finder', 'reviews', 'about', 'locs', 'faq', 'news', 'mosaic', 'feats', 'carousel', 'camp', 'gift'];
-  const SEC_OFF = ['mosaic', 'feats', 'carousel', 'camp', 'gift'];
+  const SECTIONS = ['hero', 'usp', 'occ', 'best', 'promos', 'cats', 'finder', 'new', 'gift', 'reviews', 'locs', 'faq', 'news', 'quick', 'wall', 'about', 'mosaic', 'feats', 'carousel', 'camp'];
+  const SEC_OFF = ['quick', 'wall', 'about', 'mosaic', 'feats', 'carousel', 'camp'];
   V.SECTIONS = SECTIONS;
   const L3 = (de, en, ar) => ({ de: de || '', en: en || '', ar: ar || '' });
   const BRAND0 = '#fe90be';
   const SDEF = () => ({
-    v: 2, brand: BRAND0, accent: '#01cac9', logo: '', logoH: 46,
+    v: 3, brand: BRAND0, accent: '#01cac9', logo: '', logoH: 46,
     sections: SECTIONS.map(id => ({ id, on: !SEC_OFF.includes(id) })),
     slides: [{ img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' }, { img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' }, { img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' }],
     tiles: { her: { img: '', t: L3() }, him: { img: '', t: L3() }, promo: { img: '', t: L3(), p: L3() }, kids: { img: '', t: L3() }, all: { img: '', t: L3() }, custom: { img: '', t: L3(), p: L3() } },
@@ -82,13 +82,13 @@
     get() {
       const raw = JSON.parse(JSON.stringify(ST.get('site', {})));
       // settings saved before the new home page: take the new section order and the pink brand colour again
-      if (!raw.v || raw.v < 2) { delete raw.sections; if (!raw.brand || /^#c2608b$/i.test(raw.brand)) delete raw.brand; if (/^#3aa7a3$/i.test(raw.accent || '')) delete raw.accent; raw.v = 2; }
+      if (!raw.v || raw.v < 3) { delete raw.sections; if (!raw.brand || /^#c2608b$/i.test(raw.brand)) delete raw.brand; if (/^#3aa7a3$/i.test(raw.accent || '')) delete raw.accent; raw.v = 3; }
       const c = merge(SDEF(), raw);
       for (const id of SECTIONS) if (!c.sections.some(s => s.id === id)) c.sections.push({ id, on: !SEC_OFF.includes(id) });
       while (c.slides.length < 3) c.slides.push({ img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' });
       return c;
     },
-    save(c) { c.v = 2; ST.set('site', c); SITE.apply(); },
+    save(c) { c.v = 3; ST.set('site', c); SITE.apply(); },
     /** text from the website settings, else the built-in translation */
     tx(key, fb, v) { const o = SITE.get().texts[key]; const s = o && (o[C.lang()] || o.de); return s ? s : t(fb || key, v); },
     apply() {
