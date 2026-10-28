@@ -98,7 +98,7 @@
     if (!b) { b = document.createElement('div'); b.className = 'em-bar'; document.body.appendChild(b); }
     const html = on()
       ? `<span>${ic('edit')} ${W('Antippen = auswählen · Ziehen = verschieben', 'اكبس لتختار · اسحب لتحرّك')}</span><button type="button" data-em="undo"${undo.length ? '' : ' disabled'} title="${W('Rückgängig', 'تراجع')}">${ic('rotateL')}<i class="lbl">${W('Rückgängig', 'تراجع')}</i></button><button type="button" data-em="list">${ic('layers')}<i class="lbl">${W('Änderungen', 'التعديلات')}</i></button><button type="button" data-em="off" class="em-done">${ic('check')} ${W('Fertig', 'خلصت')}</button>`
-      : `<button type="button" data-em="on" class="em-start">${ic('edit')} ${W('Website bearbeiten', 'عدّل الموقع')}</button>`;
+      : `<button type="button" data-em="on" class="em-start" aria-label="${W('Website bearbeiten', 'عدّل الموقع')}">${ic('edit')}<i class="lbl">${W('Website bearbeiten', 'عدّل الموقع')}</i></button>`;
     if (b._h !== html) { b.innerHTML = html; b._h = html; }
   }
 
