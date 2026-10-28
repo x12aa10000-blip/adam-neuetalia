@@ -112,7 +112,7 @@ document.addEventListener('load', e => { const im = e.target; if (im && im.tagNa
   const SPEED = 120; // pixels per second (top speed)
   const rails = new Set();
   function setup(r) {
-    if (r._glide) return; r._glide = { pos: null, dir: 1, hold: 0, visible: false, hover: false, v: 0 };
+    if (r._glide) return; r._glide = { pos: null, dir: r.id === 'rNew' ? -1 : 1, hold: 0, visible: false, hover: false, v: 0, start: r.id === 'rNew' };
     const g = r._glide; rails.add(r);
     r.style.scrollSnapType = 'none';
     const hold = ms => { g.hold = Math.max(g.hold, performance.now() + ms); g.pos = null; g.v = 0; };
@@ -134,6 +134,7 @@ document.addEventListener('load', e => { const im = e.target; if (im && im.tagNa
       const g = r._glide; if (still || !g.visible || g.hover || now < g.hold) continue;
       const max = r.scrollWidth - r.clientWidth; if (max < 8) continue;
       const rtl = getComputedStyle(r).direction === 'rtl';
+      if (g.start) { g.start = false; g.pos = max; r.scrollLeft = rtl ? -max : max; g.v = 0; continue; } // second strip starts at the other end
       if (g.pos == null) { g.pos = Math.abs(r.scrollLeft); g.v = 0; }
       const edge = g.dir > 0 ? max - g.pos : g.pos; // distance to the end we move towards
       const target = SPEED * Math.min(1, Math.max(0.18, edge / 160)); // ease out before the end

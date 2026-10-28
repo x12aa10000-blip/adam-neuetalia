@@ -89,7 +89,10 @@
       </div></section>`
     };
     const blocks = Object.assign({}, prev, B);
-    SHOP.page(cfg.sections.filter(x => x.on && blocks[x.id]).map(x => blocks[x.id]()).join(''), 'home');
+    // the two product strips (favourites + new in) always sit together, one under the other
+    let order = cfg.sections.filter(x => x.on && blocks[x.id]).map(x => x.id);
+    if (order.includes('best') && order.includes('new')) { order = order.filter(x => x !== 'new'); order.splice(order.indexOf('best') + 1, 0, 'new'); }
+    SHOP.page(order.map(id => id === 'new' && order.includes('best') ? blocks.new().replace('class="s8-sec"', 'class="s8-sec s8-pair"') : blocks[id]()).join(''), 'home');
     try { SHOP.heroInit(); SHOP.wallInit(); SHOP.carouInit(); } catch (e) { }
     studioInit();
   };
