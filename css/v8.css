@@ -163,3 +163,16 @@ html[lang="ar"] .s8-finder h2{line-height:1.3}
 .stage{border-radius:24px}
 @media (min-width:600px) and (max-width:900px){.s8-stage{aspect-ratio:auto;height:min(64svh,600px)}}
 .s8-h,.sh{flex-wrap:wrap;row-gap:4px}
+/* product page: info blocks across the full width, flat */
+.tabs{max-width:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.tabs details{background:var(--paper)!important;border:0!important;box-shadow:none!important;border-radius:22px;margin:0}
+.tabs details[open]{background:#fff!important;box-shadow:inset 0 0 0 1.5px var(--line2)!important}
+.tabs summary{font-size:18px;padding:20px 24px}
+@media (max-width:860px){.tabs{grid-template-columns:minmax(0,1fr)}}
+.pdp-more .sec-s h2{font-family:var(--f-disp);font-size:clamp(30px,3.2vw,48px);font-weight:600}
+.fside{background:var(--paper)!important;border:0!important;box-shadow:none!important;border-radius:22px!important}
+.fside h2{background:none!important;color:var(--ink)!important;font-family:var(--f-disp);font-size:22px!important;padding:16px 18px 6px!important}
+.fside details{border-color:#ebe3e7!important}
+.lhead h1{font-size:clamp(36px,4.4vw,64px)!important}
+.see-btn{white-space:normal;height:auto;min-height:50px;padding-block:8px;line-height:1.25;text-align:center}
+@media (max-width:640px){.cookie{padding:14px 16px;font-size:14px;line-height:1.45}.cookie .btn{min-height:42px}}

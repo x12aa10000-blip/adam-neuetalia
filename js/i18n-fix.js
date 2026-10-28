@@ -276,7 +276,7 @@
     h_news_code: 'وفّر {n}% على طلبك الأول مع الكود {c}.',
     'olab_n3-teddy-schmuckset_ausf': 'النوع'
   };
-  const DE = { tag_emb: 'Stickerei', tag_foil: 'Goldfolie', tag_custom: 'Personalisierbar' };
+  const DE = { see_design_long: 'Vorschau deines Designs ansehen', tag_emb: 'Stickerei', tag_foil: 'Goldfolie', tag_custom: 'Personalisierbar' };
   const EN = { pr2: 'Same day', tag_custom: 'Personalisable', news_p: 'We send you new products and exclusive offers by email.', v5_v_email: 'Please enter a valid email, e.g. name@mail.com', h_gc_p: 'Instantly by email, with your personal message.', h_s1_p: 'Real preserved roses with your name in gold – designed live on the real product.' };
   for (const k in AR) if (k in D.ar) D.ar[k] = AR[k];
   for (const k in DE) if (k in D.de) D.de[k] = DE[k];
