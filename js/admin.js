@@ -38,7 +38,7 @@
   A.show = function (parts) {
     const [tab, id] = parts;
     if (!session()) return A.login();
-    if (TABS.find(x => x[0] === (tab || '') && x[3]) && !isOwner()) return shell(tab, `<p class="muted">Nur für Inhaber.</p>`);
+    if ((TABS.find(x => x[0] === (tab || '') && x[3]) || tab === 'designer') && !isOwner()) return shell(tab, `<p class="muted">Nur für Inhaber.</p>`);
     switch (tab || '') {
       case '': return A.dash();
       case 'o': return A.order(id);
@@ -62,7 +62,7 @@
     app().className = 'adm login';
     document.documentElement.lang = 'de'; document.documentElement.dir = 'ltr';
     app().innerHTML = `<div class="a-login"><a class="a-logo" href="#/">Adam <i>&amp;</i> Neuetalia</a><h1>Verwaltung</h1>
-      <form data-aform="login"><label class="fld"><span>Benutzer</span><select class="in" name="user">${staff().map(s => `<option>${esc(s.user)}</option>`).join('')}</select></label>
+      <form data-aform="login"><label class="fld"><span>Benutzer</span><select class="in" name="user">${staff().map(s => `<option value="${esc(s.user)}">${esc(s.user)}</option>`).join('')}</select></label>
       <label class="fld"><span>PIN</span><input class="in big" name="pin" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required></label><button class="btn block">Anmelden</button></form>
       <p class="muted small">Der Werkstatt-Zugang sieht nur Bestellungen, Produktion und Versand.</p><a class="link" href="#/">← Zurück zum Shop</a></div>`;
     setTimeout(() => { const i = $('[name=pin]'); if (i) i.focus(); }, 50);
@@ -400,7 +400,7 @@
         <div class="grid3">${f('cancelMinutes', 'Kunde kann stornieren innerhalb (Minuten)', s.cancelMinutes, 'number')}</div>
         <label class="check"><input type="checkbox" name="approvalDefault"${s.approvalDefault ? ' checked' : ''}><span>Design-Freigabe an der Kasse standardmäßig anbieten</span></label>
         <label class="check"><input type="checkbox" name="campaign.on"${s.campaign.on ? ' checked' : ''}><span>Saison-Aktion auf der Startseite (Valentinstag, Muttertag, Ramadan, Weihnachten automatisch)</span></label></section>
-      <section class="a-card"><h2>Team</h2><div class="grid3">${staff().map((x, i) => `${f('staff.' + i + '.user', 'Name', x.user)}${f('staff.' + i + '.pin', 'PIN', x.pin)}<label class="fld"><span>Rolle</span><select class="in" name="staff.${i}.role"><option value="owner"${x.role === 'owner' ? ' selected' : ''}>Inhaber (alles)</option><option value="staff"${x.role !== 'owner' ? ' selected' : ''}>Werkstatt</option></select></label>`).join('')}</div></section>
+      <section class="a-card"><h2>Team</h2><div class="grid3">${staff().map((x, i) => `${f('staff.' + i + '.user', 'Name', x.user)}<label class="fld"><span>PIN <small>(leer = unverändert)</small></span><input class="in" name="staff.${i}.pin" type="password" inputmode="numeric" autocomplete="new-password" minlength="4" maxlength="12" value="" placeholder="••••"></label><label class="fld"><span>Rolle</span><select class="in" name="staff.${i}.role"><option value="owner"${x.role === 'owner' ? ' selected' : ''}>Inhaber (alles)</option><option value="staff"${x.role !== 'owner' ? ' selected' : ''}>Werkstatt</option></select></label>`).join('')}</div></section>
       <div class="vbtns"><button class="btn">Speichern</button><button type="button" class="btn ghost danger" data-a="reset">Demo zurücksetzen</button></div></form>`);
   };
   A.activity = function () {
@@ -518,7 +518,7 @@
   };
   A.onSubmit = async function (f) {
     const k = f.dataset.aform; const fd = new FormData(f); const g = n => (fd.get(n) || '').toString().trim(); const by = (session() || {}).user;
-    if (k === 'login') { const lk = ST.get('adminLock', { n: 0, until: 0 }); if (lk.until > Date.now()) { C.toast('Zu viele Versuche – bitte ' + Math.ceil((lk.until - Date.now()) / 1000) + ' s warten', 'err'); return; } const u = staff().find(s => s.user === g('user')); if (!u || u.pin !== g('pin')) { lk.n = (lk.n || 0) + 1; if (lk.n >= 5) { lk.until = Date.now() + 60e3; lk.n = 0; } ST.set('adminLock', lk); C.toast('PIN falsch', 'err'); return; } ST.set('adminLock', { n: 0, until: 0 }); ST.set('adminSession', { user: u.user, role: u.role, at: Date.now() }); ST.log('login', 'Angemeldet', u.user); C.dispatch(); return; }
+    if (k === 'login') { const lk = ST.get('adminLock', { n: 0, until: 0 }); if (lk.until > Date.now()) { C.toast('Zu viele Versuche – bitte ' + Math.ceil((lk.until - Date.now()) / 1000) + ' s warten', 'err'); return; } const u = staff().find(s => s.user === g('user')); const pv = u ? await ST.pwCheck(g('pin'), u.pin) : (await ST.pwHash(g('pin')), { ok: false }); if (!u || !pv.ok) { lk.n = (lk.n || 0) + 1; if (lk.n >= 5) { lk.until = Date.now() + 60e3; lk.n = 0; } ST.set('adminLock', lk); C.toast('PIN falsch', 'err'); return; } ST.set('adminLock', { n: 0, until: 0 }); ST.set('adminSession', { user: u.user, role: u.role, at: Date.now() }); if (pv.upgrade && /^\d+$/.test(g('pin')) && !['1234', '0000'].includes(g('pin'))) { const st = ST.settings(); if (st.staff) { const x = st.staff.find(y => y.user === u.user); if (x) { x.pin = await ST.pwHash(g('pin')); ST.saveSettings(st); } } } ST.log('login', 'Angemeldet', u.user); C.dispatch(); return; }
     if (k === 'note') { ST.updateOrder(f.dataset.no, o => { o.notes = (o.notes || []).concat([{ by, at: Date.now(), text: g('text') }]); }); re(); return; }
     if (k === 'product') {
       const id = f.dataset.id; const p = ST.product(id);
@@ -533,7 +533,9 @@
     if (k === 'settings') {
       const s = ST.settings(); const set = (path, v) => { const ks = path.split('.'); let x = s; while (ks.length > 1) { const kk = ks.shift(); if (x[kk] == null) x[kk] = /^\d+$/.test(ks[0]) ? [] : {}; x = x[kk]; } x[ks[0]] = v; };
       if (!s.staff) s.staff = JSON.parse(JSON.stringify(DEF_STAFF));
-      for (const el of f.elements) { if (!el.name) continue; let v = el.type === 'checkbox' ? el.checked : el.value; if (el.type === 'number') v = +v; if (el.name === 'shipping.local.windows') v = String(v).split(',').map(x => x.trim()).filter(Boolean); set(el.name, v); }
+      const oldStaff = JSON.parse(JSON.stringify(staff())); const pins = [];
+      for (const el of f.elements) { if (!el.name) continue; let v = el.type === 'checkbox' ? el.checked : el.value; if (el.type === 'number') v = +v; if (el.name === 'shipping.local.windows') v = String(v).split(',').map(x => x.trim()).filter(Boolean); const pm = /^staff\.(\d+)\.pin$/.exec(el.name); if (pm) { pins.push([+pm[1], String(v).trim()]); continue; } set(el.name, v); }
+      for (const [i, v] of pins) { if (!s.staff[i]) continue; if (!v) { s.staff[i].pin = (oldStaff[i] || {}).pin || s.staff[i].pin; continue; } if (!/^\d{4,12}$/.test(v)) { C.toast('PIN: 4–12 Ziffern', 'err'); return; } s.staff[i].pin = await ST.pwHash(v); }
       ST.saveSettings(s); ST.log('einstellungen', 'Einstellungen gespeichert', by); C.toast('Gespeichert'); re(); return;
     }
   };

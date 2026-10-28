@@ -231,6 +231,20 @@
 
   /* ---------------- accounts (demo: hashed locally) ---------------- */
   async function hash(s) { try { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('an2|' + s)); return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join(''); } catch (e) { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return 'x' + h; } }
+  /* passwords & PINs: PBKDF2-SHA256, 150 000 rounds, own random salt per entry ("pbkdf2$rounds$salt$hash").
+     Older SHA-256 hashes and plain demo PINs are still accepted once and upgraded automatically. */
+  const hex = b => Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('');
+  const unhex = h => new Uint8Array((h.match(/../g) || []).map(x => parseInt(x, 16)));
+  async function pbkdf2(pw, salt, rounds) { const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(String(pw)), 'PBKDF2', false, ['deriveBits']); return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt, iterations: rounds }, k, 256)); }
+  const same = (a, b) => { if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false; let d = 0; for (let i = 0; i < a.length; i++) d |= a.charCodeAt(i) ^ b.charCodeAt(i); return d === 0; };
+  ST.pwHash = async function (pw) { try { const salt = crypto.getRandomValues(new Uint8Array(16)); const r = 150000; return 'pbkdf2$' + r + '$' + hex(salt) + '$' + await pbkdf2(pw, salt, r); } catch (e) { return hash(pw); } };
+  /** → { ok, upgrade } ; upgrade = true when the stored value uses an old format */
+  ST.pwCheck = async function (pw, stored) {
+    if (!stored) return { ok: false };
+    if (String(stored).startsWith('pbkdf2$')) { const [, r, salt, h] = stored.split('$'); try { return { ok: same(await pbkdf2(pw, unhex(salt), +r), h) }; } catch (e) { return { ok: false }; } }
+    if (/^[0-9a-f]{64}$/.test(stored) || /^x/.test(stored)) return { ok: same(await hash(pw), stored), upgrade: true };
+    return { ok: same(String(pw), String(stored)), upgrade: true }; // plain demo PIN
+  };
   ST.customers = () => ST.get('customers', []);
   ST.saveCustomers = l => ST.set('customers', l);
   ST.session = () => ST.get('session', null);
@@ -240,13 +254,15 @@
     if (list.some(c => c.email === email && c.pw)) return { err: 'exists' };
     let c = list.find(c => c.email === email);
     if (!c) { c = { id: ST.uid('c'), created: Date.now(), addresses: [], wishlist: [], designs: [] }; list.push(c); }
-    Object.assign(c, { name: d.name.trim(), email, phone: d.phone || '', pw: await hash(d.pw), marketing: !!d.marketing });
+    Object.assign(c, { name: d.name.trim(), email, phone: d.phone || '', pw: await ST.pwHash(d.pw), marketing: !!d.marketing });
     ST.saveCustomers(list); ST.set('session', { id: c.id, at: Date.now() }); ST.log('kunde', `Konto erstellt: ${email}`);
     return { c };
   };
   ST.login = async function (email, pw) {
     email = String(email || '').trim().toLowerCase(); const c = ST.customers().find(c => c.email === email && c.pw);
-    if (!c || c.pw !== await hash(pw)) return { err: 'wrong' };
+    if (!c) { await ST.pwHash(pw); return { err: 'wrong' }; } // same time either way
+    const v = await ST.pwCheck(pw, c.pw); if (!v.ok) return { err: 'wrong' };
+    if (v.upgrade) { const l = ST.customers(); const x = l.find(y => y.id === c.id); if (x) { x.pw = await ST.pwHash(pw); ST.saveCustomers(l); } }
     ST.set('session', { id: c.id, at: Date.now() }); return { c };
   };
   ST.logout = () => ST.set('session', null);
