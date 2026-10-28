@@ -799,3 +799,4 @@ html[lang="ar"] .pbn-t small{letter-spacing:0;font-size:13.5px}
 .fd2 .in,.fd2 select.in{color:var(--ink);background-color:#fff}
 .fd2 .fd-bud b{color:var(--brand-d)}
 @media (max-width:860px){html[dir] body:not(.em-on) .em-bar{inset-inline-start:12px;transform:none;padding:4px;bottom:calc(84px + env(safe-area-inset-bottom,0px))}html[dir] body:not(.em-on) .em-bar .em-start{min-height:44px;padding:0 13px;font-size:13px}}
+.m-admin{display:grid;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line,#eee)}

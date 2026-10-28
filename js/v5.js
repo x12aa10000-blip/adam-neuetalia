@@ -162,7 +162,9 @@
   const _after = SHOP.after; SHOP.after = function () { _after.apply(this, arguments); V.hydrate(); V.markForms(); };
   const _rh = SHOP.refreshHeader; SHOP.refreshHeader = function () { _rh.apply(this, arguments); V.hydrate($('header.hd')); };
   // side menu: show the logo and our shops too
-  const _menu = SHOP.menu; SHOP.menu = function () { _menu.apply(this, arguments); const v = $('.ov.menu .m-visit'); if (v) v.insertAdjacentHTML('afterend', `<a class="btn ghost block" style="margin-top:10px" href="#/filialen">${ic('pin')} ${t('v5_branches')}</a>`); };
+  const _menu = SHOP.menu; SHOP.menu = function () { _menu.apply(this, arguments); const v = $('.ov.menu .m-visit'); if (v) v.insertAdjacentHTML('afterend', `<a class="btn ghost block" style="margin-top:10px" href="#/filialen">${ic('pin')} ${t('v5_branches')}</a>`);
+    if (v && ST.get('adminSession', null)) { const ar = C.lang() === 'ar'; v.parentNode.insertAdjacentHTML('beforeend', `<div class="m-admin"><button type="button" class="btn block" data-v5="emstart">${ic('edit')} ${ar ? 'عدّل الموقع' : C.lang() === 'en' ? 'Edit website' : 'Website bearbeiten'}</button><a class="btn ghost block" href="admin.html#/admin">${ic('settings')} ${ar ? 'لوحة الإدارة' : C.lang() === 'en' ? 'Admin' : 'Verwaltung'}</a></div>`); } };
+  document.addEventListener('click', e => { if (e.target.closest('[data-v5="emstart"]')) { e.preventDefault(); ST.set('editMode', true); C.closeAll(); location.reload(); } });
 
   /* live search under the header box */
   let hsel = -1;

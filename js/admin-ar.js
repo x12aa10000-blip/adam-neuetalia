@@ -194,8 +194,10 @@
     if (card) card.insertAdjacentHTML('beforeend', `<p class="giftnote">${ic('pin')} <b>${esc(o.ship.store.name)}</b> · ${esc(o.ship.store.street)}, ${esc(o.ship.store.zip)} ${esc(o.ship.store.city)}</p>`);
   };
   // settings: PayPal client ID (real payments without our own server)
+  document.addEventListener('click', e => { if (e.target.closest('[data-ar="editmode"]')) { e.preventDefault(); ST.set('editMode', true); location.href = 'index.html#/'; } });
   const _set = A.settings; A.settings = function () {
     _set.apply(this, arguments);
+    const hd = $('.a-head'); if (hd && !$('[data-ar=editmode]', hd)) hd.insertAdjacentHTML('beforeend', `<button class="btn sm" type="button" data-ar="editmode">${ic('edit')} ${W('Website direkt bearbeiten', 'عدّل الموقع مباشرة')}</button>`);
     const s = ST.settings(); const pp = (s.paypal || {}).clientId || '';
     const sec = $$('.settings .a-card')[2]; if (!sec) return;
     sec.insertAdjacentHTML('beforeend', `<div class="grid2" style="margin-top:10px"><label class="fld full"><span>PayPal Client-ID <small>${W('leer = Demo-Zahlung', 'فاضي = دفع تجريبي')}</small></span><input class="in no-tr" name="paypal.clientId" value="${esc(pp)}" dir="ltr" placeholder="AYx…"></label></div>
