@@ -106,33 +106,42 @@ document.addEventListener('load', e => { const im = e.target; if (im && im.tagNa
   new MutationObserver(() => { if (document.querySelector('.pdp .stage-col') && document.querySelector('.tabs#details')) place(); }).observe(document.getElementById('app') || document.body, { childList: true, subtree: true });
   dk.addEventListener ? dk.addEventListener('change', place) : dk.addListener(place);
 })();
-/* product strips on the home page move by themselves: one product every few seconds, back to the start at the end.
-   They stop while the visitor touches, hovers or uses them, and when they are off screen. */
+/* product strips on the home page glide slowly and continuously (back and forth).
+   They pause while the visitor touches, drags or hovers them, and when they are off screen. */
 (function () {
-  const DELAY = 3200, PAUSE_AFTER_USER = 8000;
-  const state = new WeakMap();
-  function step(r) {
-    const st = state.get(r); if (!st || st.hold > Date.now() || document.hidden || document.body.classList.contains('em-on') || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
-    if (!st.visible) return;
-    const card = r.children[0]; if (!card) return;
-    const gap = parseFloat(getComputedStyle(r).columnGap || getComputedStyle(r).gap) || 16;
-    const w = card.getBoundingClientRect().width + gap;
-    const rtl = getComputedStyle(r).direction === 'rtl';
-    const max = r.scrollWidth - r.clientWidth; if (max < 8) return;
-    const pos = Math.abs(r.scrollLeft);
-    st.auto = Date.now();
-    if (pos >= max - 4) r.scrollTo({ left: 0, behavior: 'smooth' });
-    else r.scrollBy({ left: (rtl ? -1 : 1) * w, behavior: 'smooth' });
-  }
+  const SPEED = 38; // pixels per second
+  const rails = new Set();
   function setup(r) {
-    if (state.has(r)) return;
-    const st = { hold: 0, visible: false, auto: 0 }; state.set(r, st);
-    const hold = () => { st.hold = Date.now() + PAUSE_AFTER_USER; };
-    ['pointerdown', 'touchstart', 'wheel', 'focusin', 'keydown'].forEach(ev => r.addEventListener(ev, hold, { passive: true }));
-    r.addEventListener('mouseenter', () => { st.hold = Infinity; }); r.addEventListener('mouseleave', () => { st.hold = Date.now() + 1500; });
-    const nav = r.parentElement && r.parentElement.querySelectorAll('.rail-nav'); if (nav) nav.forEach(b => b.addEventListener('click', hold));
-    if ('IntersectionObserver' in window) new IntersectionObserver(es => { st.visible = es[0].isIntersecting; }, { threshold: 0.4 }).observe(r); else st.visible = true;
-    st.timer = setInterval(() => { if (!document.body.contains(r)) { clearInterval(st.timer); return; } step(r); }, DELAY);
+    if (r._glide) return; r._glide = { pos: null, dir: 1, hold: 0, visible: false, hover: false };
+    const g = r._glide; rails.add(r);
+    r.style.scrollSnapType = 'none';
+    const hold = ms => { g.hold = Math.max(g.hold, performance.now() + ms); g.pos = null; };
+    r.addEventListener('pointerdown', () => hold(4000), { passive: true });
+    r.addEventListener('touchstart', () => hold(2500), { passive: true });
+    r.addEventListener('wheel', () => hold(4000), { passive: true });
+    r.addEventListener('focusin', () => hold(6000));
+    r.addEventListener('mouseenter', e => { if (e.pointerType !== 'touch') g.hover = true; });
+    r.addEventListener('mouseleave', () => { g.hover = false; g.pos = null; });
+    const nav = r.parentElement && r.parentElement.querySelectorAll('.rail-nav'); if (nav) nav.forEach(b => b.addEventListener('click', () => hold(5000)));
+    if ('IntersectionObserver' in window) new IntersectionObserver(es => { g.visible = es[0].isIntersecting; }, { threshold: 0.2 }).observe(r); else g.visible = true;
   }
+  let last = 0;
+  function tick(now) {
+    const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now;
+    const still = document.hidden || document.body.classList.contains('em-on') || matchMedia('(prefers-reduced-motion:reduce)').matches;
+    for (const r of rails) {
+      if (!document.body.contains(r)) { rails.delete(r); continue; }
+      const g = r._glide; if (still || !g.visible || g.hover || now < g.hold) continue;
+      const max = r.scrollWidth - r.clientWidth; if (max < 8) continue;
+      const rtl = getComputedStyle(r).direction === 'rtl';
+      if (g.pos == null) g.pos = Math.abs(r.scrollLeft);
+      g.pos += g.dir * SPEED * dt;
+      if (g.pos >= max) { g.pos = max; g.dir = -1; g.hold = now + 1600; }
+      else if (g.pos <= 0) { g.pos = 0; g.dir = 1; g.hold = now + 1600; }
+      r.scrollLeft = rtl ? -g.pos : g.pos;
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
   new MutationObserver(() => document.querySelectorAll('.pg-home .prail, #app .prail[id]').forEach(setup)).observe(document.getElementById('app') || document.body, { childList: true, subtree: true });
 })();
