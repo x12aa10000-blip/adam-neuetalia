@@ -189,3 +189,27 @@ html[lang="ar"] .s8-finder h2{line-height:1.3}
 .tabs .spec dt{color:var(--muted)}.tabs .spec dd{margin:0}
 .tabs details{border-radius:16px}
 @media (max-width:860px){.pdp-more{margin-top:36px}}
+/* never let the page slide sideways on phones; inputs ≥16px so phones do not zoom in when typing */
+html,body{overflow-x:clip}
+@supports not (overflow:clip){html,body{overflow-x:hidden}}
+@media (max-width:860px){input.in,select.in,textarea.in,.in,input[type=text],input[type=email],input[type=tel],input[type=number],input[type=password],input[type=search],textarea,select{font-size:16px!important}}
+/* errors in the Figma pink (not grey) */
+:root{--err:#c93a78;--errbg:#fff1f7;--errline:#fe90be}
+.fld.bad .in,.fld .in.bad{border-color:var(--fig-pink)!important;background:var(--errbg)!important;box-shadow:0 0 0 3px #ffe1ee!important}
+.ferr{color:var(--err)!important}
+.btn.danger{color:var(--ink)}
+@media (min-width:861px){.pdp.tabs-left .stage-col{position:static!important}.pdp.tabs-left .stage-col .tabs{grid-template-columns:minmax(0,1fr);margin-top:22px}.pdp.tabs-left{align-items:start}}
+/* sign in with Google / Apple / Facebook */
+.soc-login{display:grid;gap:10px;margin:6px 0 4px}
+.soc-btn{display:flex;align-items:center;justify-content:center;gap:12px;min-height:52px;border-radius:999px;background:#fff;box-shadow:inset 0 0 0 1.5px var(--line2);font-weight:600;font-size:15.5px;color:var(--ink);transition:box-shadow .2s,background .2s}
+.soc-btn:hover{box-shadow:inset 0 0 0 1.5px var(--ink);background:var(--paper)}
+.soc-btn.soc-apple{background:#000;color:#fff;box-shadow:none}
+.soc-btn.soc-apple:hover{background:#222}
+.soc-btn svg{flex:none}
+.soc-or{display:flex;align-items:center;gap:12px;margin:8px 0 2px;color:var(--muted);font-size:14px}
+.soc-or::before,.soc-or::after{content:"";flex:1;height:1px;background:var(--line2)}
+.soc-demo{display:grid;gap:12px}
+.soc-demo-i{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;background:var(--paper)}
+.soc-demo-i.soc-apple{background:#000;color:#fff}
+.soc-demo-i svg{width:28px;height:28px}
+.toast.err,#toast.err{background:var(--err)!important;color:#fff!important}

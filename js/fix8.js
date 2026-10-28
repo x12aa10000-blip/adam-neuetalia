@@ -93,3 +93,16 @@
 })();
 /* landscape product photos (e.g. new products from the admin) are shown whole in the square cards */
 document.addEventListener('load', e => { const im = e.target; if (im && im.tagName === 'IMG' && im.closest && im.closest('.pimg') && im.naturalWidth / Math.max(1, im.naturalHeight) > 1.15) im.classList.add('wide'); }, true);
+/* product page on a computer: details, delivery, reviews and questions sit under the product photo
+   (no empty space there); on phones they stay below everything */
+(function () {
+  const dk = matchMedia('(min-width:861px)');
+  function place() {
+    const col = document.querySelector('.pdp .stage-col'), tabs = document.querySelector('.tabs#details'), more = document.querySelector('.pdp-more');
+    if (!col || !tabs || !more) return;
+    if (dk.matches) { if (tabs.parentElement !== col) { col.appendChild(tabs); col.closest('.pdp').classList.add('tabs-left'); } }
+    else if (tabs.parentElement === col) { more.insertBefore(tabs, more.firstChild); col.closest('.pdp').classList.remove('tabs-left'); }
+  }
+  new MutationObserver(() => { if (document.querySelector('.pdp .stage-col') && document.querySelector('.tabs#details')) place(); }).observe(document.getElementById('app') || document.body, { childList: true, subtree: true });
+  dk.addEventListener ? dk.addEventListener('change', place) : dk.addListener(place);
+})();
