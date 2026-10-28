@@ -17,25 +17,30 @@
   const W = (de, ar) => lang() === 'ar' ? ar : de;
   const isAdmin = () => !!ST.get('adminSession', null);
   const on = () => isAdmin() && !!ST.get('editMode', false);
+  let browse = false; const editing = () => on() && !browse;
+  const PAGES = [['#/', 'Startseite', 'الصفحة الرئيسية'], ['#/c/alle', 'Alle Geschenke', 'كل الهدايا'], ['#/anlass', 'Anlässe', 'المناسبات'], ['#/p/rosenbox-herz', 'Produktseite (Beispiel)', 'صفحة منتج (مثال)'], ['#/box', 'Box gestalten', 'صمّم بوكسك'], ['#/gutschein', 'Gutscheine', 'بطاقات الهدايا'], ['#/warenkorb', 'Warenkorb', 'السلة'], ['#/kasse', 'Kasse', 'إتمام الطلب'], ['#/konto', 'Konto / Anmelden', 'الحساب / الدخول'], ['#/verfolgen', 'Bestellung verfolgen', 'تتبّع الطلب'], ['#/filialen', 'Unsere Läden', 'فروعنا'], ['#/hilfe', 'Hilfe', 'المساعدة'], ['#/wunschliste', 'Merkliste', 'المفضلة'], ['#/rechtliches/impressum', 'Impressum', 'بيانات الناشر'], ['#/rechtliches/datenschutz', 'Datenschutz', 'الخصوصية'], ['#/rechtliches/agb', 'AGB', 'الشروط']];
   const shopView = () => { const a = $('#app'); return a && !a.classList.contains('adm'); };
   const UI = '.em-bar,.em-ui,.em-panel,.em-sel,.ov.em-dlg';
   const SKIP = 'script,style,textarea,input,select,option,' + UI;
   const GLOBAL = /^(div\.topbar|header|footer|nav\.tabbar)/;
 
   /* ---------------- where an element lives (stable path through the page) ---------------- */
+  const ovRoot = el => { const o = el && el.closest && el.closest('.ov:not(.em-dlg)'); return o && !o.closest(UI) ? o : null; };
+  const ovSel = o => '.ov' + [...o.classList].filter(c => !['ov', 'in'].includes(c)).map(c => '.' + CSS.escape(c)).join('');
   function pathOf(el) {
-    const app = $('#app'); if (!app || !app.contains(el) || el === app) return null;
+    const app = $('#app'); let root = app, pre = '';
+    if (!app || !app.contains(el) || el === app) { const o = ovRoot(el); if (!o || o === el) return null; root = o; pre = '@' + ovSel(o) + '|'; }
     const parts = [];
-    for (let n = el; n && n !== app; n = n.parentElement) {
+    for (let n = el; n && n !== root; n = n.parentElement) {
       const tag = n.tagName.toLowerCase(); const cls = (n.classList[0] && !/^(on|rv|pre|shown|em-)/.test(n.classList[0])) ? '.' + CSS.escape(n.classList[0]) : '';
       const i = Array.prototype.indexOf.call(n.parentElement.children, n) + 1;
       parts.unshift(tag + cls + ':nth-child(' + i + ')');
     }
-    return parts.join(' > ');
+    return pre + parts.join(' > ');
   }
   const pageKey = () => (C.path().split('?')[0] || '/').replace(/\/$/, '') || '/';
-  const scopeOf = p => GLOBAL.test(p) ? '*' : pageKey();
-  const sel = p => '#app > ' + p;
+  const scopeOf = p => GLOBAL.test(p) || p[0] === '@' ? '*' : pageKey();
+  const sel = p => p[0] === '@' ? p.slice(1).split('|')[0] + ' > ' + p.split('|')[1] : '#app > ' + p;
 
   /* ---------------- apply ---------------- */
   let styleEl = null;
@@ -94,10 +99,10 @@
     const show = on() && shopView();
     let b = $('.em-bar');
     if (!show) { if (b) b.remove(); document.body.classList.remove('em-on'); closePanel(); return; }
-    document.body.classList.toggle('em-on', on());
+    document.body.classList.toggle('em-on', editing()); document.body.classList.toggle('em-browse', on() && browse);
     if (!b) { b = document.createElement('div'); b.className = 'em-bar'; document.body.appendChild(b); }
     const html = on()
-      ? `<span>${ic('edit')} ${W('Antippen = auswählen · Ziehen = verschieben', 'اكبس لتختار · اسحب لتحرّك')}</span><button type="button" data-em="undo"${undo.length ? '' : ' disabled'} title="${W('Rückgängig', 'تراجع')}">${ic('rotateL')}<i class="lbl">${W('Rückgängig', 'تراجع')}</i></button><button type="button" data-em="list">${ic('layers')}<i class="lbl">${W('Änderungen', 'التعديلات')}</i></button><button type="button" data-em="off" class="em-done">${ic('check')} ${W('Fertig', 'خلصت')}</button>`
+      ? `<label class="em-pg">${ic('layers')}<select data-em-pg aria-label="${W('Seite', 'الصفحة')}">${PAGES.map(([h, de, ar]) => `<option value="${h}"${location.hash === h || (h !== '#/' && location.hash.startsWith(h)) ? ' selected' : ''}>${W(de, ar)}</option>`).join('')}${PAGES.some(([h]) => location.hash === h || (h !== '#/' && location.hash.startsWith(h))) ? '' : `<option selected value="">${W('Diese Seite', 'هالصفحة')}</option>`}</select></label><button type="button" data-em="browse" class="em-brw${browse ? ' on' : ''}" title="${W('Zum Navigieren: Klicks öffnen Links und Menüs', 'للتنقل: الكبس بيفتح الروابط والقوائم')}">${browse ? ic('edit') : ic('eye')}<i class="lbl">${browse ? W('Bearbeiten', 'رجوع للتعديل') : W('Navigieren', 'تصفّح')}</i></button><button type="button" data-em="undo"${undo.length ? '' : ' disabled'} title="${W('Rückgängig', 'تراجع')}">${ic('rotateL')}<i class="lbl">${W('Rückgängig', 'تراجع')}</i></button><button type="button" data-em="list">${ic('layers')}<i class="lbl">${W('Änderungen', 'التعديلات')}</i></button><button type="button" data-em="off" class="em-done">${ic('check')} ${W('Fertig', 'خلصت')}</button>`
       : `<button type="button" data-em="on" class="em-start" aria-label="${W('Website bearbeiten', 'عدّل الموقع')}">${ic('edit')}<i class="lbl">${W('Website bearbeiten', 'عدّل الموقع')}</i></button>`;
     if (b._h !== html) { b.innerHTML = html; b._h = html; }
   }
@@ -114,7 +119,7 @@
   window.addEventListener('scroll', () => place(), { passive: true });
   window.addEventListener('resize', () => place());
   let hov = null;
-  document.addEventListener('mouseover', ev => { if (!on() || !shopView()) return; const t = ev.target.closest('#app *'); if (hov) hov.classList.remove('em-hov'); hov = t && !t.closest(UI) ? t : null; if (hov) hov.classList.add('em-hov'); });
+  document.addEventListener('mouseover', ev => { if (!editing() || !shopView()) { if (hov) { hov.classList.remove('em-hov'); hov = null; } return; } const t = ev.target.closest('#app *') || (ovRoot(ev.target) && ev.target !== ovRoot(ev.target) ? ev.target : null); if (hov) hov.classList.remove('em-hov'); hov = t && !t.closest(UI) ? t : null; if (hov) hov.classList.add('em-hov'); });
 
   /* ---------------- element settings ---------------- */
   const elGet = p => { const e = get(); return ((e.el[scopeOf(p)] || {})[p]) || {}; };
@@ -191,7 +196,7 @@
     if (b.dataset.mv) { const [dx, dy] = b.dataset.mv.split(',').map(Number); const k = ev.shiftKey ? 20 : 4; elSet(p, { x: (o.x || 0) + dx * k, y: (o.y || 0) + dy * k, ib: inl(el) }); return EM.select(el); }
     const a = b.dataset.ea;
     if (a === 'close') return closePanel();
-    if (a === 'parent') { const up = el.parentElement; if (up && up !== $('#app') && $('#app').contains(up)) EM.select(up); return; }
+    if (a === 'parent') { const up = el.parentElement; if (up && up !== $('#app') && ($('#app').contains(up) || (ovRoot(up) && ovRoot(up) !== up))) EM.select(up); return; }
     if (a === 'bold') elSet(p, { fw: o.fw ? null : 700 });
     if (a === 'ta') elSet(p, { ta: o.ta === b.dataset.v ? null : b.dataset.v });
     if (a === 'pos0') elSet(p, { x: null, y: null });
@@ -204,9 +209,9 @@
   /* ---------------- clicking & dragging on the page ---------------- */
   let drag = null, justDragged = false;
   document.addEventListener('pointerdown', ev => {
-    if (!on() || !shopView() || ev.button > 0) return;
+    if (!editing() || !shopView() || ev.button > 0) return;
     if (ev.target.closest('.em-rs') && cur) { const p = pathOf(cur); drag = { mode: 'rs', p, x0: ev.clientX, y0: ev.clientY, s0: elGet(p).scale || 1, w0: cur.getBoundingClientRect().width, moved: false }; ev.preventDefault(); return; }
-    const t = ev.target.closest('.em-mv') ? cur : ev.target.closest('#app *');
+    const t = ev.target.closest('.em-mv') ? cur : (ev.target.closest('#app *') || ev.target);
     if (!t || t.closest(UI) || !cur || !(t === cur || cur.contains(t))) return;
     const p = pathOf(cur); const o = elGet(p);
     drag = { mode: 'mv', p, x0: ev.clientX, y0: ev.clientY, ox: o.x || 0, oy: o.y || 0, moved: false };
@@ -234,19 +239,20 @@
       if (k === 'on') { ST.set('editMode', true); C.toast(W('Tippe auf irgendetwas, um es zu ändern', 'اكبس على أي شي لتعدّله')); }
       if (k === 'off') { ST.set('editMode', false); closePanel(); location.href = 'admin.html#/admin/website'; return; }
       if (k === 'list') EM.list();
+      if (k === 'browse') { browse = !browse; closePanel(); C.toast(browse ? W('Navigieren: Links und Menüs funktionieren. Danach „Bearbeiten“ tippen.', 'وضع التصفّح: الروابط والقوائم بتشتغل. بعدين اكبس «رجوع للتعديل».') : W('Bearbeiten: tippe auf irgendetwas', 'وضع التعديل: اكبس على أي شي')); }
       if (k === 'undo' && undo.length) { ST.set(KEY, JSON.parse(undo.pop())); css(); location.reload(); return; }
       bar(); apply(document.body); return;
     }
-    if (!on() || !shopView()) return;
-    if (ev.target.closest(UI + ',.cookie,#toast,.ov')) return;
+    if (!editing() || !shopView()) return;
+    if (ev.target.closest(UI + ',.cookie,#toast,.ov.em-dlg,[data-act=close],.ov-bg')) return;
     ev.preventDefault(); ev.stopPropagation(); ev.stopImmediatePropagation();
     if (justDragged) return;
-    const t = ev.target.closest('#app *'); if (!t) return;
+    const t = ev.target.closest('#app *') || (ovRoot(ev.target) && ovRoot(ev.target) !== ev.target ? ev.target : null); if (!t) return;
     const target = t.closest('svg') ? (t.closest('svg').parentElement || t) : t;
     EM.select(target);
   }, true);
   ['submit', 'input', 'change', 'keydown'].forEach(tp => document.addEventListener(tp, ev => {
-    if (!on() || !shopView() || ev.target.closest(UI + ',.ov')) return;
+    if (!editing() || !shopView() || ev.target.closest(UI + ',.ov.em-dlg')) return;
     if (tp === 'keydown') { if (!$('.em-panel') || !cur) return; const k = ev.key; const p = pathOf(cur); const o = elGet(p); const mv = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[k]; if (mv) { ev.preventDefault(); const s = ev.shiftKey ? 20 : 2; elSet(p, { x: (o.x || 0) + mv[0] * s, y: (o.y || 0) + mv[1] * s, ib: inl(cur) }); EM.select(cur); } if (k === 'Escape') closePanel(); if (k === 'Delete' || k === 'Backspace') { ev.preventDefault(); elSet(p, { hide: o.hide ? null : true }); EM.select(cur); } return; }
     if (tp === 'submit') ev.preventDefault(); ev.stopImmediatePropagation();
   }, true));
@@ -273,6 +279,7 @@
       save(e2); location.reload();
     });
   };
+  document.addEventListener('change', ev => { const sl = ev.target.closest && ev.target.closest('[data-em-pg]'); if (!sl || !sl.value) return; closePanel(); C.closeAll(); location.hash = sl.value; }, true);
   EM.apply = apply;
   window.addEventListener('hashchange', () => { closePanel(); setTimeout(() => { apply(document.body); bar(); }, 0); });
   setTimeout(() => { apply(document.body); bar(); }, 0);

@@ -152,7 +152,7 @@
     if (!root) return;
     const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode(n) { const p = n.parentElement; if (!p || p.closest(SKIP)) return NodeFilter.FILTER_REJECT; return NodeFilter.FILTER_ACCEPT; } });
     const list = []; while (tw.nextNode()) list.push(tw.currentNode);
-    for (const n of list) { if (n._tr === n.nodeValue) continue; const r = tr(n.nodeValue); if (r != null && r !== n.nodeValue) n.nodeValue = r; n._tr = n.nodeValue; }
+    for (const n of list) { if (n._tr === n.nodeValue) continue; let r = tr(n.nodeValue); if (/\d{1,2}:\d{2}\s*[–-]\s*\d{1,2}:\d{2}/.test(r != null ? r : n.nodeValue) && !/\u2066/.test(r != null ? r : n.nodeValue)) r = (r != null ? r : n.nodeValue).replace(/(\d{1,2}:\d{2})\s*([–-])\s*(\d{1,2}:\d{2})/g, '\u2066$1$2$3\u2069'); if (r != null && r !== n.nodeValue) n.nodeValue = r; n._tr = n.nodeValue; }
     if (root.querySelectorAll) root.querySelectorAll('[placeholder],[title],[aria-label]').forEach(el => { if (el.closest('.no-tr')) return; for (const a of ['placeholder', 'title', 'aria-label']) { const v = el.getAttribute(a); if (v) { const r = tr(v); if (r != null && r !== v) el.setAttribute(a, r); } } });
   }
   const isAdm = () => { const a = $('#app'); return a && a.classList.contains('adm'); };

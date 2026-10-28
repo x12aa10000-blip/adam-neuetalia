@@ -85,7 +85,7 @@
     </div>
     <div class="wrap pdp-more">
       <section class="tabs" id="details">
-        <details open><summary>${t('details')}</summary><dl class="spec"><dt>${t('material')}</dt><dd>${esc(L(p.mat))}</dd><dt>${t('size')}</dt><dd>${esc(L(p.size))}</dd><dt>${t('production')}</dt><dd>${p.sd ? t('prod_same') : t('prod_days', { n: p.prod || 2 })}</dd><dt>${t('technique')}</dt><dd>${esc(P.technique(p))}</dd><dt>${t('art_no')}</dt><dd><bdi dir="ltr">${esc(p.id.toUpperCase())}</bdi></dd></dl></details>
+        <details open><summary>${t('details')}</summary><dl class="spec">${L(p.mat) ? `<dt>${t('material')}</dt><dd>${esc(L(p.mat))}</dd>` : ''}${L(p.size) ? `<dt>${t('size')}</dt><dd>${esc(L(p.size))}</dd>` : ''}<dt>${t('production')}</dt><dd>${p.sd ? t('prod_same') : t('prod_days', { n: p.prod || 2 })}</dd><dt>${t('technique')}</dt><dd>${esc(P.technique(p))}</dd><dt>${t('art_no')}</dt><dd><bdi dir="ltr">${esc(p.id.toUpperCase())}</bdi></dd></dl></details>
         <details><summary>${t('delivery_returns')}</summary><p>${t('pdp_ship', { free: eur(s.freeFrom), dhl: eur(s.shipping.dhl.price), local: eur(s.shipping.local.price) })}</p><p>${t('pdp_returns')}</p></details>
         <details id="reviews"${reviews.length ? '' : ''}><summary>${t('reviews')} (${reviews.length})</summary>
           ${reviews.length ? reviews.map(r => `<blockquote class="rev"><b>${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)}</b><p>${esc(r.text)}</p><cite>${esc(r.name)} · ${C.date(r.at, { month: 'long', year: 'numeric' })}${r.verified ? ' · ' + t('verified') : ''}</cite>${r.reply ? `<p class="reply"><b>${esc(ST.settings().shop.name)}:</b> ${esc(r.reply)}</p>` : ''}</blockquote>`).join('') : `<p class="muted">${t('no_reviews')}</p>`}

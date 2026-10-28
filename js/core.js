@@ -29,7 +29,7 @@
   window.eur = eur; C.eur = eur;
   C.date = function (d, opt, lang) { if (!d) return ''; if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(d)) { const [y, m, dd] = d.split('-').map(Number); d = new Date(y, m - 1, dd, 12); } else d = new Date(d); return d.toLocaleDateString(LOC[lang || LANG], opt || { weekday: 'short', day: 'numeric', month: 'long' }); };
   C.dt = function (d, lang) { d = new Date(d); if ((lang || LANG) === 'ar') { const z = n => String(n).padStart(2, '0'); return '\u2066' + z(d.getDate()) + '/' + z(d.getMonth() + 1) + '/' + d.getFullYear() + ' – ' + z(d.getHours()) + ':' + z(d.getMinutes()) + '\u2069'; } return d.toLocaleDateString(LOC[lang || LANG], { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + d.toLocaleTimeString(LOC[lang || LANG], { hour: '2-digit', minute: '2-digit' }); };
-  C.ago = function (ts) { const m = Math.round((Date.now() - ts) / 60000); if (m < 1) return t('just_now'); if (m < 60) return t('min_ago', { n: m }); const h = Math.round(m / 60); if (h < 24) return t('h_ago', { n: h }); return C.date(ts, { day: 'numeric', month: 'short' }); };
+  C.ago = function (ts, lang) { const m = Math.round((Date.now() - ts) / 60000); if (m < 1) return t('just_now', null, lang); if (m < 60) return t('min_ago', { n: m }, lang); const h = Math.round(m / 60); if (h < 24) return t('h_ago', { n: h }, lang); return C.date(ts, { day: 'numeric', month: 'short' }, lang); };
 
   /* ---------------- icons (stroke, 24px) ---------------- */
   const P = {

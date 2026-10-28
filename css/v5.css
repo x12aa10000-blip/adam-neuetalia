@@ -816,3 +816,38 @@ html[lang="ar"] .pbn-t small{letter-spacing:0;font-size:13.5px}
 @media (min-width:521px) and (max-width:1500px){.pbn-t b{font-size:clamp(24px,2.2vw,32px)}}
 body:has(#cookie) .as-btn{transform:translateY(-120px)}
 @media (max-width:860px){body:has(#cookie) .as-btn{transform:translateY(-150px)}}
+/* ---- round 8 ---- */
+@media (max-width:960px){.bx-side{position:static!important;background:none}}
+.bx-mini{position:fixed;z-index:34;inset-inline:12px;top:calc(70px + env(safe-area-inset-top,0px));display:grid;grid-template-columns:60px minmax(0,1fr) auto 34px;align-items:center;gap:10px;padding:6px 8px 6px 6px;border-radius:18px;background:rgba(255,255,255,.97);box-shadow:0 12px 30px -14px rgba(45,41,48,.45),0 0 0 1px var(--line);color:var(--ink);font-size:14px;text-align:start;transform:translateY(-140%);opacity:0;transition:transform .3s var(--ease),opacity .3s;pointer-events:none}
+.bx-mini.on{transform:none;opacity:1;pointer-events:auto}
+.bx-mini canvas{width:60px;height:45px;border-radius:10px;background:var(--s1);object-fit:contain}
+.bx-mini b{font-weight:700;white-space:nowrap}
+.bx-mini i{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--brand);color:#fff}
+.bx-mini i .ic{width:18px;height:18px}
+@media (min-width:961px){.bx-mini{display:none}}
+.strip-nav{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.strip-nav[hidden]{display:none}
+.strip-nav button{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:0 0 0 1px var(--line),var(--sh);color:var(--ink);transition:background .2s,color .2s,opacity .2s}
+.strip-nav button:hover:not(:disabled){background:var(--brand);color:#fff}
+.strip-nav button:disabled{opacity:.35;cursor:default}
+.strip-nav .sn-p .ic{transform:scaleX(-1)}
+html[dir="rtl"] .strip-nav .sn-p .ic{transform:none}html[dir="rtl"] .strip-nav .sn-n .ic{transform:scaleX(-1)}
+@media (pointer:fine){.prail,.qk-row,.rail,.chips,.carou-track{cursor:grab}.dragging{cursor:grabbing!important;scroll-snap-type:none!important;user-select:none}.dragging *{pointer-events:none}}
+@media (min-width:861px){.stage-col,.fside,.gcp-img,.sumbox.sticky,.bx-side{top:calc(var(--hdh,126px) + 16px)!important}}
+.fonts button{text-overflow:clip;white-space:nowrap}
+@media (min-width:861px){.pdp .stage{aspect-ratio:3/4;display:grid;place-items:center;background:linear-gradient(160deg,var(--brand-xl),#f6f3f5)}.pdp .stage canvas{width:auto;height:auto;max-width:100%;max-height:100%}}
+.pimg img.wide{object-fit:contain;padding:8%;background:linear-gradient(160deg,var(--brand-xl),#f6f3f5)}
+.em-pg{display:inline-flex;align-items:center;gap:6px;padding:0 4px 0 12px;border-radius:999px;background:rgba(255,255,255,.12);min-height:38px}
+html[dir="rtl"] .em-pg{padding:0 12px 0 4px}
+.em-pg .ic{width:16px;height:16px;flex:none}
+.em-pg select{background:transparent;color:#fff;border:0;font:inherit;font-weight:600;max-width:170px;min-height:36px;cursor:pointer}
+.em-pg select option{color:#000}
+.em-bar .em-brw.on{background:var(--accent);color:#fff}
+body.em-browse .em-bar{box-shadow:0 0 0 3px var(--accent),var(--sh-l)}
+@media (max-width:640px){.em-pg select{max-width:110px;font-size:13px}.em-bar{gap:4px;padding:4px}.em-bar button{padding:0 10px}}
+body.em-on .ov .em-hov{outline:2px dashed var(--brand-soft)!important;outline-offset:2px}
+/* admin on phones: one column forms, readable customer rows, category editor stacked */
+@media (max-width:800px){.crow2{grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;padding:14px}.crow2>*{min-width:0;overflow-wrap:anywhere}.crow2 b{grid-column:1/-1;font-weight:600}.crow2 span:nth-of-type(1){grid-column:1/-1;color:var(--muted);font-size:14px}}
+@media (max-width:600px){.adm .grid2,.adm .grid3{grid-template-columns:minmax(0,1fr)!important}.adm .fld.full{grid-column:auto}.ce{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px}.ce .ce-ord{display:flex;gap:8px;align-items:center;justify-content:flex-start}.ce .ce-side{display:flex;gap:8px;align-items:center;flex-wrap:wrap}}
+.adm h2,.adm h3{overflow-wrap:anywhere}
+.adm #amain h2{font-size:clamp(18px,4.4vw,24px)}
