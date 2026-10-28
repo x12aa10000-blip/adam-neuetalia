@@ -109,7 +109,7 @@ document.addEventListener('load', e => { const im = e.target; if (im && im.tagNa
 /* product strips on the home page glide slowly and continuously (back and forth).
    They pause while the visitor touches, drags or hovers them, and when they are off screen. */
 (function () {
-  const SPEED = 62; // pixels per second (top speed)
+  const SPEED = 120; // pixels per second (top speed)
   const rails = new Set();
   function setup(r) {
     if (r._glide) return; r._glide = { pos: null, dir: 1, hold: 0, visible: false, hover: false, v: 0 };
@@ -136,8 +136,8 @@ document.addEventListener('load', e => { const im = e.target; if (im && im.tagNa
       const rtl = getComputedStyle(r).direction === 'rtl';
       if (g.pos == null) { g.pos = Math.abs(r.scrollLeft); g.v = 0; }
       const edge = g.dir > 0 ? max - g.pos : g.pos; // distance to the end we move towards
-      const target = SPEED * Math.min(1, Math.max(0.18, edge / 120)); // ease out before the end
-      g.v += (target - g.v) * Math.min(1, dt * 2.2); // ease in after a start or pause
+      const target = SPEED * Math.min(1, Math.max(0.18, edge / 160)); // ease out before the end
+      g.v += (target - g.v) * Math.min(1, dt * 3); // ease in after a start or pause
       g.pos += g.dir * g.v * dt;
       if (g.dir > 0 && g.pos >= max - 0.5) { g.pos = max; g.dir = -1; g.v = 0; g.hold = now + 1200; }
       else if (g.dir < 0 && g.pos <= 0.5) { g.pos = 0; g.dir = 1; g.v = 0; g.hold = now + 1200; }
