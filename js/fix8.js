@@ -106,3 +106,33 @@ document.addEventListener('load', e => { const im = e.target; if (im && im.tagNa
   new MutationObserver(() => { if (document.querySelector('.pdp .stage-col') && document.querySelector('.tabs#details')) place(); }).observe(document.getElementById('app') || document.body, { childList: true, subtree: true });
   dk.addEventListener ? dk.addEventListener('change', place) : dk.addListener(place);
 })();
+/* product strips on the home page move by themselves: one product every few seconds, back to the start at the end.
+   They stop while the visitor touches, hovers or uses them, and when they are off screen. */
+(function () {
+  const DELAY = 3200, PAUSE_AFTER_USER = 8000;
+  const state = new WeakMap();
+  function step(r) {
+    const st = state.get(r); if (!st || st.hold > Date.now() || document.hidden || document.body.classList.contains('em-on') || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+    if (!st.visible) return;
+    const card = r.children[0]; if (!card) return;
+    const gap = parseFloat(getComputedStyle(r).columnGap || getComputedStyle(r).gap) || 16;
+    const w = card.getBoundingClientRect().width + gap;
+    const rtl = getComputedStyle(r).direction === 'rtl';
+    const max = r.scrollWidth - r.clientWidth; if (max < 8) return;
+    const pos = Math.abs(r.scrollLeft);
+    st.auto = Date.now();
+    if (pos >= max - 4) r.scrollTo({ left: 0, behavior: 'smooth' });
+    else r.scrollBy({ left: (rtl ? -1 : 1) * w, behavior: 'smooth' });
+  }
+  function setup(r) {
+    if (state.has(r)) return;
+    const st = { hold: 0, visible: false, auto: 0 }; state.set(r, st);
+    const hold = () => { st.hold = Date.now() + PAUSE_AFTER_USER; };
+    ['pointerdown', 'touchstart', 'wheel', 'focusin', 'keydown'].forEach(ev => r.addEventListener(ev, hold, { passive: true }));
+    r.addEventListener('mouseenter', () => { st.hold = Infinity; }); r.addEventListener('mouseleave', () => { st.hold = Date.now() + 1500; });
+    const nav = r.parentElement && r.parentElement.querySelectorAll('.rail-nav'); if (nav) nav.forEach(b => b.addEventListener('click', hold));
+    if ('IntersectionObserver' in window) new IntersectionObserver(es => { st.visible = es[0].isIntersecting; }, { threshold: 0.4 }).observe(r); else st.visible = true;
+    st.timer = setInterval(() => { if (!document.body.contains(r)) { clearInterval(st.timer); return; } step(r); }, DELAY);
+  }
+  new MutationObserver(() => document.querySelectorAll('.pg-home .prail, #app .prail[id]').forEach(setup)).observe(document.getElementById('app') || document.body, { childList: true, subtree: true });
+})();
