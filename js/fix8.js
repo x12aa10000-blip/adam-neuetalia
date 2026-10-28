@@ -109,13 +109,13 @@ document.addEventListener('load', e => { const im = e.target; if (im && im.tagNa
 /* product strips on the home page glide slowly and continuously (back and forth).
    They pause while the visitor touches, drags or hovers them, and when they are off screen. */
 (function () {
-  const SPEED = 38; // pixels per second
+  const SPEED = 62; // pixels per second (top speed)
   const rails = new Set();
   function setup(r) {
-    if (r._glide) return; r._glide = { pos: null, dir: 1, hold: 0, visible: false, hover: false };
+    if (r._glide) return; r._glide = { pos: null, dir: 1, hold: 0, visible: false, hover: false, v: 0 };
     const g = r._glide; rails.add(r);
     r.style.scrollSnapType = 'none';
-    const hold = ms => { g.hold = Math.max(g.hold, performance.now() + ms); g.pos = null; };
+    const hold = ms => { g.hold = Math.max(g.hold, performance.now() + ms); g.pos = null; g.v = 0; };
     r.addEventListener('pointerdown', () => hold(4000), { passive: true });
     r.addEventListener('touchstart', () => hold(2500), { passive: true });
     r.addEventListener('wheel', () => hold(4000), { passive: true });
@@ -134,10 +134,13 @@ document.addEventListener('load', e => { const im = e.target; if (im && im.tagNa
       const g = r._glide; if (still || !g.visible || g.hover || now < g.hold) continue;
       const max = r.scrollWidth - r.clientWidth; if (max < 8) continue;
       const rtl = getComputedStyle(r).direction === 'rtl';
-      if (g.pos == null) g.pos = Math.abs(r.scrollLeft);
-      g.pos += g.dir * SPEED * dt;
-      if (g.pos >= max) { g.pos = max; g.dir = -1; g.hold = now + 1600; }
-      else if (g.pos <= 0) { g.pos = 0; g.dir = 1; g.hold = now + 1600; }
+      if (g.pos == null) { g.pos = Math.abs(r.scrollLeft); g.v = 0; }
+      const edge = g.dir > 0 ? max - g.pos : g.pos; // distance to the end we move towards
+      const target = SPEED * Math.min(1, Math.max(0.18, edge / 120)); // ease out before the end
+      g.v += (target - g.v) * Math.min(1, dt * 2.2); // ease in after a start or pause
+      g.pos += g.dir * g.v * dt;
+      if (g.dir > 0 && g.pos >= max - 0.5) { g.pos = max; g.dir = -1; g.v = 0; g.hold = now + 1200; }
+      else if (g.dir < 0 && g.pos <= 0.5) { g.pos = 0; g.dir = 1; g.v = 0; g.hold = now + 1200; }
       r.scrollLeft = rtl ? -g.pos : g.pos;
     }
     requestAnimationFrame(tick);
