@@ -83,7 +83,7 @@
       if (nw) { if (!im.dataset.emo) im.dataset.emo = o; if (im.dataset.emset !== nw) { im.dataset.emset = nw; if (nw === 'none') im.style.visibility = 'hidden'; else if (nw.startsWith('idb:')) ST.photoUrl(nw).then(u => { if (u) im.src = u; }); else im.src = nw; } }
     });
     r.querySelectorAll('[placeholder]').forEach(el => { const o = el.dataset.emph || el.getAttribute('placeholder'); if (T[o] != null) { el.dataset.emph = o; el.setAttribute('placeholder', T[o]); } });
-    for (const scope of ['*', pageKey()]) { const m = e.el[scope] || {}; for (const p in m) if (m[p].href) { const a = document.querySelector(sel(p)); if (a && a.tagName === 'A' && a.getAttribute('href') !== m[p].href) a.setAttribute('href', m[p].href); } }
+    for (const scope of ['*', pageKey()]) { const m = e.el[scope] || {}; for (const p in m) if (m[p].href) { const a = document.querySelector(sel(p)); if (a && a.tagName === 'A' && /^(https?:|mailto:|tel:|#|[\w./-])/i.test(m[p].href) && !/^\s*javascript:/i.test(m[p].href) && a.getAttribute('href') !== m[p].href) a.setAttribute('href', m[p].href); } }
   }
   let busy = false;
   const obs = new MutationObserver(() => { if (busy) return; busy = true; try { apply(document.body); bar(); place(); } finally { obs.takeRecords(); busy = false; } });

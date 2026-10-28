@@ -360,7 +360,8 @@
   /* ---------------- footer: logo, all shops, real social icons, calm payment chips ---------------- */
   SHOP.footer = function () {
     const s = ST.settings(); const c = SITE.get(); const ls = V.locs();
-    const logos = ['PayPal', 'VISA', 'Mastercard', 'Klarna', 'Vorkasse', 'Rechnung', 'DHL', 'Hermes', 'GLS'];
+    const pm = s.payments || {}, sh = s.shipping || {}; const ar = C.lang() === 'ar', en = C.lang() === 'en';
+    const logos = [pm.paypal && 'PayPal', pm.card && 'VISA', pm.card && 'Mastercard', pm.card && 'Amex', pm.klarna && 'Klarna', pm.applepay && 'Apple Pay', pm.vorkasse && (ar ? 'تحويل مسبق' : en ? 'Bank transfer' : 'Vorkasse'), pm.cash && (ar ? 'نقداً في المحل' : en ? 'Cash in store' : 'Bar im Laden'), ((sh.dhl || {}).on || (sh.eu || {}).on) && 'DHL', (sh.local || {}).on && (ar ? 'توصيل في هامبورغ' : en ? 'Hamburg courier' : 'Kurier Hamburg'), (sh.pickup || {}).on && (ar ? 'استلام من المحل' : en ? 'Store pickup' : 'Abholung')].filter(Boolean);
     const soc = [['ig', c.social.ig, 'Instagram'], ['tt', c.social.tt, 'TikTok'], ['fb', c.social.fb, 'Facebook'], ['wa', 'https://wa.me/' + s.shop.wa, 'WhatsApp']].filter(x => x[1]);
     return `<footer class="ft">
       <div class="wrap ft-main">
@@ -530,3 +531,7 @@
   if (!/admin\.html$/.test(location.pathname)) window.addEventListener('hashchange', () => { if (C.path().startsWith('/admin')) location.replace('admin.html' + location.hash); });
   if (!/admin\.html$/.test(location.pathname) && C.path().startsWith('/admin')) location.replace('admin.html' + location.hash);
 })();
+/* round 7: Enter in the gift-card balance field checks the balance instead of buying a card */
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target && e.target.id === 'gcCode') { e.preventDefault(); const b = document.querySelector('[data-act="gc-check"]'); if (b) b.click(); } });
+/* round 7: if the Spotify code image cannot load (offline / blocked), show a clean placeholder instead of a broken image */
+document.addEventListener('error', e => { const im = e.target; if (!im || im.tagName !== 'IMG' || !/scannables\.scdn\.co/.test(im.src || '') || im.dataset.spfb) return; im.dataset.spfb = '1'; im.src = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="640" height="160" viewBox="0 0 640 160"><rect width="640" height="160" rx="16" fill="#000"/><circle cx="80" cy="80" r="44" fill="#1ed760"/><path d="M58 68c16-6 34-5 48 3M60 82c13-4 27-3 38 3M62 95c10-3 20-2 29 2" stroke="#000" stroke-width="7" fill="none" stroke-linecap="round"/>' + Array.from({ length: 23 }, (_, i) => { const h = [20, 50, 34, 80, 60, 28, 90, 46, 70, 30, 84, 56, 40, 92, 24, 66, 50, 78, 36, 58, 88, 42, 26][i]; return `<rect x="${150 + i * 20}" y="${80 - h / 2}" width="10" height="${h}" rx="5" fill="#fff"/>`; }).join('') + '</svg>'); }, true);

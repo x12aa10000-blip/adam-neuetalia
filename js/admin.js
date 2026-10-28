@@ -7,7 +7,7 @@
   const app = () => $('#app');
   const DEF_STAFF = [{ user: 'Inhaber', pin: '1234', role: 'owner' }, { user: 'Werkstatt', pin: '0000', role: 'staff' }];
   const staff = () => (ST.settings().staff && ST.settings().staff.length ? ST.settings().staff : DEF_STAFF);
-  const session = () => ST.get('adminSession', null);
+  const session = () => { const s = ST.get('adminSession', null); if (s && s.at && Date.now() - s.at > 12 * 3600e3) { ST.set('adminSession', null); return null; } return s; };
   const isOwner = () => (session() || {}).role === 'owner';
   const de = { lang: 'de' };
   const AL = () => (ST.get('adminLang', 'ar') === 'ar' ? 'ar' : 'de'); // admin language (Arabic by default)
@@ -64,7 +64,7 @@
     app().innerHTML = `<div class="a-login"><a class="a-logo" href="#/">Adam <i>&amp;</i> Neuetalia</a><h1>Verwaltung</h1>
       <form data-aform="login"><label class="fld"><span>Benutzer</span><select class="in" name="user">${staff().map(s => `<option>${esc(s.user)}</option>`).join('')}</select></label>
       <label class="fld"><span>PIN</span><input class="in big" name="pin" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required></label><button class="btn block">Anmelden</button></form>
-      <p class="muted small">Demo: Inhaber-PIN <b>1234</b>, Werkstatt-PIN <b>0000</b>. Der Werkstatt-Zugang sieht nur Bestellungen, Produktion und Versand.</p><a class="link" href="#/">← Zurück zum Shop</a></div>`;
+      <p class="muted small">Der Werkstatt-Zugang sieht nur Bestellungen, Produktion und Versand.</p><a class="link" href="#/">← Zurück zum Shop</a></div>`;
     setTimeout(() => { const i = $('[name=pin]'); if (i) i.focus(); }, 50);
   };
 
@@ -284,7 +284,7 @@
         <div class="ce-list">${CF.map((c, i) => `<div class="a-card ce"><div class="ce-ord"><button class="ibtn" data-ce="up" data-i="${i}" ${i ? '' : 'disabled'} aria-label="nach oben">▲</button><b>${i + 1}</b><button class="ibtn" data-ce="down" data-i="${i}" ${i < CF.length - 1 ? '' : 'disabled'} aria-label="nach unten">▼</button></div>
           <div class="ce-f"><div class="grid3">${['de', 'en', 'ar'].map(l => `<label class="fld"><span>Name ${l.toUpperCase()}</span><input class="in" data-ce="l" data-i="${i}" data-l="${l}" value="${esc(c.l[l] || '')}"${l === 'ar' ? ' dir="rtl"' : ''}></label>`).join('')}</div>
           <div class="grid3">${['de', 'en', 'ar'].map(l => `<label class="fld"><span>Kurzer Text ${l.toUpperCase()} <small>(optional)</small></span><input class="in" data-ce="d" data-l="${l}" data-i="${i}" value="${esc(c.d[l] || '')}"${l === 'ar' ? ' dir="rtl"' : ''}></label>`).join('')}</div></div>
-          <div class="ce-side"><span class="muted small">${count(c.id)} Produkte</span><a class="btn ghost sm" href="#/c/${esc(c.id)}" target="_blank">${ic('eye')}</a><button class="btn ghost sm danger" data-ce="del" data-i="${i}">${ic('trash')}</button></div></div>`).join('')}</div>`);
+          <div class="ce-side"><span class="muted small">${count(c.id)} Produkte</span><a class="btn ghost sm" href="#/c/${esc(c.id)}" target="_blank" rel="noopener">${ic('eye')}</a><button class="btn ghost sm danger" data-ce="del" data-i="${i}">${ic('trash')}</button></div></div>`).join('')}</div>`);
       const m = $('#amain');
       m.oninput = e => { const el = e.target.closest('[data-ce]'); if (!el) return; const c = CF[+el.dataset.i]; if (el.dataset.ce === 'l') c.l[el.dataset.l] = el.value; if (el.dataset.ce === 'd') c.d[el.dataset.l || 'de'] = el.value; };
       m.onclick = async e => { const el = e.target.closest('button[data-ce]'); if (!el) return; const i = +el.dataset.i; const k = el.dataset.ce;
@@ -518,7 +518,7 @@
   };
   A.onSubmit = async function (f) {
     const k = f.dataset.aform; const fd = new FormData(f); const g = n => (fd.get(n) || '').toString().trim(); const by = (session() || {}).user;
-    if (k === 'login') { const u = staff().find(s => s.user === g('user')); if (!u || u.pin !== g('pin')) { C.toast('PIN falsch', 'err'); return; } ST.set('adminSession', { user: u.user, role: u.role, at: Date.now() }); ST.log('login', 'Angemeldet', u.user); C.dispatch(); return; }
+    if (k === 'login') { const lk = ST.get('adminLock', { n: 0, until: 0 }); if (lk.until > Date.now()) { C.toast('Zu viele Versuche – bitte ' + Math.ceil((lk.until - Date.now()) / 1000) + ' s warten', 'err'); return; } const u = staff().find(s => s.user === g('user')); if (!u || u.pin !== g('pin')) { lk.n = (lk.n || 0) + 1; if (lk.n >= 5) { lk.until = Date.now() + 60e3; lk.n = 0; } ST.set('adminLock', lk); C.toast('PIN falsch', 'err'); return; } ST.set('adminLock', { n: 0, until: 0 }); ST.set('adminSession', { user: u.user, role: u.role, at: Date.now() }); ST.log('login', 'Angemeldet', u.user); C.dispatch(); return; }
     if (k === 'note') { ST.updateOrder(f.dataset.no, o => { o.notes = (o.notes || []).concat([{ by, at: Date.now(), text: g('text') }]); }); re(); return; }
     if (k === 'product') {
       const id = f.dataset.id; const p = ST.product(id);

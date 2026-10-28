@@ -800,3 +800,19 @@ html[lang="ar"] .pbn-t small{letter-spacing:0;font-size:13.5px}
 .fd2 .fd-bud b{color:var(--brand-d)}
 @media (max-width:860px){html[dir] body:not(.em-on) .em-bar{inset-inline-start:12px;transform:none;padding:4px;bottom:calc(84px + env(safe-area-inset-bottom,0px))}html[dir] body:not(.em-on) .em-bar .em-start{min-height:44px;padding:0 13px;font-size:13px}}
 .m-admin{display:grid;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line,#eee)}
+/* ---- audit fixes (round 7) ---- */
+.sumbox{grid-template-columns:minmax(0,1fr)}
+.sumbox .btn.big,.sumbox .btn.block{white-space:normal;height:auto;min-height:56px;padding-block:10px;line-height:1.25;text-align:center}
+.check>span{flex:1 1 0;min-width:0}
+@media (max-width:420px){.topbar{font-size:12px}.topbar .tb-msg .ic{display:none}.topbar .tb-msg{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}}
+.hx2-dots button{position:relative}.hx2-dots button::after{content:"";position:absolute;inset:-14px -6px}
+@media (max-width:480px){.bx-steps{overflow:visible;justify-content:space-between}.bx-steps li{flex:none}.bx-steps button:not([aria-current="step"]) span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.bx-steps button:not([aria-current="step"]){padding:0 7px}.bx-steps li:has([aria-current="step"]){flex:1}.bx-steps button[aria-current="step"]{width:100%}}
+@media (max-width:480px){.bx-steps{gap:6px}.bx-steps li:has([aria-current="step"]){min-width:0}.bx-steps button[aria-current="step"]{min-width:0}.bx-steps button[aria-current="step"] span{overflow:hidden;text-overflow:ellipsis;min-width:0}}
+@media (max-width:380px){.hd-in{gap:10px}.hd-in .logo{min-width:0;flex-shrink:1}.hd-in .logo svg,.hd-in .logo img{max-width:100%}.hd-tools{gap:0}}
+.fonts button{unicode-bidi:plaintext;text-overflow:clip;font-size:clamp(14px,4.6vw,20px)}
+@media (max-width:480px){.co-steps{flex-wrap:nowrap;gap:5px}.co-steps li{font-size:13px;padding:5px 10px 5px 5px;white-space:nowrap}html[dir="rtl"] .co-steps li{padding:5px 5px 5px 10px}.co-steps li:not(.on){font-size:0;gap:0;padding:5px!important}.co-steps li:not(.on) i{font-size:13px}.co-steps li.on{flex:1;min-width:0}}
+.pbn-t b{overflow-wrap:anywhere;hyphens:auto}
+.pbn-t{min-width:0;position:relative;z-index:1}
+@media (min-width:521px) and (max-width:1500px){.pbn-t b{font-size:clamp(24px,2.2vw,32px)}}
+body:has(#cookie) .as-btn{transform:translateY(-120px)}
+@media (max-width:860px){body:has(#cookie) .as-btn{transform:translateY(-150px)}}

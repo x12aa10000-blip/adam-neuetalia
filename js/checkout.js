@@ -236,7 +236,7 @@
     const pendingAppr = o.items.filter(i => i.approval && i.approval.status !== 'ok');
     const ev = o.history.slice().reverse();
     SHOP.page(`<div class="wrap track-d">
-      <div class="td-head"><div><p class="muted">${t('order_no')} <b>${o.no}</b> · ${C.date(o.created, { day: 'numeric', month: 'long', year: 'numeric' })}</p><h1>${o.status === 'storniert' ? t('st_storniert') : stLabel(o.status, o)}</h1>
+      <div class="td-head"><div><p class="muted">${t('order_no')} <b><bdi>${o.no}</bdi></b> · <bdi>${C.date(o.created, { day: 'numeric', month: 'long', year: 'numeric' })}</bdi></p><h1>${o.status === 'storniert' ? t('st_storniert') : stLabel(o.status, o)}</h1>
         <p class="lead">${o.status === 'storniert' ? '' : o.status === 'zugestellt' ? t('td_done') : t('td_eta', { d: C.date(o.ship.date, { weekday: 'long', day: 'numeric', month: 'long' }) }) + (o.ship.window ? ' · ' + esc(o.ship.window) : '')}</p></div></div>
       ${o.status !== 'storniert' ? `<ol class="progress">${steps.map((s, i) => `<li class="${i < cur ? 'done' : i === cur ? 'now' : ''}"><span></span><b>${stLabel(s, o)}</b>${(o.history.find(h => h.st === s) || {}).at ? `<small>${C.dt(o.history.find(h => h.st === s).at)}</small>` : ''}</li>`).join('')}</ol>` : ''}
       ${pendingAppr.length && o.status === 'freigabe' ? `<div class="callout f-blush"><b>${t('td_appr')}</b><p>${t('td_appr_p')}</p><a class="btn" href="#/freigabe/${o.no}/${pendingAppr[0].approval.token}">${t('td_appr_btn')}</a></div>` : ''}

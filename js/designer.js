@@ -64,7 +64,7 @@
   Z.render = function () {
     const title = isNew ? 'Neues Produkt' : esc(L(P.name, AL()));
     A().shell('produkte', `<a class="link back" href="#/admin/produkte${isNew ? '' : '/' + esc(P.id)}">${ic('back')} ${isNew ? 'Produkte' : 'Zurück zum Produkt'}</a>
-      <div class="a-head"><h1>${ic('wand')} ${title}</h1><div class="vbtns">${!isNew && !P.custom ? `<button class="btn ghost sm" data-dz="reset">${ic('rotateL')} Original wiederherstellen</button>` : ''}${!isNew ? `<a class="btn ghost sm" href="#/p/${esc(P.id)}?preview=1" target="_blank">${ic('eye')} Im Shop testen</a>` : ''}<button class="btn sm" data-dz="save">${ic('check')} Speichern</button></div></div>
+      <div class="a-head"><h1>${ic('wand')} ${title}</h1><div class="vbtns">${!isNew && !P.custom ? `<button class="btn ghost sm" data-dz="reset">${ic('rotateL')} Original wiederherstellen</button>` : ''}${!isNew ? `<a class="btn ghost sm" href="#/p/${esc(P.id)}?preview=1" target="_blank" rel="noopener">${ic('eye')} Im Shop testen</a>` : ''}<button class="btn sm" data-dz="save">${ic('check')} Speichern</button></div></div>
       <p class="muted small" style="margin:-8px 0 16px">Lege auf dem Produktfoto fest, wo Kunden <b>Text</b> schreiben oder ein <b>Foto</b> einsetzen können. Felder verschieben, an einer Seite oder Ecke ziehen (nur diese Seite bewegt sich), oben drehen. Rechts bestimmst du Schriften, Farben und Technik.</p>
       <div class="dz">
         <div class="dz-l">
