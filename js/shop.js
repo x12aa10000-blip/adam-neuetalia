@@ -377,7 +377,7 @@
     else if (F.sort === 'high') list = list.slice().sort((a, b) => ST.minPrice(b) - ST.minPrice(a));
     else if (F.sort === 'new') list = list.slice().reverse();
     else if (kind !== 's' && kind !== 'w') list = list.slice().sort((a, b) => (b.best ? 1 : 0) - (a.best ? 1 : 0));
-    const chips = `<nav class="chips" aria-label="${esc(t('categories'))}"><a href="#/c/alle"${kind === 'c' && val === 'alle' ? ' aria-current="page"' : ''}>${t('all')}</a>${CATS().map(c => `<a href="#/c/${c}"${kind === 'c' && val === c ? ' aria-current="page"' : ''}>${t('cat_' + c)}</a>`).join('')}</nav>`;
+    const chips = `<nav class="chips cat-chips" aria-label="${esc(t('categories'))}"><a href="#/c/alle"${kind === 'c' && val === 'alle' ? ' aria-current="page"' : ''}>${t('all')}</a>${CATS().map(c => `<a href="#/c/${c}"${kind === 'c' && val === c ? ' aria-current="page"' : ''}>${t('cat_' + c)}</a>`).join('')}</nav>`;
     const occs = CAT_EXTRA.occ.filter(o => (kind === 'o' ? ST.products() : all).some(p => (p.occ || []).includes(o)));
     const maxAll = Math.ceil(Math.max(20, ...ST.products().map(p => ST.minPrice(p))) / 10) * 10;
     const cur = F.max || maxAll;
