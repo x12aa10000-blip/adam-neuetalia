@@ -57,7 +57,7 @@
     if (el.dataset.crop) return; // handled inside the crop sheet
     if (el.dataset.dz) { e.preventDefault(); return DESIGNER.onClick(el); }
     if (el.dataset.a) { e.preventDefault(); return ADMIN.onClick(el); }
-    if (el.dataset.lang) { C.setLang(el.dataset.lang); SHOP.searchIndex = null; C.dispatch({ keepScroll: true }); ASSIST.relabel(); return; }
+    if (el.dataset.lang) { C.setLang(el.dataset.lang); SHOP.searchIndex = null; C.dispatch({ keepScroll: true }); ASSIST.relabel(); const ck = $('#cookie'); if (ck) { ck.remove(); SHOP.cookieBanner(); } return; }
     if (el.dataset.hero != null) { SHOP._heroShow && SHOP._heroShow(+el.dataset.hero); return; }
     if (el.dataset.sugg) { const i = $('#sq'); if (i) { i.value = el.dataset.sugg; i.dispatchEvent(new Event('input')); i.focus(); } return; }
     if (onCO() && CHECKOUT.onClick(el)) return;

@@ -155,7 +155,8 @@
     const bad = [];
     const em = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!CO.name.trim()) bad.push('name'); if (!em.test(CO.email.trim())) bad.push('email'); if (String(CO.phone).replace(/\D/g, '').length < 6) bad.push('phone');
-    if (CO.method !== 'pickup') { for (const f of ['name', 'street', 'zip', 'city']) if (!String(CO.addr[f]).trim()) bad.push('addr.' + f); if (CO.method === 'local' && !ST.localZip(CO.addr.zip)) bad.push('addr.zip'); }
+    if (CO.method !== 'pickup' && !String(CO.addr.name || '').trim() && !CO.isGift && CO.name.trim()) CO.addr.name = CO.name.trim(); // own address: no need to type the name twice
+    if (CO.method !== 'pickup') { for (const f of ['name', 'street', 'zip', 'city']) if (!String(CO.addr[f]).trim()) bad.push('addr.' + f); if (CO.method === 'local' && !ST.localZip(CO.addr.zip)) bad.push('addr.zip'); else if (CO.method === 'dhl' && String(CO.addr.zip).trim() && !/^\d{5}$/.test(String(CO.addr.zip).trim())) bad.push('addr.zip'); }
     if (CO.method === 'pickup' || !CO.sameBill) for (const f of ['name', 'street', 'zip', 'city']) if (!String(CO.bill[f]).trim()) bad.push('bill.' + f);
     if (CO.account && !ST.me() && String(CO.pw).length < 6) bad.push('pw');
     if (!CO.agb) bad.push('agb');
@@ -204,7 +205,7 @@
     SHOP.page(`<div class="wrap narrow thanks">
       <div class="okmark">${ic('check')}</div>
       <h1>${t('thanks_h', { n: esc(o.cust.name.split(' ')[0]) })}</h1>
-      <p class="lead">${t('thanks_p', { no: o.no, e: esc(o.cust.email) })}</p>
+      <p class="lead">${t('thanks_p', { no: '<bdi>' + esc(o.no) + '</bdi>', e: '<bdi>' + esc(o.cust.email) + '</bdi>' })}</p>
       <div class="when f-sage"><span>${ic(o.ship.method === 'pickup' ? 'store' : o.ship.method === 'local' ? 'bike' : 'truck')}</span><div><b>${o.ship.method === 'pickup' ? t('thx_pickup') : o.ship.method === 'local' ? t('thx_local') : t('thx_ship')}</b><p>${C.date(o.ship.date, { weekday: 'long', day: 'numeric', month: 'long' })}${o.ship.window ? ' · ' + esc(o.ship.window) : ''}</p></div></div>
       ${o.pay.method === 'vorkasse' ? `<div class="bankbox"><h2>${t('bank_h')}</h2><dl><dt>${t('bank_amount')}</dt><dd>${eur(o.totals.total)}</dd><dt>IBAN</dt><dd><bdi dir="ltr">${esc(s.shop.iban)}</bdi></dd><dt>${t('bank_name')}</dt><dd>${esc(s.shop.bank)}</dd><dt>${t('bank_ref')}</dt><dd>${o.no}</dd></dl></div>` : ''}
       ${o.approval ? `<p class="hint">${ic('eye')} ${t('thx_proof')}</p>` : ''}

@@ -11,7 +11,7 @@
 
   /* ---------------- language ---------------- */
   let LANG = ST.get('lang', null);
-  if (!LANG) { const n = (navigator.language || 'de').slice(0, 2); LANG = n === 'ar' ? 'ar' : 'de'; }
+  if (!LANG) { const n = (navigator.language || 'de').slice(0, 2); LANG = n === 'ar' ? 'ar' : n === 'de' ? 'de' : 'en'; }
   C.lang = () => LANG;
   C.setLang = function (l) { if (!['de', 'en', 'ar'].includes(l)) return; LANG = l; ST.set('lang', l); C.applyLang(); };
   C.applyLang = function () { document.documentElement.lang = LANG; document.documentElement.dir = LANG === 'ar' ? 'rtl' : 'ltr'; };

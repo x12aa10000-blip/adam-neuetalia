@@ -21,7 +21,7 @@
   K('v5_add_box', 'In die Geschenkbox legen', 'Put into the gift box', 'أضف للبوكس');
   K('v5_box_added', 'In deiner Geschenkbox ({n}) – weiter zur Box?', 'In your gift box ({n}) – go to the box?', 'انضاف للبوكس ({n}) – بدك تكمل تصميم البوكس؟');
   K('v5_box_go', 'Zur Box', 'Open box', 'روح للبوكس');
-  K('v5_box_full', 'Die größte Box ist voll (8 Geschenke).', 'The largest box is full (8 gifts).', 'أكبر بوكس صار مليان (٨ هدايا).');
+  K('v5_box_full', 'Die größte Box ist voll (8 Geschenke).', 'The largest box is full (8 gifts).', 'أكبر بوكس صار مليان (8 هدايا).');
   K('v5_vat_all', 'Alle Preise inkl. MwSt., zzgl. Versand.', 'All prices incl. VAT, plus shipping.', 'كل الأسعار شاملة الضريبة، الشحن منفصل.');
   K('v5_reviews_h', 'Das sagen unsere Kunden', 'What our customers say', 'آراء زبائننا');
   K('v5_reviews_n', 'aus {n} Bewertungen', 'from {n} reviews', 'من {n} تقييم');

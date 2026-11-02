@@ -263,3 +263,13 @@ html,body{overflow-x:clip}
 button.sr-tr:hover,.sr-tr.on{background:var(--s1)}
 .sr-th{font-size:13px;color:var(--muted);cursor:default}
 @media (max-width:700px){.sr-iv{grid-template-columns:1fr 1fr}.sr-tr{grid-template-columns:1fr auto;font-size:14px}.sr-tr>:nth-child(2){display:none}.sr-tr>:nth-child(4){grid-column:1/-1;font-size:13px}.sr-th{display:none}.sr-seg button{padding:7px 11px;font-size:13px}}
+
+/* QA fix: hidden radio inputs inside these pickers were positioned against a far-away ancestor,
+   which on phones widened the checkout page (pickup / local delivery) and let it slide sideways */
+.dates label,.pay label,.seg label,.starpick label{position:relative}
+/* QA fix: the gift-assistant bubble covered the "order & pay" button at checkout */
+body:has(.pg-checkout) .as-btn{display:none!important}
+/* QA fix: headings on the dark and purple bands were dark-on-dark ("Subscribe now!" invisible) */
+.s8-ink h2,.s8-purple h2{color:#fff}
+/* QA fix: small grey text and white-on-pink buttons were below readable contrast */
+.hd-act span small{color:#6c6670}

@@ -331,6 +331,14 @@
     const { p, D } = CUR;
     const bad = P.validate();
     if (bad) { C.toast(bad.msg, 'err'); const el = $(`[data-fid="${bad.f.id}"]`) || $('#cfg'); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1200); return; }
+    /* the sample text (e.g. "Christina") was not changed: ask before it goes on the real product */
+    const sample = CUR.editId ? null : p.fields.find(f => (f.type === 'text' || f.type === 'textarea') && !f.optional && f.def && String(f.def).trim() && fieldVisible(p, f, D) && (D.f[f.id] == null || String(D.f[f.id]).trim() === String(f.def).trim()));
+    if (sample) {
+      const lg = C.lang(), s = String(sample.def).trim();
+      const msg = { de: `Du hast den Beispieltext „${s}“ nicht geändert. Soll genau dieser Text auf dein Geschenk?`, en: `You haven’t changed the sample text “${s}”. Should exactly this text go on your gift?`, ar: `لم تغيّر النص التجريبي «${s}». هل تريد هذا النص نفسه على هديتك؟` }[lg] || '';
+      const ok = await C.confirm(msg, { de: 'Ja, so lassen', en: 'Yes, keep it', ar: 'نعم، أبقِه' }[lg], { de: 'Text ändern', en: 'Change text', ar: 'تغيير النص' }[lg]);
+      if (!ok) { const el = $(`[data-fid="${sample.id}"]`) || $('#cfg'); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1200); const inp = el.querySelector && el.querySelector('input,textarea'); if (inp) setTimeout(() => { inp.focus({ preventScroll: true }); inp.select && inp.select(); }, 350); return; }
+    }
     const fill = {}; for (const f of p.fields) if (D.f[f.id] == null && f.type !== 'photo') fill[f.id] = f.def;
     const design = JSON.parse(JSON.stringify(D)); Object.assign(design.f, fill); delete design._touched;
     const item = { id: CUR.editId || ST.uid('i'), pid: p.id, D: design, qty: CUR.qty, unit: ST.unitPrice(p, D), tax: p.tax || 19, name: p.name, preview: await P.thumb(), at: Date.now() };
