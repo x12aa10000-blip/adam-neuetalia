@@ -182,16 +182,20 @@
       if (CLOUD.on) { const ck = await CLOUD.checkOrder(D); if (ck.err) {
         if (['price_changed', 'product_unavailable', 'price'].includes(ck.err)) { await CLOUD.refreshPublic(); SHOP.refreshHeader(); K.checkout(); }
         C.toast(CLOUD.msg(ck.err === 'fields' || ck.err === 'zip' ? 'generic' : ck.err === 'price' ? 'price_changed' : ck.err), 'err'); return; } }
-      const ok = await K.pay(CO.pay, ST.totals(ST.cart(), { method: CO.method, wrap: CO.wrap, coupon: CO.coupon, giftcard: CO.giftcard }).total);
+      // with the server: PayPal/card is paid AFTER the order is saved and is verified on the server (CLOUD.payPayPal)
+      const payAfter = CLOUD.on && ['paypal', 'card'].includes(CO.pay);
+      const ok = payAfter ? true : await K.pay(CO.pay, ST.totals(ST.cart(), { method: CO.method, wrap: CO.wrap, coupon: CO.coupon, giftcard: CO.giftcard }).total);
       if (!ok) return;
       if (K.payRef) { D.payRef = K.payRef; K.payRef = ''; }
       if (CO.account && !ST.me()) { const ra = await ST.register({ name: CO.name, email: CO.email, phone: CO.phone, pw: CO.pw, marketing: CO.marketing }); if (ra.err === 'exists') C.toast(t('acc_exists'), 'err'); }
       var r = await ST.placeOrder(D);
     } finally { busy(false); }
     if (r.err) { C.toast(r.err === 'empty' ? t('cart_empty') : CLOUD.msg(r.err), 'err'); if (D.payRef) C.toast('PayPal: ' + D.payRef, 'err'); return; }
+    const payNow = CLOUD.on && CLOUD.payable && CLOUD.payable(r.o);
     CO = null; SHOP.refreshHeader();
     ST.set('lastOrderMine', { no: r.o.no, email: r.o.cust.email });
     C.go('#/danke/' + r.o.no);
+    if (payNow) setTimeout(() => CLOUD.payPayPal(r.o), 400);
   };
   /** demo payment: no real payment data is asked for */
   K.pay = function (method, total) {

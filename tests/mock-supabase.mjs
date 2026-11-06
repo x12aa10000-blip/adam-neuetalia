@@ -5,9 +5,9 @@ import { execFile } from 'node:child_process';
 import crypto from 'node:crypto';
 const PORT = +process.env.PORT || 54321, DB = process.env.DB || 'shoptest';
 const lit = v => { if (v === null || v === undefined) return 'NULL'; const s = typeof v === 'object' ? JSON.stringify(v) : String(v); const tag = '$q' + crypto.randomBytes(4).toString('hex') + '$'; return tag + s + tag; };
-function call(fn, args, ip) {
+function call(fn, args, ip, role) {
   const named = Object.entries(args || {}).map(([k, v]) => `${k} => ${lit(v)}`).join(', ');
-  const sql = `set request.headers = ${lit(JSON.stringify({ 'x-forwarded-for': ip }))}; set role anon; select coalesce(to_json(public.${fn}(${named}))::text, 'null');`;
+  const sql = `set request.headers = ${lit(JSON.stringify({ 'x-forwarded-for': ip }))}; set role ${role || 'anon'}; select coalesce(to_json(public.${fn}(${named}))::text, 'null');`;
   return new Promise(res => { const ch = execFile('psql', ['-X', '-q', '-At', '-v', 'ON_ERROR_STOP=1', '-d', DB], { maxBuffer: 64 << 20 }, (err, out, errout) => res({ err: err ? (errout || String(err)) : null, out })); ch.stdin.end(sql); });
 }
 http.createServer(async (req, res) => {
@@ -19,7 +19,8 @@ http.createServer(async (req, res) => {
   let body = ''; for await (const c of req) body += c;
   let args = {}; try { args = body ? JSON.parse(body) : {}; } catch (e) { res.writeHead(400, cors); return res.end('{"message":"bad json"}'); }
   const ip = req.headers['x-test-ip'] || '10.0.0.1';
-  const r = await call(m[1], args, ip);
+  // like Supabase: the secret (service) key acts as service_role, every other key as anon
+  const r = await call(m[1], args, ip, req.headers.apikey === (process.env.SERVICE_KEY || 'sb_secret_test') ? 'service_role' : 'anon');
   if (r.err) {
     console.error(m[1], r.err.slice(0, 300));
     const msg = (/ERROR:\s+(.*)/.exec(r.err) || [, 'error'])[1].trim();

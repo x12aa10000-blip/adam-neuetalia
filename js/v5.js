@@ -514,7 +514,7 @@
   function loadPP(id) { if (window.paypal) return Promise.resolve(window.paypal); if (ppLoad) return ppLoad; ppLoad = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(id) + '&currency=EUR&intent=capture&enable-funding=card'; s.onload = () => res(window.paypal); s.onerror = () => { ppLoad = null; rej(new Error('pp')); }; document.head.appendChild(s); }); return ppLoad; }
   const _pay = CHECKOUT.pay; CHECKOUT.pay = function (method, total) {
     const id = String((ST.settings().paypal || {}).clientId || (SITE.get().paypal || {}).clientId || '').trim();
-    if (!id || !['paypal', 'card'].includes(method)) return _pay.apply(this, arguments);
+    if (!id || !['paypal', 'card'].includes(method) || (window.CLOUD && CLOUD.on)) return _pay.apply(this, arguments);
     return new Promise(res => {
       const ov = C.sheet({ title: t('v5_pp_title'), kind: 'modal' });
       ov.body.innerHTML = `<div class="paydemo"><p class="paysum">${eur(total)}</p><p class="muted">${t('v5_pp_p')}</p><div id="ppBtns"><span class="spin"></span></div></div>`;

@@ -48,6 +48,14 @@
     K('pw_done', 'Passwort geändert – du bist angemeldet.', 'Password changed – you are signed in.', 'تم تغيير كلمة السر – أنت مسجّل الدخول.');
     K('pw_expired', 'Der Link ist abgelaufen. Bitte fordere einen neuen an.', 'The link has expired. Please request a new one.', 'انتهت صلاحية الرابط. اطلب رابطاً جديداً.');
     K('pw_short', 'Das Passwort braucht mindestens 8 Zeichen.', 'The password needs at least 8 characters.', 'كلمة السر تحتاج 8 أحرف على الأقل.');
+    K('pp_hint', 'Deine Bestellung ist gespeichert. Bezahle jetzt sicher über PayPal – die Bestätigung prüfen wir direkt bei PayPal.', 'Your order is saved. Pay securely with PayPal now – we confirm the payment directly with PayPal.', 'تم حفظ طلبك. ادفع الآن بأمان عبر PayPal – نتحقق من الدفع مباشرة لدى PayPal.');
+    K('pp_later', 'Später bezahlen', 'Pay later', 'الدفع لاحقاً');
+    K('pp_pay_now', 'Jetzt bezahlen', 'Pay now', 'ادفع الآن');
+    K('pp_paid', 'Danke! Zahlung bestätigt.', 'Thank you! Payment confirmed.', 'شكراً! تم تأكيد الدفع.');
+    K('pp_pending', 'PayPal prüft die Zahlung noch. Wir melden uns, sobald sie bestätigt ist.', 'PayPal is still reviewing the payment. We will let you know once it is confirmed.', 'لا تزال PayPal تراجع الدفع. سنبلغك عند التأكيد.');
+    K('pp_check', 'Die Zahlung passt nicht zur Bestellung. Bitte kontaktiere uns.', 'The payment does not match the order. Please contact us.', 'الدفع لا يطابق الطلب. يرجى التواصل معنا.');
+    K('pp_failed', 'Die Zahlung hat nicht geklappt. Du kannst es erneut versuchen oder später über „Bestellung verfolgen“ bezahlen.', 'The payment did not work. You can try again or pay later via “Track order”.', 'لم ينجح الدفع. يمكنك المحاولة مجدداً أو الدفع لاحقاً من „تتبّع الطلب“.');
+    K('pp_open', 'Zahlung offen', 'Payment open', 'الدفع مفتوح');
   }
   CL.msg = function (code) { const l = { de: 0, en: 1, ar: 2 }[isAdminPage ? (AR() ? 'ar' : 'de') : (C.lang ? C.lang() : 'de')] || 0; return (MSG[code] || MSG.generic)[l]; };
   CL.fail = e => { try { C.toast(CL.msg(e && e.code), 'err'); } catch (x) { } };
@@ -259,6 +267,43 @@
     return changed;
   };
   CL.refreshPublic = async function () { try { applyPublic(await rpc('shop_boot')); } catch (e) { } return CL.repriceCart(); };
+  /* ---------------- PayPal: verified on the server (Supabase Edge Functions) ---------------- */
+  const fnUrl = name => CFG.url.replace(/\/+$/, '') + '/functions/v1/' + name;
+  async function fn(name, body) {
+    let r; try { r = await fetch(fnUrl(name), { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: CFG.key }, body: JSON.stringify(body) }); }
+    catch (e) { const er = new Error('offline'); er.code = 'offline'; throw er; }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || j.error) { const er = new Error(j.error || 'http_' + r.status); er.code = j.error || 'http_' + r.status; throw er; }
+    return j;
+  }
+  let ppLoad = null;
+  function loadPayPal(id) {
+    if (window.paypal && window.paypal.Buttons) return Promise.resolve(window.paypal);
+    if (ppLoad) return ppLoad;
+    ppLoad = new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(id) + '&currency=EUR&intent=capture&enable-funding=card'; sc.onload = () => res(window.paypal); sc.onerror = () => { ppLoad = null; rej(new Error('pp')); }; document.head.appendChild(sc); });
+    return ppLoad;
+  }
+  CL.payable = o => !!o && ['paypal', 'card'].includes(o.pay.method) && !['bezahlt', 'erstattet'].includes(o.pay.status) && o.status !== 'storniert';
+  /** opens PayPal for an already saved order; amount and result are checked on the server */
+  CL.payPayPal = function (o) {
+    const id = String((ST.settings().paypal || {}).clientId || '').trim();
+    if (!id || !CL.payable(o)) return;
+    const ov = C.sheet({ title: t('pay_' + o.pay.method), kind: 'modal' });
+    ov.body.innerHTML = `<div class="paydemo"><p class="paysum">${eur(o.totals.total)}</p><p class="muted">${esc(t('pp_hint'))}</p><div id="ppBtns"><span class="spin"></span></div><p class="warn" id="ppErr" hidden></p></div>`;
+    ov.foot.innerHTML = `<button class="btn ghost" data-act="close">${t('pp_later')}</button>`;
+    const err = m => { const e = $('#ppErr', ov); if (e) { e.hidden = false; e.textContent = m; } };
+    loadPayPal(id).then(pp => {
+      const box = $('#ppBtns', ov); if (!box) return; box.innerHTML = '';
+      pp.Buttons({
+        fundingSource: o.pay.method === 'card' && pp.FUNDING ? pp.FUNDING.CARD : undefined,
+        createOrder: () => fn('paypal-create-order', { no: o.no, email: o.cust.email }).then(r => r.id),
+        onApprove: d => fn('paypal-capture-order', { no: o.no, email: o.cust.email, orderID: d.orderID }).then(async () => {
+          await CL.fetchOrder(o.no, o.cust.email); C.closeAll(); C.toast(t('pp_paid')); C.dispatch({ keepScroll: true });
+        }).catch(e => err(e.code === 'amount_mismatch' || e.code === 'order_mismatch' ? t('pp_check') : e.code === 'not_completed' ? t('pp_pending') : t('pp_failed'))),
+        onError: () => err(t('pp_failed'))
+      }).render(box);
+    }).catch(() => err(t('pp_failed')));
+  };
   CL.fetchOrder = async function (no, email) {
     const o = await rpc('shop_order_get', { p_no: no, p_email: email }).catch(() => null);
     if (o) CL.keepOrder(o); return o;
@@ -469,6 +514,10 @@
         try { const o = await rpc('shop_order_approve', { p_no: no, p_token: apprTok, p_idx: idx, p_ok: ok, p_msg: msg || '' }); CL.keepOrder(o); C.toast(ok ? t('appr_thx') : t('appr_change_thx')); C.dispatch({ keepScroll: true }); }
         catch (e) { CL.fail(e); }
       };
+      const payBtn = o => CL.payable(o) && (ST.settings().paypal || {}).clientId ? `<div class="callout f-blush pp-open"><b>${esc(t('pp_open'))} · ${eur(o.totals.total)}</b><button class="btn" data-pp-pay="${esc(o.no)}">${esc(t('pp_pay_now'))}</button></div>` : '';
+      const _thx2 = K.thanks; K.thanks = function (no) { const r = _thx2.apply(this, arguments); const o = ST.order(no); const h = $('.thanks .lead'); if (h && o) h.insertAdjacentHTML('afterend', payBtn(o)); return r; };
+      const _trk2 = K.track; K.track = async function () { const r = await _trk2.apply(this, arguments); const m = /\/verfolgen\/([^?]+)/.exec(C.path()); const o = m && ST.order(decodeURIComponent(m[1])); const h = $('.td-head'); if (h && o && !$('.pp-open')) h.insertAdjacentHTML('afterend', payBtn(o)); return r; };
+      document.addEventListener('click', e => { const b = e.target.closest && e.target.closest('[data-pp-pay]'); if (!b) return; e.preventDefault(); CL.payPayPal(ST.order(b.dataset.ppPay)); });
       const _acc = K.account; K.account = async function (tab, q) {
         if (tab === 'passwort') return pwPage(q || {});
         if (custTok()) await CL.refreshMe().catch(() => { }); return _acc.apply(this, arguments);

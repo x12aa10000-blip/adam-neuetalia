@@ -921,7 +921,7 @@ do $$
 declare f record; r text;
 begin
   for f in select p.oid::regprocedure as sig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-           where n.nspname = 'public' and p.proname like 'shop\_%' loop
+           where n.nspname = 'public' and p.proname like 'shop\_%' and p.proname not like 'shop\_srv\_%' loop
     execute format('revoke all on function %s from public', f.sig);
     foreach r in array array['anon', 'authenticated'] loop
       if exists (select 1 from pg_roles where rolname = r) then execute format('grant execute on function %s to %I', f.sig, r); end if;
@@ -1004,7 +1004,7 @@ do $$
 declare f record; r text;
 begin
   for f in select p.oid::regprocedure as sig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-           where n.nspname = 'public' and p.proname like 'shop\_%' loop
+           where n.nspname = 'public' and p.proname like 'shop\_%' and p.proname not like 'shop\_srv\_%' loop
     execute format('revoke all on function %s from public', f.sig);
     foreach r in array array['anon', 'authenticated'] loop
       if exists (select 1 from pg_roles where rolname = r) then execute format('grant execute on function %s to %I', f.sig, r); end if;
@@ -1026,3 +1026,105 @@ begin
     execute format('alter function %s set search_path = %L', f.sig, '');
   end loop;
 end $$;
+
+
+-- =====================================================================
+--  PayPal: Prüfung auf dem Server (Supabase Edge Functions)
+--  Diese Funktionen darf NUR die Server-Rolle (service_role) aufrufen –
+--  also nur die Edge Functions mit dem geheimen Schlüssel, nie der Browser.
+-- =====================================================================
+create table if not exists shop.webhook_events (
+  id text primary key, kind text, received_at timestamptz not null default clock_timestamp()
+);
+alter table shop.webhook_events enable row level security;
+
+-- Bestellung für die Zahlung laden (Nummer + E-Mail wie beim Verfolgen)
+create or replace function public.shop_srv_paypal_order(p_no text, p_email text, p_ip text) returns jsonb language plpgsql security definer set search_path = '' as $$
+declare o jsonb;
+begin
+  perform shop.limit_hits('pp_order', 30, interval '10 minutes', coalesce(p_ip, 'edge'));
+  select data into o from shop.items where kind = 'order' and id = upper(trim(coalesce(p_no, '')));
+  if o is null or lower(o#>>'{cust,email}') <> lower(trim(coalesce(p_email, ''))) then return jsonb_build_object('error_code', 'not_found'); end if;
+  if o#>>'{pay,method}' not in ('paypal', 'card') then return jsonb_build_object('error_code', 'not_paypal'); end if;
+  if o->>'status' = 'storniert' then return jsonb_build_object('error_code', 'cancelled'); end if;
+  if o#>>'{pay,status}' = 'bezahlt' then return jsonb_build_object('error_code', 'already_paid'); end if;
+  return jsonb_build_object('no', o->>'no', 'total', (o#>>'{totals,total}')::numeric, 'currency', 'EUR', 'ppOrder', o#>>'{pay,ppOrder}',
+    'shop', coalesce(shop.kvget('settings')#>>'{shop,name}', 'Adam'));
+end $$;
+
+-- PayPal-Bestellnummer an unsere Bestellung hängen
+create or replace function public.shop_srv_paypal_attach(p_no text, p_pp_order text) returns jsonb language plpgsql security definer set search_path = '' as $$
+declare o jsonb;
+begin
+  if p_pp_order !~ '^[A-Z0-9]{8,40}$' then return jsonb_build_object('error_code', 'bad_id'); end if;
+  select data into o from shop.items where kind = 'order' and id = upper(trim(p_no)) for update;
+  if o is null then return jsonb_build_object('error_code', 'not_found'); end if;
+  o := jsonb_set(o, '{pay,ppOrder}', to_jsonb(p_pp_order));
+  perform shop.item_put('order', o->>'no', o);
+  return jsonb_build_object('ok', true);
+end $$;
+
+-- Ergebnis von PayPal eintragen. Bezahlt wird nur, wenn Betrag, Währung und Bestellnummer exakt stimmen.
+create or replace function public.shop_srv_paypal_result(p_no text, p_pp_order text, p_capture text, p_status text, p_amount numeric, p_currency text, p_source text) returns jsonb language plpgsql security definer set search_path = '' as $$
+declare o jsonb; total numeric; now_ms bigint := shop.ms(clock_timestamp()); st text;
+begin
+  select data into o from shop.items where kind = 'order' and id = upper(trim(coalesce(p_no, ''))) for update;
+  if o is null then return jsonb_build_object('error_code', 'not_found'); end if;
+  total := (o#>>'{totals,total}')::numeric;
+  if p_status = 'COMPLETED' then
+    if p_currency is distinct from 'EUR' or p_amount is null or abs(p_amount - total) > 0.004 then
+      o := jsonb_set(o, '{pay,problem}', to_jsonb('Betrag/Währung passt nicht: ' || coalesce(p_amount::text, '?') || ' ' || coalesce(p_currency, '?') || ' statt ' || total::text || ' EUR'));
+      perform shop.item_put('order', o->>'no', o);
+      perform shop.log('zahlung', (o->>'no') || ': PayPal-Betrag passt NICHT (' || coalesce(p_amount::text, '?') || ' ' || coalesce(p_currency, '?') || ')', 'paypal');
+      return jsonb_build_object('error_code', 'amount_mismatch');
+    end if;
+    if o#>>'{pay,ppOrder}' is not null and p_pp_order is not null and o#>>'{pay,ppOrder}' <> p_pp_order then
+      perform shop.log('zahlung', (o->>'no') || ': PayPal-Zahlung zu anderer PayPal-Bestellung (' || p_pp_order || ')', 'paypal');
+      return jsonb_build_object('error_code', 'order_mismatch');
+    end if;
+    if o#>>'{pay,status}' = 'bezahlt' and o#>>'{pay,capture}' = p_capture then return jsonb_build_object('ok', true, 'already', true); end if;
+    o := jsonb_set(o, '{pay}', (o->'pay') || jsonb_build_object('status', 'bezahlt', 'at', now_ms, 'capture', p_capture, 'ppOrder', coalesce(p_pp_order, o#>>'{pay,ppOrder}'),
+      'verified', 'paypal-server', 'source', p_source) - 'problem');
+    o := jsonb_set(o, '{history}', (o->'history') || jsonb_build_array(jsonb_build_object('st', o->>'status', 'at', now_ms, 'by', 'paypal', 'note', 'Zahlung bestätigt (' || p_source || ')')));
+    st := 'bezahlt';
+  elsif p_status in ('REFUNDED', 'PARTIALLY_REFUNDED', 'REVERSED') then
+    o := jsonb_set(o, '{pay}', (o->'pay') || jsonb_build_object('status', case when p_status = 'PARTIALLY_REFUNDED' then 'teilerstattet' else 'erstattet' end, 'refundAt', now_ms));
+    st := 'erstattet';
+  elsif p_status in ('DENIED', 'DECLINED', 'FAILED') then
+    o := jsonb_set(o, '{pay,problem}', to_jsonb('PayPal: ' || p_status));
+    st := 'abgelehnt';
+  else
+    return jsonb_build_object('ok', true, 'ignored', p_status);
+  end if;
+  perform shop.item_put('order', o->>'no', o);
+  perform shop.log('zahlung', (o->>'no') || ': PayPal ' || st || ' (' || p_source || ')', 'paypal');
+  return jsonb_build_object('ok', true, 'status', o#>>'{pay,status}');
+end $$;
+
+-- Webhook-Ereignisse nur einmal verarbeiten
+create or replace function public.shop_srv_webhook_once(p_id text, p_kind text) returns boolean language plpgsql security definer set search_path = '' as $$
+declare n int;
+begin
+  if p_id is null or p_id = '' or length(p_id) > 100 then return false; end if;
+  insert into shop.webhook_events(id, kind) values (p_id, left(p_kind, 60)) on conflict do nothing;
+  get diagnostics n = row_count;          -- 1 = new event, 0 = already processed
+  delete from shop.webhook_events where received_at < clock_timestamp() - interval '90 days';
+  return n = 1;
+end $$;
+
+do $$
+declare f record; r text;
+begin
+  for f in select p.oid::regprocedure as sig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+           where n.nspname = 'public' and p.proname like 'shop\_srv\_%' loop
+    execute format('revoke all on function %s from public', f.sig);
+    foreach r in array array['anon', 'authenticated'] loop
+      if exists (select 1 from pg_roles where rolname = r) then execute format('revoke all on function %s from %I', f.sig, r); end if;
+    end loop;
+    if exists (select 1 from pg_roles where rolname = 'service_role') then execute format('grant execute on function %s to service_role', f.sig); end if;
+  end loop;
+  for f in select p.oid::regprocedure as sig from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'shop' loop
+    execute format('alter function %s set search_path = %L', f.sig, '');
+  end loop;
+end $$;
+revoke all on all functions in schema shop from public;

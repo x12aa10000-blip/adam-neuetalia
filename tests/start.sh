@@ -3,6 +3,7 @@
 cd "$(dirname "$0")/.."
 pg_ctlcluster 16 main start 2>/dev/null
 pgrep -f /tmp/mock.mjs >/dev/null || { cp tests/mock-supabase.mjs /tmp/mock.mjs; chmod 644 /tmp/mock.mjs; su postgres -c "nohup node /tmp/mock.mjs > /tmp/mock-pg.log 2>&1 &"; }
+pgrep -f functions-server.mts >/dev/null || nohup /opt/npm-tools/node_modules/.bin/tsx tests/functions-server.mts > /tmp/fn.log 2>&1 &
 pgrep -f "tests/serve.mjs" >/dev/null || nohup node tests/serve.mjs . > /tmp/web.log 2>&1 &
 # test fixture: fresh stock for every product, no leftover rate-limit counters
 su postgres -c "psql -q -d shoptest -c \"update shop.kv set v = (select coalesce(jsonb_object_agg(key, value - 'stock'), '{}'::jsonb) from jsonb_each(v)) where k = 'prodOv'; delete from shop.hits;\"" 2>/dev/null
