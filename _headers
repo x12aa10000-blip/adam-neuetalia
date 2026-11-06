@@ -1,0 +1,29 @@
+# HTTP security headers for Cloudflare Pages and Netlify (same file format on both).
+# Every header is set in exactly ONE rule (Cloudflare joins repeated headers with commas).
+# Keep the Content-Security-Policy in sync with the <meta> tag in index.html / admin.html (tools/build-site.mjs checks this).
+
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://*.paypal.com https://*.paypalobjects.com; style-src 'self' 'unsafe-inline' https://*.paypal.com; img-src 'self' data: blob: https://*.paypal.com https://*.paypalobjects.com https://scannables.scdn.co; font-src 'self' data: https://*.paypalobjects.com; media-src 'self' blob: data:; connect-src 'self' https://*.supabase.co https://*.paypal.com https://*.paypalobjects.com; frame-src https://www.google.com https://maps.google.com https://*.paypal.com https://*.paypalobjects.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests; frame-ancestors 'none'
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), payment=(self "https://www.paypal.com")
+  Cross-Origin-Opener-Policy: same-origin-allow-popups
+  Cross-Origin-Resource-Policy: same-origin
+
+/admin.html
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
+/js/*
+  Cache-Control: public, max-age=300, must-revalidate
+
+/css/*
+  Cache-Control: public, max-age=300, must-revalidate
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/img/*
+  Cache-Control: public, max-age=86400

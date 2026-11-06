@@ -1,7 +1,8 @@
 """Browser flow: order with PayPal -> server-created PayPal order -> server capture -> order paid. (PayPal SDK replaced by a minimal stub button.)"""
 import asyncio, json, random, urllib.request
 from playwright.async_api import async_playwright
-WEB = 'http://localhost:8780'; API = 'http://localhost:54321/rest/v1/rpc/'
+import os
+WEB = os.environ.get('WEB', 'http://localhost:8780'); API = 'http://localhost:54321/rest/v1/rpc/'
 def api(fn, a):
     r = urllib.request.Request(API + fn, data=json.dumps(a).encode(), method='POST', headers={'apikey': 'x', 'Content-Type': 'application/json', 'x-test-ip': '10.55.%d.%d' % (random.randint(0, 255), random.randint(1, 250))})
     with urllib.request.urlopen(r) as x: return json.loads(x.read() or 'null')

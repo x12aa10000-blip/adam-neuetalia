@@ -11,7 +11,7 @@ http.createServer(async (req, res) => {
   if (m) { const o = orders.get(m[1]); return o ? send(201, { purchase_units: [{ payments: { captures: [{ id: 'CAP-' + m[1], status: 'COMPLETED', amount: o.pu.amount, custom_id: o.pu.custom_id }] } }] }) : send(404, {}); }
   send(404, {});
 }).listen(8997);
-const env = { PAYPAL_CLIENT_ID: 'test-client', PAYPAL_CLIENT_SECRET: 'local-only', PAYPAL_WEBHOOK_ID: 'WH', PAYPAL_API_BASE: 'http://localhost:8997', SUPABASE_URL: 'http://localhost:54321', SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_test', ALLOWED_ORIGINS: 'http://localhost:8780' };
+const env = { PAYPAL_CLIENT_ID: 'test-client', PAYPAL_CLIENT_SECRET: 'local-only', PAYPAL_WEBHOOK_ID: 'WH', PAYPAL_API_BASE: 'http://localhost:8997', SUPABASE_URL: 'http://localhost:54321', SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_test', ALLOWED_ORIGINS: 'http://localhost:8780,http://localhost:8790' };
 const H: Record<string, Function> = { 'paypal-create-order': handleCreate, 'paypal-capture-order': handleCapture, 'paypal-webhook': handleWebhook };
 http.createServer(async (req, res) => {
   const name = (req.url || '').replace(/^\/functions\/v1\//, '').split('?')[0];
