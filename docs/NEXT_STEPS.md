@@ -21,3 +21,18 @@ Branch: `production-ready` (nothing merged into `main`, nothing deployed).
 ## Local test environment
 `tests/start.sh` starts Postgres (db `shoptest`), Supabase stand-in :54321, Edge-function stand-in :54323, site :8780.
 Owner login in the local test DB only: Inhaber / TestPasswort123! (synthetic).
+
+## Stand 2026-11-06 – Supabase-Projekt eingerichtet (mit Erlaubnis von Ahmed)
+- Organisation "Adam", Projekt "adam" (ref ybatftfjosggnvzzklsq, Region eu-central-1 Frankfurt).
+- server/schema.sql in 3 Migrationen eingespielt (adam_shop_schema_1_core, _2_orders_customers, _3_admin_paypal_grants).
+  Geprüft: 64/64 Funktionen identisch mit der lokal getesteten DB (Hash ohne Kommentare/Leerzeichen; shop.clean enthält
+  die Steuerzeichen als echte Zeichen statt \u-Escapes, Funktionstest OK).
+- Rechte geprüft: anon hat keinen Zugriff auf Schema/Tabellen von "shop", shop_srv_* nur service_role, RLS auf allen Tabellen.
+- Supabase-Advisor (security): nur "RLS ohne Policy" (gewollt: kein direkter Tabellenzugriff) und "SECURITY DEFINER durch anon
+  aufrufbar" für die 33 vorgesehenen API-Funktionen (gewollt; jede prüft Token/Rolle/Rate-Limit selbst). Keine weiteren Befunde.
+- Inhaber-Konto "Inhaber" angelegt; Passwort wurde Ahmed privat mitgeteilt und steht NICHT im Repo.
+  Zurücksetzen: im Supabase SQL Editor `select shop.set_owner('Inhaber', 'NEUES-LANGES-PASSWORT');`
+- js/config.js enthält URL + publishable key (öffentlich gedacht).
+- Shop meldet "ready" erst nach dem ersten Admin-Login (dann werden die Einstellungen hochgeladen).
+- NICHT getestet: Live-Aufrufe gegen das echte Projekt aus dem Browser (Netzwerk der Arbeitsumgebung blockiert supabase.co).
+- Offen: Edge Functions (PayPal) erst deployen, wenn PayPal-Zugangsdaten des Kunden vorliegen; E-Mail (Resend) optional.

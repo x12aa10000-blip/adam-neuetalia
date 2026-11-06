@@ -113,7 +113,7 @@ begin
 end $$;
 
 create or replace function shop.clean(t text, maxlen int) returns text language sql immutable as $$
-  select left(trim(regexp_replace(coalesce(t, ''), '[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F‪-‮⁦-⁩]', '', 'g')), maxlen) $$;
+  select left(trim(regexp_replace(coalesce(t, ''), '[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F\u202A-\u202E\u2066-\u2069]', '', 'g')), maxlen) $$;
 
 create or replace function shop.is_email(e text) returns boolean language sql immutable as $$
   select e ~* '^[^\s@<>"'']+@[^\s@<>"'']+\.[a-z]{2,}$' and length(e) <= 120 $$;
