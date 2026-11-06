@@ -133,7 +133,7 @@
     if (o.status === 'neu') next = o.approval && apprItems.length ? `<button class="btn" data-a="send-proof" data-no="${o.no}">${ic('eye')} Korrekturabzug an Kunden senden</button><button class="btn ghost" data-a="st" data-no="${o.no}" data-st="produktion">Ohne Freigabe in Produktion</button>` : `<button class="btn" data-a="st" data-no="${o.no}" data-st="produktion">${ic('layers')} Produktion starten</button>`;
     if (o.status === 'freigabe') next = allOk ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="produktion">${ic('layers')} Freigegeben – Produktion starten</button>` : `<button class="btn ghost" data-a="send-proof" data-no="${o.no}">Neue Vorschau senden</button><button class="btn ghost" data-a="st" data-no="${o.no}" data-st="produktion">Trotzdem produzieren</button>`;
     if (o.status === 'produktion') next = `<button class="btn" data-a="st" data-no="${o.no}" data-st="bereit">${ic('check')} Fertig – ${o.ship.method === 'pickup' ? 'abholbereit melden' : o.ship.method === 'digital' ? 'bereit zum Verschicken' : 'bereit zum Versand'}</button>`;
-    if (o.status === 'bereit') next = o.ship.method === 'digital' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="zugestellt">${ic('mail')} Per E-Mail verschickt</button>` : o.ship.method === 'pickup' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="zugestellt">${ic('check')} Abgeholt</button>` : o.ship.method === 'local' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="unterwegs">${ic('bike')} Kurier ist unterwegs</button>` : `<button class="btn" data-a="ship" data-no="${o.no}">${ic('truck')} Sendungsnummer eintragen & versenden</button>`;
+    if (o.status === 'bereit') next = o.ship.method === 'digital' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="zugestellt">${ic('mail')} Per E-Mail verschickt</button>` : o.ship.method === 'pickup' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="zugestellt">${ic('check')} Abgeholt</button>` : o.ship.method === 'local' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="unterwegs">${ic('bike')} Kurier ist unterwegs</button>` : `${window.CLOUD && CLOUD.on ? `<button class="btn" data-a="dhl" data-no="${o.no}">${ic('print')} DHL-Label erstellen & versenden</button>` : ''}<button class="btn${window.CLOUD && CLOUD.on ? ' ghost' : ''}" data-a="ship" data-no="${o.no}">${ic('truck')} Sendungsnummer eintragen & versenden</button>`;
     if (o.status === 'unterwegs') next = `<button class="btn" data-a="st" data-no="${o.no}" data-st="zugestellt">${ic('check')} Zugestellt</button>`;
     const mails = ST.emails().filter(m => m.no === o.no);
     shell('bestellungen', `<a class="link back" href="#/admin/bestellungen">${ic('back')} Bestellungen</a>
@@ -453,6 +453,25 @@
         if (x.status !== 'freigabe') ST.setStatus(no, 'freigabe', by, 'Korrekturabzug gesendet');
         ST.sendMail('approval', ST.order(no), { msg, token: x.items.find(i => i.approval).approval.token });
         C.toast('Vorschau wurde an den Kunden geschickt'); re(); return;
+      }
+      case 'dhl': {
+        if (!window.CLOUD || !CLOUD.on || !CLOUD.dhlLabel) { C.toast('DHL-Label geht nur mit dem Server.', 'err'); return; }
+        const kg = await promptText('DHL-Label', 'Gewicht mit Verpackung (kg)', '1');
+        if (!kg) return;
+        el.disabled = true; C.toast('DHL-Label wird erstellt …');
+        try {
+          const r = await CLOUD.dhlLabel(no, parseFloat(String(kg).replace(',', '.')));
+          if (r.label) { const bin = atob(r.label); const u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); await C.save(`${no}_DHL_${r.shipmentNo}.pdf`, new Blob([u8], { type: 'application/pdf' })); }
+          ST.updateOrder(no, x => { x.tracking = { code: r.shipmentNo, carrier: 'DHL', at: Date.now() }; });
+          ST.setStatus(no, 'unterwegs', by, 'DHL ' + r.shipmentNo);
+          C.toast(`DHL-Label erstellt · Sendung ${r.shipmentNo}${r.warnings && r.warnings.length ? ' · Hinweis: ' + r.warnings[0].text : ''}`); re();
+        } catch (e) {
+          el.disabled = false;
+          const msg = { server_not_configured: 'DHL ist noch nicht eingerichtet (Zugangsdaten fehlen auf dem Server).', intl_not_configured: 'Für EU-Pakete fehlt die DHL-Abrechnungsnummer International.', dhl_auth: 'DHL hat die Zugangsdaten abgelehnt.', weight: 'Bitte ein Gewicht zwischen 0,01 und 31,5 kg eingeben.', auth: 'Bitte neu anmelden.', offline: 'Keine Verbindung zum Server.' }[e.code];
+          const det = e.data && e.data.messages && e.data.messages.length ? e.data.messages.map(m => m.text).filter(Boolean).slice(0, 2).join(' · ') : '';
+          C.toast(msg || ('DHL: ' + (det || 'Label konnte nicht erstellt werden.')), 'err');
+        }
+        return;
       }
       case 'ship': {
         const code = await promptText('Versenden', 'DHL-Sendungsnummer', '00340434' + String(Math.floor(Math.random() * 1e12)).padStart(12, '0'));

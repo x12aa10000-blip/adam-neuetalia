@@ -201,6 +201,7 @@
     { code: 'WILLKOMMEN10', type: 'pct', value: 10, min: 0, until: '', uses: 0, max: 0, on: true, note: 'Neukunden' },
     { code: 'LIEBE5', type: 'eur', value: 5, min: 40, until: '', uses: 0, max: 0, on: true, note: '' }
   ];
+  ST.DEFAULT_COUPONS = DEFAULT_COUPONS;
   ST.coupons = () => ST.get('coupons', DEFAULT_COUPONS);
   ST.saveCoupons = l => ST.set('coupons', l);
   ST.findCoupon = function (code, subtotal) {

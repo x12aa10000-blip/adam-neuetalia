@@ -1,6 +1,7 @@
 // Local stand-in for Supabase Edge Functions (+ PayPal API mock) used by the browser tests.
 import http from 'node:http';
 import { handleCreate, handleCapture, handleWebhook } from '../supabase/functions/_shared/paypal.ts';
+import { handleLabel } from '../supabase/functions/_shared/dhl.ts';
 const orders = new Map<string, any>(); let n = 1;
 http.createServer(async (req, res) => {
   let body = ''; for await (const c of req) body += c;
@@ -11,8 +12,15 @@ http.createServer(async (req, res) => {
   if (m) { const o = orders.get(m[1]); return o ? send(201, { purchase_units: [{ payments: { captures: [{ id: 'CAP-' + m[1], status: 'COMPLETED', amount: o.pu.amount, custom_id: o.pu.custom_id }] } }] }) : send(404, {}); }
   send(404, {});
 }).listen(8997);
-const env = { PAYPAL_CLIENT_ID: 'test-client', PAYPAL_CLIENT_SECRET: 'local-only', PAYPAL_WEBHOOK_ID: 'WH', PAYPAL_API_BASE: 'http://localhost:8997', SUPABASE_URL: 'http://localhost:54321', SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_test', ALLOWED_ORIGINS: 'http://localhost:8780,http://localhost:8790' };
-const H: Record<string, Function> = { 'paypal-create-order': handleCreate, 'paypal-capture-order': handleCapture, 'paypal-webhook': handleWebhook };
+// DHL Parcel DE Shipping API mock (sandbox-like answer with a PDF label)
+http.createServer(async (req, res) => {
+  let body = ''; for await (const c of req) body += c;
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify({ status: { statusCode: 200 }, items: [{ shipmentNo: '00340434161094000099', label: { b64: Buffer.from('%PDF-1.4 local test label').toString('base64') }, validationMessages: [] }] }));
+}).listen(8995);
+const env = { PAYPAL_CLIENT_ID: 'test-client', PAYPAL_CLIENT_SECRET: 'local-only', PAYPAL_WEBHOOK_ID: 'WH', PAYPAL_API_BASE: 'http://localhost:8997', SUPABASE_URL: 'http://localhost:54321', SUPABASE_SERVICE_ROLE_KEY: 'sb_secret_test', ALLOWED_ORIGINS: 'http://localhost:8780,http://localhost:8790',
+  DHL_API_BASE: 'http://localhost:8995', DHL_API_KEY: 'local-test', DHL_USER: 'user-valid', DHL_PASSWORD: 'local-only', DHL_BILLING_DE: '33333333330102' };
+const H: Record<string, Function> = { 'paypal-create-order': handleCreate, 'paypal-capture-order': handleCapture, 'paypal-webhook': handleWebhook, 'dhl-label': handleLabel };
 http.createServer(async (req, res) => {
   const name = (req.url || '').replace(/^\/functions\/v1\//, '').split('?')[0];
   let body = ''; for await (const c of req) body += c;

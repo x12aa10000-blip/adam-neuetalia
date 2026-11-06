@@ -66,7 +66,14 @@
   // shared data, kept only in memory (never in this browser's localStorage)
   const MEM = new Set(['orders', 'customers', 'giftcards', 'coupons', 'emails', 'activity', 'reviews', 'questions', 'settings', 'prodOv', 'customProducts', 'catCfg', 'site', 'seqOrder', 'seeded']);
   ST.memOnly = k => MEM.has(k) || /^seqInv/.test(k);
-  try { Object.keys(localStorage).filter(k => k.startsWith('an2:') && ST.memOnly(k.slice(4))).forEach(k => localStorage.removeItem(k)); } catch (e) { }
+  // shop data saved by the old version (before the server) is NEVER deleted: it is moved to a backup
+  // ("an2bak:") so the owner can take it over to the server from the admin (see CL.oldData / importOld)
+  const BAK = 'an2bak:';
+  try {
+    Object.keys(localStorage).filter(k => k.startsWith('an2:') && ST.memOnly(k.slice(4))).forEach(k => {
+      try { const b = BAK + k.slice(4); if (localStorage.getItem(b) === null) localStorage.setItem(b, localStorage.getItem(k)); localStorage.removeItem(k); } catch (e) { /* full storage: keep the original */ }
+    });
+  } catch (e) { }
   MEM.forEach(k => ST.forget(k));
   const KV = ['settings', 'prodOv', 'customProducts', 'catCfg', 'site', 'coupons'];
   const LISTS = { orders: ['order', o => o.no], reviews: ['review', r => r.id], questions: ['question', q => q.id], giftcards: ['giftcard', g => g.code], emails: ['email', m => m.id], customers: ['customer', c => c.id] };
@@ -273,9 +280,14 @@
     let r; try { r = await fetch(fnUrl(name), { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: CFG.key }, body: JSON.stringify(body) }); }
     catch (e) { const er = new Error('offline'); er.code = 'offline'; throw er; }
     const j = await r.json().catch(() => ({}));
-    if (!r.ok || j.error) { const er = new Error(j.error || 'http_' + r.status); er.code = j.error || 'http_' + r.status; throw er; }
+    if (!r.ok || j.error) { const er = new Error(j.error || 'http_' + r.status); er.code = j.error || 'http_' + r.status; er.data = j; throw er; }
     return j;
   }
+  /* DHL label: the admin session is checked on the server, DHL keys never reach the browser */
+  CL.dhlLabel = async function (no, kg) {
+    const a = admin(); if (!a) { const er = new Error('auth'); er.code = 'auth'; throw er; }
+    return fn('dhl-label', { token: a.token, no, kg });
+  };
   let ppLoad = null;
   function loadPayPal(id) {
     if (window.paypal && window.paypal.Buttons) return Promise.resolve(window.paypal);
@@ -461,8 +473,10 @@
     if (r.role !== a.role) quiet(() => ST.set('adminSession', Object.assign({}, a, { role: r.role })));
     lastPull = r.now - 15000;
     applyPull(r, true);
-    // first start of a new shop: copy the full default settings to the server
+    // first start of a new shop: copy the full default settings and the standard discount codes to the server
     if (r.role === 'owner' && !(r.kv || {}).settings) { const s = ST.settings(); delete s.staff; queue.kv.set('settings', s); flushSoon(); }
+    if (r.role === 'owner' && !(r.kv || {}).coupons && ST.DEFAULT_COUPONS) { ST.saveCoupons(JSON.parse(JSON.stringify(ST.DEFAULT_COUPONS))); }
+    if (r.role === 'owner') CL.oldBanner();
     // new brand name: replace the old shop name once (owner can still change it in the settings)
     if (r.role === 'owner') { const s = ST.settings(); if (/Neuetalia/i.test(s.shop.name || '') || /Neuetalia/i.test(s.shop.owner || '')) { s.shop.name = 'Adam'; if (/Neuetalia/i.test(s.shop.owner || '')) s.shop.owner = 'Adam'; ST.saveSettings(s); } }
     if (r.role === 'owner') pushPrices();
@@ -470,6 +484,46 @@
     if (r.role === 'owner' && /^https:/.test(location.origin)) { const s = ST.settings(); if (!s.shop.url) { s.shop.url = location.origin + location.pathname.replace(/admin\.html$/, ''); ST.saveSettings(s); } }
     startPoll();
   };
+  /* ---------------- data from the old version (saved in this browser before the server existed) ---------------- */
+  const OLD_KEYS = ['settings', 'site', 'catCfg', 'customProducts', 'prodOv', 'coupons'];
+  CL.oldData = function () {
+    const out = {};
+    try { if (localStorage.getItem(BAK + '_done')) return out; for (const k of OLD_KEYS) { const v = localStorage.getItem(BAK + k); if (v) { try { out[k] = JSON.parse(v); } catch (e) { } } } } catch (e) { }
+    return out;
+  };
+  const isObj = x => x && typeof x === 'object' && !Array.isArray(x);
+  const deep = (a, b) => { for (const k in b) { if (isObj(b[k]) && isObj(a[k])) deep(a[k], b[k]); else if (b[k] !== undefined) a[k] = b[k]; } return a; };
+  CL.importOld = function () {
+    const d = CL.oldData(); const done = [];
+    if (d.settings) { const s = deep(ST.settings(), d.settings); delete s.staff; if (/Neuetalia/i.test(s.shop.name || '')) s.shop.name = 'Adam'; ST.saveSettings(s); done.push('settings'); }
+    if (d.site) { ST.set('site', deep(ST.get('site', {}) || {}, d.site)); done.push('site'); }
+    if (d.catCfg) { ST.set('catCfg', d.catCfg); done.push('catCfg'); }
+    if (Array.isArray(d.customProducts) && d.customProducts.length) { const cur = ST.get('customProducts', []) || []; ST.set('customProducts', cur.concat(d.customProducts.filter(p => !cur.some(x => x.id === p.id)))); done.push('customProducts'); }
+    if (isObj(d.prodOv)) { ST.set('prodOv', deep(ST.get('prodOv', {}) || {}, d.prodOv)); done.push('prodOv'); }
+    if (Array.isArray(d.coupons)) { const cur = ST.coupons(); ST.saveCoupons(cur.concat(d.coupons.filter(c => c && /^[A-Z0-9_-]{2,40}$/.test(String(c.code || '').toUpperCase()) && typeof c.value === 'number' && !cur.some(x => x.code.toUpperCase() === String(c.code).toUpperCase())).map(c => Object.assign({}, c, { code: String(c.code).toUpperCase() })))); done.push('coupons'); }
+    try { localStorage.setItem(BAK + '_done', String(Date.now())); } catch (e) { }
+    if (window.SITE && SITE.apply) SITE.apply();
+    ST.log('website', 'Daten aus der alten Version übernommen: ' + done.join(', '), (admin() || {}).user || 'admin');
+    return done;
+  };
+  CL.oldBanner = function () {
+    const d = CL.oldData(); const keys = Object.keys(d); if (!keys.length) return;
+    const n = (d.customProducts || []).length;
+    const show = () => {
+      const main = $('#amain') || $('.a-main'); if (!main || main.querySelector('#clOld')) return;
+      main.insertAdjacentHTML('afterbegin', `<div class="sec-warn" id="clOld">${ic('alert')}<span>${W('In diesem Browser sind Daten aus der alten Shop-Version gespeichert (Einstellungen, Website-Texte & Farben, Kategorien' + (n ? ', ' + n + ' eigene Produkte' : '') + ', Produkt-Änderungen, Rabattcodes). Sollen sie auf den Server übernommen werden?', 'بهالمتصفح في بيانات من النسخة القديمة للمتجر (الإعدادات، نصوص وألوان الموقع، الأقسام' + (n ? '، ' + n + ' منتجات خاصة' : '') + '، تعديلات المنتجات، أكواد الخصم). بدك ننقلها عالسيرفر؟')}</span>
+        <button class="btn sm" data-clold="1">${W('Übernehmen', 'انقلها')}</button><button class="btn ghost sm" data-clold="0">${W('Nicht übernehmen', 'لا')}</button></div>`);
+    };
+    show(); if (CL._oldObs) return;
+    CL._oldObs = new MutationObserver(() => { if (Object.keys(CL.oldData()).length) show(); else { CL._oldObs.disconnect(); } });
+    CL._oldObs.observe(document.body, { childList: true, subtree: true });
+  };
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-clold]'); if (!b) return;
+    if (b.dataset.clold === '1') { const done = CL.importOld(); C.toast(W('Übernommen ✓ – wird gespeichert', 'تم النقل ✓ – عم ينحفظ') + ' (' + done.length + ')'); }
+    else { try { localStorage.setItem(BAK + '_done', 'skip ' + Date.now()); } catch (x) { } }
+    const box = $('#clOld'); if (box) box.remove();
+  });
   function startPoll() { stopPoll(); pollT = setInterval(poll, 15000); }
   function stopPoll() { if (pollT) clearInterval(pollT); pollT = null; }
   async function poll() {

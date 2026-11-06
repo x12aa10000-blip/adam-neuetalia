@@ -57,6 +57,10 @@ async def main():
         # 1) coupon usage limit from the admin (remove the code a previous run left behind)
         sql("update shop.kv set v = coalesce((select jsonb_agg(value) from jsonb_array_elements(v) where value->>'code' <> 'NURZWEI'), '[]'::jsonb) where k='coupons'")
         a = await admin_login(b)
+        # Edge Functions run on the local functions server (like the PayPal browser test)
+        async def fwd(r):
+            resp = await r.fetch(url=r.request.url.replace('54321', '54323')); await r.fulfill(response=resp)
+        await a.context.route('http://localhost:54321/functions/v1/**', lambda r: asyncio.ensure_future(fwd(r)))
         await a.goto(WEB + '/admin.html#/admin/rabatte'); await a.wait_for_timeout(1200)
         f = a.locator('form[data-aform=coupon]')
         await f.locator('[name=code]').fill('NURZWEI'); await f.locator('[name=value]').fill('5'); await f.locator('[name=max]').fill('2')
@@ -138,11 +142,26 @@ async def main():
             ok('server price table marks it digital', sql("select v#>>'{song-plakette,digital}' from shop.kv where k='prices'") == 'true', sql("select v#>>'{song-plakette,digital}' from shop.kv where k='prices'"))
             await cb.uncheck(); await a.locator('input[name=digital]').evaluate("e=>e.form.requestSubmit()"); await a.wait_for_timeout(2500)
         # server path (PayPal confirmation) also mails
-        pp = sql("select id from shop.items where kind='order' and data#>>'{pay,status}' <> 'bezahlt' and data->>'status' <> 'storniert' order by created_at desc limit 1")
+        pp = sql(f"select id from shop.items where kind='order' and id <> '{no or ''}' and data#>>'{{pay,status}}' <> 'bezahlt' and data->>'status' <> 'storniert' and data#>>'{{pay,method}}' = 'paypal' order by created_at desc limit 1") or sql(f"select id from shop.items where kind='order' and id <> '{no or ''}' and data#>>'{{pay,status}}' <> 'bezahlt' and data->>'status' <> 'storniert' order by created_at desc limit 1")
         tot = sql(f"select data#>>'{{totals,total}}' from shop.items where kind='order' and id='{pp}'")
         sql(f"select public.shop_srv_paypal_result('{pp}', null, 'CAP123', 'COMPLETED', {tot}, 'EUR', 'test')")
         mails = sql(f"select count(*) from shop.items where kind='email' and data->>'no'='{pp}' and data->>'tpl'='paid'")
         ok('PayPal confirmation → payment mail', mails == '1', (pp, mails))
+
+        # 5) DHL label from the order page (DHL mocked locally; keys only in the function)
+        sql("select shop.item_put('order', 'AD-990002', jsonb_build_object('no','AD-990002','created',(extract(epoch from now())*1000)::bigint,'status','bereit','lang','de','invoice','RE-TEST','cust',jsonb_build_object('id','c-test','name','Erika Muster','email','erika@example.org','phone','0151 2345678'),'ship',jsonb_build_object('method','dhl','date',current_date::text,'addr',jsonb_build_object('name','Erika Muster','street','Lange Reihe 5a','zip','20099','city','Hamburg','country','DE')),'gift',jsonb_build_object('wrap',false,'card','','hidePrices',false,'isGift',false),'bill',jsonb_build_object('name','Erika Muster','street','Lange Reihe 5a','zip','20099','city','Hamburg','country','DE'),'approval',false,'coupon','','giftcard','','note','','items','[]'::jsonb,'totals',jsonb_build_object('sub',10,'ship',0,'wrap',0,'discount',0,'gift',0,'total',10,'vat','{}'::jsonb),'pay',jsonb_build_object('method','vorkasse','status','bezahlt'),'history','[]'::jsonb,'notes','[]'::jsonb,'complaints','[]'::jsonb))")
+        await a.goto(WEB + '/admin.html#/admin'); await a.wait_for_timeout(2500)
+        await a.goto(WEB + '/admin.html#/admin/o/AD-990002'); await a.wait_for_timeout(1500)
+        btn = a.locator('[data-a=dhl]')
+        ok('DHL button on a ready DHL order', await btn.count() == 1)
+        if await btn.count():
+            async with a.expect_download(timeout=8000) as dl:
+                await btn.click(); await a.wait_for_selector('#ptx'); await a.fill('#ptx', '1,5'); await a.locator('[data-r="1"]').click()
+            d = await dl.value
+            ok('label PDF downloaded', d.suggested_filename.endswith('.pdf') and 'DHL' in d.suggested_filename, d.suggested_filename)
+            await a.wait_for_timeout(1500)
+            o = await a.evaluate("()=>ST.order('AD-990002')")
+            ok('order now on its way with the DHL number', o and o.get('status') == 'unterwegs' and (o.get('tracking') or {}).get('code') == '00340434161094000099', o and (o.get('status'), o.get('tracking')))
 
         errs = (a.errs or []) + (p.errs or []) + (q.errs or [])
         ok('no page errors', not errs, errs)

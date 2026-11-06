@@ -917,6 +917,23 @@ end $$;
 -- ---------------------------------------------------------------------
 -- Rechte: nur die öffentlichen Funktionen sind aufrufbar
 -- ---------------------------------------------------------------------
+-- DHL label (service role only): checks the admin session and returns sender + consignee for one DHL order
+create or replace function public.shop_srv_dhl_order(p_token text, p_no text) returns jsonb language plpgsql security definer set search_path = '' as $$
+declare a shop.sessions; o jsonb; s jsonb;
+begin
+  begin a := shop.admin(p_token); exception when others then return jsonb_build_object('error_code', 'auth'); end;
+  select data into o from shop.items where kind = 'order' and id = upper(trim(coalesce(p_no, '')));
+  if o is null then return jsonb_build_object('error_code', 'not_found'); end if;
+  if o#>>'{ship,method}' not in ('dhl', 'eu') then return jsonb_build_object('error_code', 'not_dhl'); end if;
+  if o->>'status' in ('storniert', 'zugestellt') then return jsonb_build_object('error_code', 'closed'); end if;
+  s := shop.kvget('settings', '{}'::jsonb);
+  perform shop.log('versand', (o->>'no') || ': DHL-Label angefordert', a.subject);
+  return jsonb_build_object('no', o->>'no', 'method', o#>>'{ship,method}', 'by', a.subject,
+    'consignee', (o#>'{ship,addr}') || jsonb_build_object('email', o#>>'{cust,email}', 'phone', o#>>'{cust,phone}'),
+    'shipper', jsonb_build_object('name', coalesce(s#>>'{shop,name}', 'Adam'), 'street', s#>>'{shop,street}', 'zip', s#>>'{shop,zip}', 'city', s#>>'{shop,city}',
+      'email', s#>>'{shop,email}', 'phone', s#>>'{shop,phone}'));
+end $$;
+
 revoke all on all tables in schema shop from public;
 revoke all on all sequences in schema shop from public;
 revoke all on all functions in schema shop from public;

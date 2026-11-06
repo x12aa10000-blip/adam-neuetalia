@@ -9,3 +9,7 @@ verify_jwt = false
 
 [functions.paypal-webhook]
 verify_jwt = false
+
+# Admin-only DHL label: the admin session token is checked in the database (shop_srv_dhl_order).
+[functions.dhl-label]
+verify_jwt = false
