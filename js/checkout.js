@@ -171,14 +171,22 @@
       const first = $(`[data-co="${bad[0]}"]`); if (first) { first.scrollIntoView({ block: 'center', behavior: 'smooth' }); setTimeout(() => first.focus({ preventScroll: true }), 300); }
       C.toast(bad[0] === 'agb' ? t('need_agb') : bad[0] === 'addr.zip' && CO.method === 'local' ? t('local_zip_bad') : t('need_fields'), 'err'); return;
     }
-    const ok = await K.pay(CO.pay, ST.totals(ST.cart(), { method: CO.method, wrap: CO.wrap, coupon: CO.coupon, giftcard: CO.giftcard }).total);
-    if (!ok) return;
-    if (CO.account && !ST.me()) { const r = await ST.register({ name: CO.name, email: CO.email, phone: CO.phone, pw: CO.pw, marketing: CO.marketing }); if (r.err === 'exists') C.toast(t('acc_exists'), 'err'); }
     const bill = CO.method === 'pickup' || !CO.sameBill ? CO.bill : CO.addr;
-    const r = ST.placeOrder({ name: CO.name.trim(), email: CO.email.trim(), phone: CO.phone.trim(), method: CO.method, addr: CO.method === 'pickup' ? null : Object.assign({}, CO.addr, { name: CO.addr.name || CO.name }), bill: Object.assign({}, bill),
+    const D = { name: CO.name.trim(), email: CO.email.trim(), phone: CO.phone.trim(), method: CO.method, addr: CO.method === 'pickup' ? null : Object.assign({}, CO.addr, { name: CO.addr.name || CO.name }), bill: Object.assign({}, bill),
       date: ['pickup', 'local'].includes(CO.method) ? CO.date : '', window: CO.method === 'local' ? CO.window : '', recipient: CO.isGift && CO.method !== 'pickup' ? CO.addr.name : '', isGift: CO.isGift, card: CO.isGift ? CO.card : '', wrap: CO.isGift && CO.wrap, hidePrices: CO.isGift && CO.hidePrices,
-      approval: CO.approval, pay: CO.pay, coupon: CO.coupon, giftcard: CO.giftcard, note: CO.note, lang: C.lang(), marketing: CO.marketing, saveAddr: CO.saveAddr });
-    if (r.err) { C.toast(t('cart_empty'), 'err'); return; }
+      approval: CO.approval, pay: CO.pay, coupon: CO.coupon, giftcard: CO.giftcard, note: CO.note, lang: C.lang(), marketing: CO.marketing, saveAddr: CO.saveAddr };
+    if (K.extend) K.extend(D);
+    const btn = $('[data-act="place"]'); const busy = on => { if (btn) { btn.disabled = on; btn.classList.toggle('busy', on); } };
+    busy(true);
+    try {
+      if (CLOUD.on) { const ck = await CLOUD.checkOrder(D); if (ck.err) { C.toast(CLOUD.msg(ck.err === 'fields' || ck.err === 'zip' ? 'generic' : ck.err), 'err'); return; } }
+      const ok = await K.pay(CO.pay, ST.totals(ST.cart(), { method: CO.method, wrap: CO.wrap, coupon: CO.coupon, giftcard: CO.giftcard }).total);
+      if (!ok) return;
+      if (K.payRef) { D.payRef = K.payRef; K.payRef = ''; }
+      if (CO.account && !ST.me()) { const ra = await ST.register({ name: CO.name, email: CO.email, phone: CO.phone, pw: CO.pw, marketing: CO.marketing }); if (ra.err === 'exists') C.toast(t('acc_exists'), 'err'); }
+      var r = await ST.placeOrder(D);
+    } finally { busy(false); }
+    if (r.err) { C.toast(r.err === 'empty' ? t('cart_empty') : CLOUD.msg(r.err), 'err'); if (D.payRef) C.toast('PayPal: ' + D.payRef, 'err'); return; }
     CO = null; SHOP.refreshHeader();
     ST.set('lastOrderMine', { no: r.o.no, email: r.o.cust.email });
     C.go('#/danke/' + r.o.no);
@@ -210,7 +218,7 @@
       ${o.pay.method === 'vorkasse' ? `<div class="bankbox"><h2>${t('bank_h')}</h2><dl><dt>${t('bank_amount')}</dt><dd>${eur(o.totals.total)}</dd><dt>IBAN</dt><dd><bdi dir="ltr">${esc(s.shop.iban)}</bdi></dd><dt>${t('bank_name')}</dt><dd>${esc(s.shop.bank)}</dd><dt>${t('bank_ref')}</dt><dd>${o.no}</dd></dl></div>` : ''}
       ${o.approval ? `<p class="hint">${ic('eye')} ${t('thx_proof')}</p>` : ''}
       <ol class="steps-line">${['s_received', o.approval ? 's_proof' : null, 's_making', o.ship.method === 'pickup' ? 's_ready' : 's_shipped', 's_done'].filter(Boolean).map((k, i) => `<li class="${i === 0 ? 'on' : ''}"><span></span>${t(k)}</li>`).join('')}</ol>
-      <div class="vbtns center"><a class="btn" href="#/verfolgen/${o.no}?e=${encodeURIComponent(o.cust.email)}">${t('track_order')}</a><a class="btn ghost" href="#/postfach">${ic('mail')} ${t('see_emails')}</a></div>
+      <div class="vbtns center"><a class="btn" href="#/verfolgen/${o.no}?e=${encodeURIComponent(o.cust.email)}">${t('track_order')}</a><button class="btn ghost" data-act="inv" data-no="${o.no}">${ic('download')} ${t('invoice_pdf')}</button></div>
       <p class="muted small center">${t('thx_cancel', { min: s.cancelMinutes })}</p>
       ${ST.me() ? '' : `<p class="center"><a class="link" href="#/konto">${t('thx_acc')}</a></p>`}
     </div>`, 'thanks');

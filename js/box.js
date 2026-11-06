@@ -81,6 +81,11 @@
   const byId = (list, id) => list.find(x => x.id === id) || list[0];
   const cap = () => byId(SIZES, S.size).cap;
   const itemCount = () => S.items.reduce((a, i) => a + i.qty, 0);
+  /** price list for the server-side price check (only boxes that can be chosen) */
+  B._tables = function () {
+    B.applySite(); const m = (l, f) => Object.fromEntries(l.filter(x => !x.off).map(x => [x.id, ST.round2(f(x) || 0)]));
+    return { boxes: m(BOXES, x => x.price), sizes: m(SIZES, x => x.add), fills: m(FILLS, x => x.add), extras: m(EXTRAS, x => x.price) };
+  };
   B.price = function (s) {
     s = s || S; B.applySite();
     const base = byId(BOXES, s.box).price + byId(SIZES, s.size).add + byId(FILLS, s.fill).add;

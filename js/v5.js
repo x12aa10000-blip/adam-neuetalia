@@ -483,11 +483,9 @@
     const pays = $('.pays'); if (pays) pays.insertAdjacentHTML('afterend', `<p class="hint">${V.ic('lock')} ${t('secure_note')}</p>`);
   };
   document.addEventListener('change', e => { if (e.target.name === 'v5store') pickStore = +e.target.value; });
-  const _po = ST.placeOrder; ST.placeOrder = function (d) {
-    const r = _po.apply(this, arguments);
-    if (r && r.o && d.method === 'pickup') { const l = V.locs()[pickStore] || V.locs()[0]; if (l) ST.updateOrder(r.o.no, o => { o.ship.store = { name: l.name, street: l.street, zip: l.zip, city: l.city }; }); }
-    return r;
-  };
+  /* chosen pickup shop goes with the order (saved by the server) */
+  CHECKOUT.extend = function (d) { if (d.method === 'pickup') { const l = V.locs()[pickStore] || V.locs()[0]; if (l) d.store = { name: l.name, street: l.street, zip: l.zip, city: l.city }; } };
+  if (!window.CLOUD || !CLOUD.on) { const _po = ST.placeOrder; ST.placeOrder = function (d) { const r = _po.apply(this, arguments); if (r && r.o && d.store) ST.updateOrder(r.o.no, o => { o.ship.store = d.store; }); return r; }; }
   const _place = CHECKOUT.place; CHECKOUT.place = async function () {
     const p = _place.apply(this, arguments);
     setTimeout(() => {
@@ -519,8 +517,8 @@
         const box = $('#ppBtns', ov); if (!box) return; box.innerHTML = '';
         pp.Buttons({
           fundingSource: method === 'card' && pp.FUNDING ? pp.FUNDING.CARD : undefined,
-          createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: Number(total).toFixed(2), currency_code: 'EUR' }, description: 'Adam & Neuetalia' }] }),
-          onApprove: (d, a) => a.order.capture().then(() => fin(true)),
+          createOrder: (d, a) => a.order.create({ purchase_units: [{ amount: { value: Number(total).toFixed(2), currency_code: 'EUR' }, description: (ST.settings().shop || {}).name || 'Adam' }] }),
+          onApprove: (d, a) => a.order.capture().then(x => { CHECKOUT.payRef = (x && x.id) || d.orderID || ''; fin(true); }),
           onCancel: () => { }, onError: () => { C.toast(t('v5_pp_err'), 'err'); }
         }).render(box);
       }).catch(() => { const box = $('#ppBtns', ov); if (box) box.innerHTML = `<p class="warn">${t('v5_pp_err')}</p>`; });

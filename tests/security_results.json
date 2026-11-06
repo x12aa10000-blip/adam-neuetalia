@@ -1,0 +1,302 @@
+[
+ {
+  "test": "Direct table access as API role is denied",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Internal function set_owner not callable by API role",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer table (password hashes) not readable",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Unknown/internal RPC not exposed",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Request without API key rejected",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Changed unit price is rejected",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Changed expected total is rejected",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Quantity 0 rejected",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Negative quantity rejected",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Quantity 1000 rejected",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Unknown product rejected",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Gift card with 10 000 € rejected",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Gift box with fake extra rejected",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Gift box with negative extras rejected",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Disabled payment method (Klarna) rejected",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Cash only allowed with pickup",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Delivery date in the past rejected",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Invalid e-mail rejected",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Fake preview (non-image data URL) rejected",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Valid order accepted",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Order is never marked paid by the browser",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Server recalculated totals (59,90)",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "SQL injection text stored literally, tables intact",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Control characters removed from input",
+  "severity": "Low",
+  "result": "PASS"
+ },
+ {
+  "test": "Order not visible with wrong e-mail",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Order visible with right e-mail",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Internal notes never sent to customers",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Order via approval link needs the real token",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Approve with wrong token fails",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Cancel someone else's order fails",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Complaint on someone else's order fails",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Admin data without token denied",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Admin data with random token denied",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer token cannot open admin",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer cannot push admin data",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Staff cannot change prices/settings",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Staff cannot create gift cards",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Staff cannot see customers list",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Staff cannot manage team",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Unknown data type cannot be written",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Short admin password refused",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Admin pull never contains password hashes",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Admin mail only to e-mails of that order (no spam relay)",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Logged-out admin token no longer works",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Removed team member's session ends immediately",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Admin password guessing blocked after 10 tries",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Guessing from many IPs still blocked per account",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Coupon code guessing limited",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Order number scanning limited",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer password guessing blocked",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "E-mail guessing via cancel limited",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer password < 8 chars refused",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer cannot change own e-mail/id/password via profile update",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Account deletion requires valid session",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Photo upload with guessable id refused",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Photo upload of non-image type refused",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Photo upload with non-base64 data refused",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Path-like photo id refused",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Public shop image readable",
+  "severity": "Low",
+  "result": "PASS"
+ },
+ {
+  "test": "Public start data has no staff, secrets or e-mails",
+  "severity": "High",
+  "result": "PASS"
+ }
+]

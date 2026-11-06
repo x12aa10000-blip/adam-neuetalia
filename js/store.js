@@ -16,6 +16,8 @@
   };
   ST.set = function (k, v) {
     mem[k] = v;
+    if (ST.memOnly && ST.memOnly(k)) { if (ST.afterSet) ST.afterSet(k, v); return true; }
+    if (ST.afterSet) ST.afterSet(k, v);
     try { localStorage.setItem(NS + k, JSON.stringify(v)); return true; }
     catch (e) { storageOk = false; if (ST.onStorageError) ST.onStorageError(e); return false; }
   };
@@ -42,8 +44,10 @@
     return dbp;
   }
   const urlCache = new Map(); const memBlobs = new Map();
+  /* long random ids: a customer photo can only be opened by someone who knows its id */
+  ST.photoId = function () { const a = new Uint8Array(20); crypto.getRandomValues(a); return 'idb:ph' + Array.from(a, b => (b % 36).toString(36)).join('') + Date.now().toString(36); };
   ST.photoPut = async function (blob) {
-    const id = 'idb:' + ST.uid('ph');
+    const id = ST.photoId();
     memBlobs.set(id, blob);
     const d = await idb();
     if (d) await new Promise(r => { try { const tx = d.transaction('p', 'readwrite'); tx.objectStore('p').put(blob, id); tx.oncomplete = r; tx.onerror = r; } catch (e) { r(); } });
@@ -51,8 +55,15 @@
   };
   ST.photoBlob = async function (id) {
     if (memBlobs.has(id)) return memBlobs.get(id);
+    const d = await idb();
+    const local = d ? await new Promise(r => { try { const q = d.transaction('p').objectStore('p').get(id); q.onsuccess = () => { if (q.result) memBlobs.set(id, q.result); r(q.result || null); }; q.onerror = () => r(null); } catch (e) { r(null); } }) : null;
+    if (local || !ST.remotePhoto) return local;
+    const b = await ST.remotePhoto(id); if (b) memBlobs.set(id, b); return b;
+  };
+  ST.photoLocal = async function (id) {
+    if (memBlobs.has(id)) return memBlobs.get(id);
     const d = await idb(); if (!d) return null;
-    return new Promise(r => { try { const q = d.transaction('p').objectStore('p').get(id); q.onsuccess = () => { if (q.result) memBlobs.set(id, q.result); r(q.result || null); }; q.onerror = () => r(null); } catch (e) { r(null); } });
+    return new Promise(r => { try { const q = d.transaction('p').objectStore('p').get(id); q.onsuccess = () => r(q.result || null); q.onerror = () => r(null); } catch (e) { r(null); } });
   };
   ST.photoUrl = async function (id) {
     if (!id) return null;

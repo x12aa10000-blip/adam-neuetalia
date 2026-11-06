@@ -79,10 +79,10 @@
       case 'gc-check': { const r = ST.findGiftcard($('#gcCode').value); $('#gcOut').textContent = r.g ? t('gc_bal', { n: eur(r.g.balance) }) : t('gc_' + r.err); return; }
       case 'logout': ST.logout(); SHOP.refreshHeader(); C.go('#/konto'); C.toast(t('logged_out')); return;
       case 'export-me': { const me = ST.me(); const data = { profile: me, orders: ST.orders().filter(o => o.cust.id === me.id || o.cust.email === me.email), emails: ST.emails().filter(m => m.to === me.email) }; C.save('meine-daten.json', new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); return; }
-      case 'delete-me': if (await C.confirm(t('delete_q'), t('delete_acc'), t('cancel'))) { ST.deleteMe(); SHOP.refreshHeader(); C.go('#/'); C.toast(t('deleted')); } return;
+      case 'delete-me': if (await C.confirm(t('delete_q'), t('delete_acc'), t('cancel'))) { if ((await ST.deleteMe()) === false) return; SHOP.refreshHeader(); C.go('#/'); C.toast(t('deleted')); } return;
       case 'addr-del': { const me = ST.me(); const a = (me.addresses || []).slice(); a.splice(+el.dataset.i, 1); ST.updateMe({ addresses: a }); C.dispatch({ keepScroll: true }); return; }
       case 'inv': { const o = ST.order(el.dataset.no); C.toast(t('creating')); const b = await DOCS.invoice(o); C.save(o.invoice + '.pdf', b); return; }
-      case 'ocancel': { const o = ST.order(el.dataset.no); if (!o || o.status !== 'neu' || Date.now() > o.cancelUntil) { C.toast(t('cancel_late'), 'err'); return; } if (await C.confirm(t('cancel_q'), t('cancel_order'), t('back'))) { ST.cancelOrder(o.no, 'kunde', 'vom Kunden'); C.toast(t('cancelled_ok')); C.dispatch(); } return; }
+      case 'ocancel': { const o = ST.order(el.dataset.no); if (!o || o.status !== 'neu' || Date.now() > o.cancelUntil) { C.toast(t('cancel_late'), 'err'); return; } if (await C.confirm(t('cancel_q'), t('cancel_order'), t('back'))) { if (CLOUD.on) { if (!(await ST.cancelOrderCustomer(o.no))) return; } else ST.cancelOrder(o.no, 'kunde', 'vom Kunden'); C.toast(t('cancelled_ok')); C.dispatch(); } return; }
       case 'appr-ok': CHECKOUT.approve(el.dataset.no, +el.dataset.i, true); C.dispatch({ keepScroll: true }); return;
       case 'appr-change': {
         const ov = C.sheet({ title: t('appr_change'), kind: 'modal' });
@@ -119,7 +119,7 @@
     switch (f.dataset.form) {
       case 'search': { const q = $('#sq').value.trim(); if (q) C.go('#/suche/' + encodeURIComponent(q)); return; }
       case 'finder': { SHOP.setFinder({ occ: g('occ'), who: g('who'), max: g('max') }); C.go(g('occ') ? '#/o/' + g('occ') : '#/c/alle'); return; }
-      case 'news': { f.reset(); C.toast(t('news_ok')); return; }
+      case 'news': { if (CLOUD.on) { try { await ST.newsletter(g('email') || ($('input[type=email]', f) || {}).value || ''); } catch (er) { CLOUD.fail(er); return; } } f.reset(); C.toast(t('news_ok')); return; }
       case 'hero': { const n = $('#heroName').value.trim(); const href = ($('#heroLink') || {}).getAttribute ? $('#heroLink').getAttribute('href') : '#/c/alle'; C.go(n && !href.includes('?') ? href + '?n=' + encodeURIComponent(n) : href); return; }
       case 'giftcard': {
         let amt = g('amt') === 'x' ? +g('amtx') : +g('amt');
@@ -133,10 +133,10 @@
       case 'question': ST.addQuestion({ pid: f.dataset.pid, text: g('text'), email: g('email'), lang: C.lang() }); f.reset(); C.toast(t('question_thanks')); return;
       case 'track': C.go('#/verfolgen/' + encodeURIComponent(g('no').toUpperCase()) + '?e=' + encodeURIComponent(g('e'))); return;
       case 'login': { const r = await ST.login(g('email'), g('pw')); if (r.err) { C.toast(t('login_wrong'), 'err'); return; } SHOP.refreshHeader(); C.toast(t('hello', { n: r.c.name.split(' ')[0] })); C.go(f.dataset.next === 'kasse' ? '#/kasse' : '#/konto'); return; }
-      case 'register': { if (g('pw').length < 6) { C.toast(t('pw_short'), 'err'); return; } const r = await ST.register({ name: g('name'), email: g('email'), phone: g('phone'), pw: g('pw'), marketing: !!fd.get('marketing') }); if (r.err) { C.toast(t('acc_exists'), 'err'); return; } const w = ST.get('wish', []); if (w.length) ST.updateMe({ wishlist: w }); SHOP.refreshHeader(); C.go('#/konto'); return; }
+      case 'register': { if (g('pw').length < 8) { C.toast(t('pw_short'), 'err'); return; } const r = await ST.register({ name: g('name'), email: g('email'), phone: g('phone'), pw: g('pw'), marketing: !!fd.get('marketing') }); if (r.err) { if (r.err === 'exists') C.toast(t('acc_exists'), 'err'); else if (r.err === 'pw') C.toast(t('pw_short'), 'err'); return; } const w = ST.get('wish', []); if (w.length) ST.updateMe({ wishlist: w }); SHOP.refreshHeader(); C.go('#/konto'); return; }
       case 'addr': { const me = ST.me(); ST.updateMe({ addresses: (me.addresses || []).concat([{ name: g('name'), street: g('street'), zip: g('zip'), city: g('city'), country: 'DE' }]) }); C.dispatch({ keepScroll: true }); C.toast(t('saved')); return; }
       case 'profile': ST.updateMe({ name: g('name'), phone: g('phone'), marketing: !!fd.get('marketing') }); C.toast(t('saved')); C.dispatch({ keepScroll: true }); return;
-      case 'complaint': { const no = f.dataset.no; ST.updateOrder(no, o => { o.complaints = (o.complaints || []).concat([{ at: Date.now(), text: g('text'), done: false }]); }); const o = ST.order(no); ST.sendMail('complaint', o, { text: g('text'), toEmail: ST.settings().shop.email }); const em = ST.emails(); em[0].lang = 'de'; ST.set('emails', em); ST.log('reklamation', `${no}: ${g('text').slice(0, 60)}`, 'kunde'); f.reset(); C.toast(t('complaint_thanks')); return; }
+      case 'complaint': { if (CLOUD.on) { if (await ST.complaint(f.dataset.no, g('text'))) { f.reset(); C.toast(t('complaint_thanks')); } return; } const no = f.dataset.no; ST.updateOrder(no, o => { o.complaints = (o.complaints || []).concat([{ at: Date.now(), text: g('text'), done: false }]); }); const o = ST.order(no); ST.sendMail('complaint', o, { text: g('text'), toEmail: ST.settings().shop.email }); const em = ST.emails(); em[0].lang = 'de'; ST.set('emails', em); ST.log('reklamation', `${no}: ${g('text').slice(0, 60)}`, 'kunde'); f.reset(); C.toast(t('complaint_thanks')); return; }
     }
   });
   async function thumbOf(src) { const im = await ENG.img(src); const c = ENG.canvas(240, 240); c.getContext('2d').drawImage(im, 0, 0, 240, 240); return c.toDataURL('image/jpeg', .8); }
@@ -152,9 +152,12 @@
 
   /* ---------------- start ---------------- */
   C.applyLang();
-  ST.seed();
   if (document.fonts) ['400 16px ui-sans', '500 16px ui-serif'].forEach(f => document.fonts.load(f).catch(() => { }));
-  C.dispatch();
-  ASSIST.mount();
-  window.addEventListener('hashchange', () => ASSIST.mount());
+  CLOUD.boot().then(() => {
+    if (CLOUD.install) CLOUD.install();
+    if (!CLOUD.on) ST.seed();
+    C.dispatch();
+    ASSIST.mount();
+    window.addEventListener('hashchange', () => ASSIST.mount());
+  });
 })();
