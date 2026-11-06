@@ -50,6 +50,7 @@
   function when(o, lang) {
     const d = C.date(o.ship.date, { weekday: 'long', day: 'numeric', month: 'long' }, lang);
     if (o.ship.method === 'pickup') return t('ml_when_pickup', { d }, lang);
+    if (o.ship.method === 'digital') return t('m_digital_d', null, lang);
     if (o.ship.method === 'local') return t('ml_when_local', { d, w: o.ship.window || '' }, lang);
     return t('ml_when_ship', { d }, lang);
   }
@@ -73,6 +74,10 @@
       case 'approval':
         subject = t('ml_appr_s', { no: o.no }, lang);
         body = `<p>${hi}</p><p>${t('ml_appr_p', null, lang)}</p>${itemsTable({ items: o.items.filter(i => i.approval) }, lang, true)}${x.msg ? `<p style="background:rgba(254,144,190,0.348);padding:14px 16px">${esc(x.msg)}</p>` : ''}${btn(`#/freigabe/${o.no}/${x.token || (o.items.find(i => i.approval) || {}).approval.token}`, t('ml_appr_btn', null, lang))}<p style="color:rgba(51,51,51,0.814);font-size:14px">${t('ml_appr_note', null, lang)}</p>`;
+        break;
+      case 'paid':
+        subject = t('ml_paid_s', { no: o.no }, lang);
+        body = `<p>${hi}</p><p>${t('ml_paid_p', { inv: esc(o.invoice || '') }, lang)}</p>${itemsTable(o, lang)}${totalsTable(o, lang)}<p>${t('ml_paid_inv', null, lang)}</p>${btn(trackHref, t('ml_paid_btn', null, lang))}`;
         break;
       case 'production':
         subject = t('ml_prod_s', { no: o.no }, lang);

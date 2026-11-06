@@ -403,7 +403,7 @@
       if (['gutschein', 'geschenkbox'].includes(p.id)) { out._names[p.id] = p.name; continue; }
       const opts = {};
       for (const o of (p.opts || [])) { const c = {}; for (const ch of (o.choices || [])) c[ch.id] = ST.round2(ch.price || 0); opts[o.id] = { _def: o.def, c }; }
-      out[p.id] = { base: ST.basePrice(p), active: p.active !== false && !p.deleted, tax: p.tax || 19, name: p.name, opts };
+      out[p.id] = { base: ST.basePrice(p), active: p.active !== false && !p.deleted, tax: p.tax || 19, name: p.name, opts, digital: !!p.digital };
     }
     if (window.BOX && BOX.priceTables) out._box = BOX.priceTables();
     return out;

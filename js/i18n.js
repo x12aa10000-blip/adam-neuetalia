@@ -103,6 +103,8 @@
   K('m_pickup', 'Abholung im Laden', 'Pick-up in store', 'الاستلام من المحل');
   K('m_local', 'Kurier in Hamburg', 'Courier in Hamburg', 'توصيل داخل هامبورغ');
   K('m_dhl', 'DHL Deutschland', 'DHL Germany', 'شحن DHL داخل ألمانيا');
+  K('m_digital', 'Digital per E-Mail', 'Digital by e-mail', 'رقمي عبر الإيميل');
+  K('m_digital_d', 'Kein Versand nötig – du bekommst alles per E-Mail.', 'No shipping needed – you get everything by e-mail.', 'ما في شحن – بيوصلك كل شي على الإيميل.');
   K('m_eu', 'DHL Europa', 'DHL Europe', 'شحن DHL لأوروبا');
   K('m_pickup_d', 'Steindamm 62, mit Wunschtermin', 'Steindamm 62, at a time you choose', 'شتايندام 62، بالموعد اللي بتختاره');
   K('m_local_d', 'Am selben Tag, im Zeitfenster deiner Wahl', 'Same day, in a time window you choose', 'بنفس اليوم وبالوقت اللي بتختاره');
@@ -250,7 +252,7 @@
   K('zip', 'PLZ', 'Postcode', 'الرمز البريدي');
   K('city', 'Ort', 'City', 'المدينة');
   K('country', 'Land', 'Country', 'البلد');
-  for (const [c, de, en, ar] of [['AT', 'Österreich', 'Austria', 'النمسا'], ['NL', 'Niederlande', 'Netherlands', 'هولندا'], ['BE', 'Belgien', 'Belgium', 'بلجيكا'], ['FR', 'Frankreich', 'France', 'فرنسا'], ['DK', 'Dänemark', 'Denmark', 'الدنمارك'], ['PL', 'Polen', 'Poland', 'بولندا'], ['CH', 'Schweiz', 'Switzerland', 'سويسرا'], ['IT', 'Italien', 'Italy', 'إيطاليا'], ['ES', 'Spanien', 'Spain', 'إسبانيا'], ['SE', 'Schweden', 'Sweden', 'السويد']]) K('cty_' + c, de, en, ar);
+  for (const [c, de, en, ar] of [['DE', 'Deutschland', 'Germany', 'ألمانيا'], ['AT', 'Österreich', 'Austria', 'النمسا'], ['NL', 'Niederlande', 'Netherlands', 'هولندا'], ['BE', 'Belgien', 'Belgium', 'بلجيكا'], ['FR', 'Frankreich', 'France', 'فرنسا'], ['DK', 'Dänemark', 'Denmark', 'الدنمارك'], ['PL', 'Polen', 'Poland', 'بولندا'], ['CH', 'Schweiz', 'Switzerland', 'سويسرا'], ['IT', 'Italien', 'Italy', 'إيطاليا'], ['ES', 'Spanien', 'Spain', 'إسبانيا'], ['SE', 'Schweden', 'Sweden', 'السويد']]) K('cty_' + c, de, en, ar);
   K('mo_pickup', 'Abholbereit ab {d} · Steindamm 62', 'Ready from {d} · Steindamm 62', 'جاهز من {d} · شتايندام 62');
   K('mo_local', 'Lieferung ab {d}, im Zeitfenster', 'Delivered from {d}, in a time window', 'توصيل من {d} بالوقت اللي بتختاره');
   K('mo_ship', 'Voraussichtlich am {d}', 'Expected on {d}', 'متوقع يوم {d}');
@@ -470,6 +472,10 @@
   K('ml_appr_p', 'so sieht dein Geschenk aus. Bitte prüfe Schreibweise, Datum und Fotos.', 'this is how your gift will look. Please check spelling, date and photos.', 'هيك رح تكون هديتك. تأكد من الكتابة والتاريخ والصور.');
   K('ml_appr_btn', 'Vorschau prüfen und freigeben', 'Check and approve the proof', 'شوف المعاينة ووافق');
   K('ml_appr_note', 'Wir fangen erst an, wenn du zugestimmt hast.', 'We only start once you have approved.', 'ما منبلش إلا بعد موافقتك.');
+  K('ml_paid_s', 'Zahlung erhalten – deine Rechnung zu {no}', 'Payment received – your invoice for {no}', 'وصل الدفع – فاتورتك للطلب {no}');
+  K('ml_paid_p', 'vielen Dank, deine Zahlung ist bei uns eingegangen. Deine Rechnung hat die Nummer {inv}.', 'thank you, we have received your payment. Your invoice number is {inv}.', 'شكراً إلك، وصلنا الدفع. رقم فاتورتك {inv}.');
+  K('ml_paid_inv', 'Die Rechnung kannst du jederzeit über den Knopf unten als PDF herunterladen.', 'You can download the invoice as a PDF any time with the button below.', 'فيك تنزّل الفاتورة PDF بأي وقت من الزر تحت.');
+  K('ml_paid_btn', 'Bestellung & Rechnung ansehen', 'View order & invoice', 'شوف الطلب والفاتورة');
   K('ml_prod_s', 'Wir fertigen jetzt deine Bestellung {no}', 'We are now making your order {no}', 'عم نصنع طلبك {no} هلأ');
   K('ml_prod_p', 'dein Geschenk ist in unserer Werkstatt und wird gerade gefertigt.', 'your gift is in our workshop and being made right now.', 'هديتك بالورشة وعم تنصنع هلأ.');
   K('ml_rp_s', 'Abholbereit: {no}', 'Ready for pick-up: {no}', 'جاهز للاستلام: {no}');

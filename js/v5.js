@@ -73,7 +73,7 @@
     tiles: { her: { img: '', t: L3() }, him: { img: '', t: L3() }, promo: { img: '', t: L3(), p: L3() }, kids: { img: '', t: L3() }, all: { img: '', t: L3() }, custom: { img: '', t: L3(), p: L3() } },
     texts: {},
     locations: [{ id: 'l1', name: 'Adam', street: 'Steindamm 62', zip: '20099', city: 'Hamburg', phone: '+49 177 6449312', hours: L3('Mo–Sa 09:00–22:00 · So 09:00–16:00', 'Mon–Sat 09:00–22:00 · Sun 09:00–16:00', 'الإثنين–السبت 09:00–22:00 · الأحد 09:00–16:00') }],
-    social: { ig: 'https://www.instagram.com/neuetalia', tt: 'https://www.tiktok.com/@neuetalia', fb: 'https://www.facebook.com/neuetalia' },
+    social: { ig: '', tt: '', fb: '' }, // the owner enters Adam's own accounts in the admin (Website → Social Media)
     boxes: {}, extras: {}, paypal: { clientId: '' }
   });
   const isObj = x => x && typeof x === 'object' && !Array.isArray(x);

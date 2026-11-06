@@ -189,6 +189,8 @@
     if (method === 'eu') return ST.addWorkdays(ready, s.shipping.eu.days || 4);
     return ready;
   };
+  // a bag that holds only digital things (gift cards, products the owner marked as digital) ships nothing
+  ST.cartDigital = cart => !!cart && cart.length > 0 && cart.every(i => { const p = ST.product(i.pid); return !!p && (p.id === 'gutschein' || !!p.digital); });
   ST.localZip = function (zip) {
     const z = parseInt(String(zip || '').replace(/\D/g, ''), 10); if (!z) return false;
     return ST.settings().shipping.local.zips.split(',').some(r => { const [a, b] = r.trim().split('-').map(Number); return b ? (z >= a && z <= b) : z === a; });

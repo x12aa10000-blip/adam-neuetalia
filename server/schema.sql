@@ -396,8 +396,9 @@ begin
 
   -- Versand
   method := p->>'method';
-  if method not in ('pickup', 'local', 'dhl', 'eu') or not coalesce((s#>>array['shipping', method, 'on'])::boolean, false) then perform shop.err('method'); end if;
-  if method <> 'pickup' then
+  -- 'digital' (no shipping) is only accepted when every item is digital – checked after the item loop
+  if method <> 'digital' and (method not in ('pickup', 'local', 'dhl', 'eu') or not coalesce((s#>>array['shipping', method, 'on'])::boolean, false)) then perform shop.err('method'); end if;
+  if method not in ('pickup', 'digital') then
     addr := jsonb_build_object('name', shop.clean(p#>>'{addr,name}', 120), 'street', shop.clean(p#>>'{addr,street}', 160), 'zip', shop.clean(p#>>'{addr,zip}', 12),
       'city', shop.clean(p#>>'{addr,city}', 80), 'country', upper(shop.clean(coalesce(p#>>'{addr,country}', 'DE'), 2)));
     if addr->>'street' = '' or addr->>'zip' = '' or addr->>'city' = '' then perform shop.err('fields'); end if;
@@ -435,8 +436,10 @@ begin
     items := items || jsonb_build_array(ni);
   end loop;
   if mismatch then perform shop.err('price_changed'); end if;
+  if method = 'digital' and exists (select 1 from jsonb_array_elements(items) x
+      where x->>'pid' <> 'gutschein' and not coalesce((pr#>>array[x->>'pid', 'digital'])::boolean, false)) then perform shop.err('method'); end if;
 
-  select * into tt from shop.totals(items, jsonb_build_object('method', method, 'wrap', coalesce((p->>'isGift')::boolean, false) and coalesce((p->>'wrap')::boolean, false),
+  select * into tt from shop.totals(items, jsonb_build_object('method', method, 'wrap', method <> 'digital' and coalesce((p->>'isGift')::boolean, false) and coalesce((p->>'wrap')::boolean, false),
     'coupon', p->>'coupon', 'giftcard', p->>'giftcard'), s);
   if p ? 'expectTotal' and abs((tt.t->>'total')::numeric - (p->>'expectTotal')::numeric) > 0.009 then perform shop.err('price_changed'); end if;
 
@@ -473,7 +476,7 @@ begin
     'bill', bill,
     'ship', jsonb_build_object('method', method, 'addr', addr, 'date', d::text, 'window', shop.clean(p->>'window', 20), 'recipient', shop.clean(p->>'recipient', 120),
       'store', case when method = 'pickup' and jsonb_typeof(p->'store') = 'object' then jsonb_build_object('name', shop.clean(p#>>'{store,name}', 80), 'street', shop.clean(p#>>'{store,street}', 120), 'zip', shop.clean(p#>>'{store,zip}', 12), 'city', shop.clean(p#>>'{store,city}', 80)) else null end),
-    'gift', jsonb_build_object('wrap', coalesce((p->>'isGift')::boolean, false) and coalesce((p->>'wrap')::boolean, false), 'card', shop.clean(p->>'card', 600),
+    'gift', jsonb_build_object('wrap', method <> 'digital' and coalesce((p->>'isGift')::boolean, false) and coalesce((p->>'wrap')::boolean, false), 'card', shop.clean(p->>'card', 600),
       'hidePrices', coalesce((p->>'hidePrices')::boolean, false), 'isGift', coalesce((p->>'isGift')::boolean, false)),
     'items', items, 'totals', tt.t, 'coupon', coalesce(tt.coupon_code, ''), 'giftcard', coalesce(tt.gift_code, ''),
     'pay', jsonb_build_object('method', pay, 'status', pstat, 'at', case when pstat = 'bezahlt' then to_jsonb(now_ms) else 'null'::jsonb end, 'ref', shop.clean(p->>'payRef', 80)),
@@ -1065,6 +1068,23 @@ begin
 end $$;
 
 -- Ergebnis von PayPal eintragen. Bezahlt wird nur, wenn Betrag, Währung und Bestellnummer exakt stimmen.
+-- payment received: mail to the customer with invoice number and the link to order + invoice (PDF on the tracking page)
+create or replace function shop.mail_paid(o jsonb) returns void language plpgsql as $$
+declare s jsonb := shop.kvget('settings', '{}'::jsonb); lang text := coalesce(o->>'lang', 'de'); site text; link text; subj text; p1 text; p2 text; b text; shopname text;
+begin
+  shopname := coalesce(s#>>'{shop,name}', 'Adam'); site := regexp_replace(coalesce(s#>>'{shop,url}', ''), '[#?].*$', '');
+  link := case when site ~ '^https://' then site || '#/verfolgen/' || (o->>'no') || '?e=' || replace(o#>>'{cust,email}', '@', '%40') else '' end;
+  if lang = 'en' then subj := 'Payment received – your invoice for ' || (o->>'no'); p1 := 'thank you, we have received your payment. Your invoice number is ' || shop.h(o->>'invoice') || '.'; p2 := 'You can download the invoice as a PDF any time with the button below.'; b := 'View order & invoice';
+  elsif lang = 'ar' then subj := 'وصل الدفع – فاتورتك للطلب ' || (o->>'no'); p1 := 'شكراً إلك، وصلنا الدفع. رقم فاتورتك ' || shop.h(o->>'invoice') || '.'; p2 := 'فيك تنزّل الفاتورة PDF بأي وقت من الزر تحت.'; b := 'شوف الطلب والفاتورة';
+  else subj := 'Zahlung erhalten – deine Rechnung zu ' || (o->>'no'); p1 := 'vielen Dank, deine Zahlung ist bei uns eingegangen. Deine Rechnung hat die Nummer ' || shop.h(o->>'invoice') || '.'; p2 := 'Die Rechnung kannst du jederzeit über den Knopf unten als PDF herunterladen.'; b := 'Bestellung & Rechnung ansehen';
+  end if;
+  perform shop.send_mail(o#>>'{cust,email}', subj,
+    '<div dir="' || case when lang = 'ar' then 'rtl' else 'ltr' end || '" style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#333333"><h2 style="font-weight:600">' || shop.h(shopname) || '</h2><p>' ||
+    shop.h(o#>>'{cust,name}') || ',</p><p>' || p1 || '</p><p><b>' || shop.money((o#>>'{totals,total}')::numeric) || '</b></p><p>' || p2 || '</p>' ||
+    case when link <> '' then '<p><a href="' || shop.h(link) || '" style="display:inline-block;background:#333333;color:#FFFFFF;padding:12px 18px;border-radius:8px;text-decoration:none">' || b || '</a></p>' else '' end || '</div>',
+    'paid', o->>'no');
+end $$;
+
 create or replace function public.shop_srv_paypal_result(p_no text, p_pp_order text, p_capture text, p_status text, p_amount numeric, p_currency text, p_source text) returns jsonb language plpgsql security definer set search_path = '' as $$
 declare o jsonb; total numeric; now_ms bigint := shop.ms(clock_timestamp()); st text;
 begin
@@ -1087,6 +1107,8 @@ begin
       'verified', 'paypal-server', 'source', p_source) - 'problem');
     o := jsonb_set(o, '{history}', (o->'history') || jsonb_build_array(jsonb_build_object('st', o->>'status', 'at', now_ms, 'by', 'paypal', 'note', 'Zahlung bestätigt (' || p_source || ')')));
     st := 'bezahlt';
+    perform shop.item_put('order', o->>'no', o);
+    perform shop.mail_paid(o);
   elsif p_status in ('REFUNDED', 'PARTIALLY_REFUNDED', 'REVERSED') then
     o := jsonb_set(o, '{pay}', (o->'pay') || jsonb_build_object('status', case when p_status = 'PARTIALLY_REFUNDED' then 'teilerstattet' else 'erstattet' end, 'refundAt', now_ms));
     st := 'erstattet';

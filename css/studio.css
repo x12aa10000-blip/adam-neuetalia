@@ -466,3 +466,6 @@ html[lang="ar"] .s8-copy h1{line-height:1.2}
 .gcp-form,.trackform,.acc-benefits{padding:clamp(18px,4vw,32px)!important;border-radius:var(--r-l)}
 .fside{padding:14px!important}
 .pcard{background:var(--wh)!important}
+.cp-uses{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cp-uses label{display:inline-flex;align-items:center;gap:6px}
+.in.xs{width:72px;min-height:36px;padding:4px 8px}
