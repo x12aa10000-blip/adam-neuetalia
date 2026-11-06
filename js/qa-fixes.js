@@ -1,7 +1,7 @@
 /* QA round: page titles per page and language (SEO + browser tabs). */
 (function () {
   'use strict';
-  const BRAND = 'Adam & Neuetalia';
+  const BRAND = 'Adam';
   const DESC = { de: 'Personalisierte Geschenke und Blumen vom Steindamm in Hamburg – mit Live-Vorschau auf dem echten Produkt.', en: 'Personalised gifts and flowers from Steindamm in Hamburg – with a live preview on the real product.', ar: 'هدايا وورود مخصصة من شتايندام في هامبورغ – مع معاينة مباشرة على المنتج الحقيقي.' };
   function setTitle() {
     if (C.path().startsWith('/admin')) { document.title = 'Verwaltung · ' + BRAND; return; }

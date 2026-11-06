@@ -36,6 +36,19 @@
     auth: ['Bitte melde dich erneut an.', 'Please sign in again.', 'سجّل الدخول مرة أخرى من فضلك.'],
     generic: ['Das hat nicht geklappt. Bitte versuche es erneut.', 'That did not work. Please try again.', 'لم تنجح العملية. حاول مرة أخرى.']
   };
+  function texts() {
+    const I = window.I18N; if (!I) return; const K = (k, de, en, ar) => { I.de[k] = de; I.en[k] = en; I.ar[k] = ar; };
+    K('pw_forgot', 'Passwort vergessen?', 'Forgot your password?', 'نسيت كلمة السر؟');
+    K('pw_forgot_p', 'Gib deine E-Mail-Adresse ein. Wenn es ein Konto dazu gibt, schicken wir dir einen Link zum Zurücksetzen.', 'Enter your e-mail address. If there is an account, we will send you a reset link.', 'اكتب بريدك الإلكتروني. إذا كان هناك حساب، سنرسل لك رابطاً لإعادة التعيين.');
+    K('pw_send', 'Link senden', 'Send link', 'إرسال الرابط');
+    K('pw_sent', 'Falls ein Konto existiert, ist der Link unterwegs. Bitte schau auch im Spam-Ordner nach.', 'If an account exists, the link is on its way. Please also check your spam folder.', 'إذا كان هناك حساب، فالرابط في الطريق. تحقق أيضاً من مجلد الرسائل غير المرغوبة.');
+    K('pw_nomail', 'Bitte ruf uns kurz an, wir helfen dir sofort weiter:', 'Please give us a quick call and we will help you right away:', 'اتصل بنا من فضلك وسنساعدك فوراً:');
+    K('pw_new_h', 'Neues Passwort', 'New password', 'كلمة سر جديدة');
+    K('pw_new_p', 'Mindestens 8 Zeichen.', 'At least 8 characters.', '8 أحرف على الأقل.');
+    K('pw_done', 'Passwort geändert – du bist angemeldet.', 'Password changed – you are signed in.', 'تم تغيير كلمة السر – أنت مسجّل الدخول.');
+    K('pw_expired', 'Der Link ist abgelaufen. Bitte fordere einen neuen an.', 'The link has expired. Please request a new one.', 'انتهت صلاحية الرابط. اطلب رابطاً جديداً.');
+    K('pw_short', 'Das Passwort braucht mindestens 8 Zeichen.', 'The password needs at least 8 characters.', 'كلمة السر تحتاج 8 أحرف على الأقل.');
+  }
   CL.msg = function (code) { const l = { de: 0, en: 1, ar: 2 }[isAdminPage ? (AR() ? 'ar' : 'de') : (C.lang ? C.lang() : 'de')] || 0; return (MSG[code] || MSG.generic)[l]; };
   CL.fail = e => { try { C.toast(CL.msg(e && e.code), 'err'); } catch (x) { } };
 
@@ -382,6 +395,8 @@
     // first start of a new shop: copy the full default settings to the server
     if (r.role === 'owner' && !(r.kv || {}).settings) { const s = ST.settings(); delete s.staff; queue.kv.set('settings', s); flushSoon(); }
     if (r.role === 'owner') pushPrices();
+    // the shop address is needed for links in e-mails (taken from the owner's own browser, never from visitors)
+    if (r.role === 'owner' && /^https:/.test(location.origin)) { const s = ST.settings(); if (!s.shop.url) { s.shop.url = location.origin + location.pathname.replace(/admin\.html$/, ''); ST.saveSettings(s); } }
     startPoll();
   };
   function startPoll() { stopPoll(); pollT = setInterval(poll, 15000); }
@@ -402,6 +417,7 @@
 
   /* ---------------- hooks into the existing modules (after they are loaded) ---------------- */
   CL.install = function () {
+    texts();
     /* gift box price list for the server */
     if (window.BOX && !BOX.priceTables) BOX.priceTables = function () { return BOX._tables ? BOX._tables() : {}; };
 
@@ -427,7 +443,33 @@
         try { const o = await rpc('shop_order_approve', { p_no: no, p_token: apprTok, p_idx: idx, p_ok: ok, p_msg: msg || '' }); CL.keepOrder(o); C.toast(ok ? t('appr_thx') : t('appr_change_thx')); C.dispatch({ keepScroll: true }); }
         catch (e) { CL.fail(e); }
       };
-      const _acc = K.account; K.account = async function () { if (custTok()) await CL.refreshMe().catch(() => { }); return _acc.apply(this, arguments); };
+      const _acc = K.account; K.account = async function (tab, q) {
+        if (tab === 'passwort') return pwPage(q || {});
+        if (custTok()) await CL.refreshMe().catch(() => { }); return _acc.apply(this, arguments);
+      };
+      function pwPage(q) {
+        const reset = q.t && /^[a-f0-9]{64}$/.test(q.t);
+        SHOP.page(`<div class="wrap narrow acc-auth pw-page"><div class="auth-box"><h1>${t(reset ? 'pw_new_h' : 'pw_forgot')}</h1><p class="lead">${t(reset ? 'pw_new_p' : 'pw_forgot_p')}</p>
+          <form class="authf" id="pwForm" novalidate>${reset ? `<label class="fld"><span>${t('password')}</span><input class="in" name="pw" type="password" minlength="8" autocomplete="new-password" required></label>` : `<label class="fld"><span>${t('email')}</span><input class="in" name="email" type="email" autocomplete="email" required></label>`}
+          <button class="btn block">${t(reset ? 'save' : 'pw_send')}</button></form><p id="pwOut" class="hint" hidden></p><p><a class="link" href="#/konto">← ${t('login')}</a></p></div></div>`, 'acc');
+        $('#pwForm').addEventListener('submit', async e => {
+          e.preventDefault(); e.stopPropagation(); const f = e.target; const out = $('#pwOut'); const b = f.querySelector('button'); b.disabled = true;
+          try {
+            if (reset) {
+              if (f.pw.value.length < 8) { C.toast(t('pw_short'), 'err'); return; }
+              const r = await rpc('shop_cust_pw_reset', { p_token: q.t, p_pw: f.pw.value });
+              quiet(() => { ST.set('session', { token: r.token, at: Date.now() }); ST.set('me', r.me); });
+              C.toast(t('pw_done')); SHOP.refreshHeader(); C.go('#/konto');
+            } else {
+              const r = await rpc('shop_cust_pw_forgot', { p_email: f.email.value, p_lang: C.lang() });
+              const s = ST.settings().shop || {};
+              out.hidden = false; out.innerHTML = r.mail ? esc(t('pw_sent')) : esc(t('pw_nomail')) + (s.phone ? ` <bdi dir="ltr"><a href="tel:${esc(String(s.phone).replace(/\s/g, ''))}">${esc(s.phone)}</a></bdi>` : '');
+              f.reset();
+            }
+          } catch (er) { C.toast(er.code === 'expired' ? t('pw_expired') : er.code === 'pw_short' ? t('pw_short') : CL.msg(er.code), 'err'); }
+          finally { b.disabled = false; }
+        }, true);
+      }
       K.mailbox = function () { C.go(ST.me() ? '#/konto' : '#/verfolgen'); };
     }
     ST.cancelOrderCustomer = async function (no) {

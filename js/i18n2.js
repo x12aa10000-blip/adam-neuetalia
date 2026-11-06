@@ -1,10 +1,10 @@
-/* Texts for the Neuetalia design, the new catalogue products, the box builder and the product designer. */
+/* Texts for the Adam design, the new catalogue products, the box builder and the product designer. */
 (function () {
   const D = window.I18N;
   const K = (k, de, en, ar) => { D.de[k] = de; D.en[k] = en; D.ar[k] = ar; };
 
   /* header, tab bar, footer */
-  K('top_welcome', 'Willkommen im Neuetalia-Shop', 'Welcome to the Neuetalia shop', 'مرحبا بكم في متجر نيوتاليا');
+  K('top_welcome', 'Willkommen im Adam-Shop', 'Welcome to the Adam shop', 'مرحبا بكم في متجر آدم');
   K('nav_ready', 'Fertige Geschenke', 'Ready-made gifts', 'هدايا جاهزة');
   K('nav_box', 'Box selbst gestalten', 'Build your box', 'صمّم بوكسك');
   K('tab_home', 'Start', 'Home', 'الرئيسية');
@@ -12,7 +12,7 @@
   K('ft_links', 'Wichtige Links', 'Important links', 'روابط مهمة');
   K('ft_paydeliv', 'Bezahlen & Versand', 'Payment & delivery', 'الدفع والشحن');
   K('ft_returns', 'Rückgabe', 'Returns', 'سياسة الاسترجاع');
-  K('auth_welcome', 'Willkommen bei Neuetalia – melde dich an für ein schönes Geschenk-Erlebnis', 'Welcome to Neuetalia – sign in for a lovely gifting experience', 'مرحبا بكم في نيوتاليا – سجّل الدخول لتجربة إهداء ممتعة');
+  K('auth_welcome', 'Willkommen bei Adam – melde dich an für ein schönes Geschenk-Erlebnis', 'Welcome to Adam – sign in for a lovely gifting experience', 'مرحبا بكم في آدم – سجّل الدخول لتجربة إهداء ممتعة');
 
   /* home */
   K('finder_h', 'Geschenkefinder', 'Gift finder', 'مكتشف الهدايا');
@@ -40,13 +40,13 @@
   K('feat3d', 'Weil Freude machen unsere Aufgabe ist – für ein Lächeln.', 'Because making people happy is our job – for a smile.', 'لأنها كفيلة بصنع السعادة لمن تحب، وكل ذلك من أجل ابتسامة.');
   K('feat4', 'Kundenservice', 'Customer service', 'مركز خدمة العملاء');
   K('feat4d', 'Wir sind für dich da – per WhatsApp, Telefon oder im Laden.', 'We are here for you – via WhatsApp, phone or in store.', 'خدماتنا بمتناول يدك وتحت تصرفك على مدار الساعة وطوال أيام الأسبوع.');
-  K('team_h', 'Das Neuetalia-Team', 'The Neuetalia team', 'فريق نيوتاليا');
+  K('team_h', 'Das Adam-Team', 'The Adam team', 'فريق آدم');
   K('team_h1', 'Geschenke entdecken', 'Discover gifts', 'اكتشف الهدايا');
   K('team_p1', 'Du suchst das ideale Geschenk? Stöbere durch unsere Kategorien: romantische Geschenke zum Valentinstag, besondere Ideen für Hochzeit und Verlobung oder liebevolle Kleinigkeiten für Gäste – hier findest du das Passende.', 'Looking for the ideal gift? Browse our categories: romantic gifts for Valentine’s Day, special ideas for weddings and engagements or lovely little things for guests – you will find the right one here.', 'إذا كنت تحتار في الهدية المثالية، اطلع على تصنيفاتنا المتنوعة. هل تبحث عن هدية رومانسية لشريكتك في عيد الحب؟ هل ترغب في هدية فريدة وفاخرة؟ هل لديك دعوة لحضور حفل زفاف؟ ستجد هنا أجمل الهدايا للعروسين وضيوف الحفل.');
   K('team_h2', 'Geschenke finden macht glücklich', 'Finding gifts brings joy', 'إيجاد الهدايا يجلب السعادة');
-  K('team_p2', 'Geschenke suchen und bekommen gehört zu unserem Alltag. Mit Neuetalia wird es einfach: Wir begleiten dich mit Ideen und Rat – bestellen, gestalten und liefern lassen, ganz bequem nach Hause.', 'Looking for and receiving gifts is part of everyday life. Neuetalia makes it easy: ideas and advice, then order, design and get it delivered right to your door.', 'استمتع بالبحث عن الهدايا واستلامها، فالهدايا جزء لا يتجزأ من حياتنا اليومية. نحن في نيوتاليا نقدم لك الأفكار والنصائح حول الإهداء، ويمكنك طلب الهدايا وتصميمها وتوصيلها إلى منزلك.');
+  K('team_p2', 'Geschenke suchen und bekommen gehört zu unserem Alltag. Mit Adam wird es einfach: Wir begleiten dich mit Ideen und Rat – bestellen, gestalten und liefern lassen, ganz bequem nach Hause.', 'Looking for and receiving gifts is part of everyday life. Adam makes it easy: ideas and advice, then order, design and get it delivered right to your door.', 'استمتع بالبحث عن الهدايا واستلامها، فالهدايا جزء لا يتجزأ من حياتنا اليومية. نحن في آدم نقدم لك الأفكار والنصائح حول الإهداء، ويمكنك طلب الهدايا وتصميمها وتوصيلها إلى منزلك.');
   K('team_h3', 'Wer wir sind', 'Who we are', 'من نحن');
-  K('team_p3', 'Neuetalia ist euer Geschenkeladen am Steindamm in Hamburg – für alle Anlässe und alle Menschen. Wir drucken, gravieren und sticken direkt im Laden und packen jedes Geschenk mit Liebe ein.', 'Neuetalia is your gift shop on Steindamm in Hamburg – for every occasion and everyone. We print, engrave and embroider right in the shop and wrap each gift with love.', 'نيوتاليا هو متجر الهدايا تبعكم بشتايندام في هامبورغ، لكل المناسبات ولكل الناس. منطبع ومنحفر ومنطرّز جوّا المحل، ومنغلّف كل هدية بحب.');
+  K('team_p3', 'Adam ist euer Geschenkeladen am Steindamm in Hamburg – für alle Anlässe und alle Menschen. Wir drucken, gravieren und sticken direkt im Laden und packen jedes Geschenk mit Liebe ein.', 'Adam is your gift shop on Steindamm in Hamburg – for every occasion and everyone. We print, engrave and embroider right in the shop and wrap each gift with love.', 'آدم هو متجر الهدايا تبعكم بشتايندام في هامبورغ، لكل المناسبات ولكل الناس. منطبع ومنحفر ومنطرّز جوّا المحل، ومنغلّف كل هدية بحب.');
   K('team_h4', 'Bei uns kommt Schenken von Herzen', 'With us, giving comes from the heart', 'معنا، يصبح العطاء مهمة تنبع من القلب');
   K('team_p4', 'Ob Hochzeit, Geburtstag, Muttertag oder einfach so: Wir wollen, dass jedes Geschenk besonders ist und das Herz der Beschenkten erreicht. Für ein Lächeln.', 'Wedding, birthday, Mother’s Day or just because: we want every gift to be special and touch the heart of the person receiving it. For a smile.', 'سواء كانت زفافاً أو عيد ميلاد أو عيد الأم أو بدون مناسبة، بنسعى لتكون كل هدية مميزة وتوصل لقلوب أحبابكم. كل هذا من أجل ابتسامة.');
   K('news_h', 'Jetzt abonnieren!', 'Subscribe now!', 'اشترك الآن!');
@@ -135,7 +135,7 @@
   K('gc_amount_bad', 'Bitte einen Betrag ab 5 € eingeben.', 'Please enter an amount from €5.', 'اكتب مبلغ من 5 يورو وطالع.');
   /* gift assistant */
   K('as_btn', 'Geschenk-Assistent', 'Gift assistant', 'مساعد الهدايا');
-  K('as_title', 'Neuetalia Geschenk-Assistent', 'Neuetalia gift assistant', 'مساعد الهدايا من نيوتاليا');
+  K('as_title', 'Adam Geschenk-Assistent', 'Adam gift assistant', 'مساعد الهدايا من آدم');
   K('as_sub', 'Antwortet sofort · Ideen, Preise, Versand', 'Replies instantly · ideas, prices, delivery', 'بيرد فوراً · أفكار، أسعار، توصيل');
   K('as_hello', 'Hallo! 👋 Ich helfe dir beim Geschenk. Erzähl mir: für wen, welcher Anlass und wie viel möchtest du ausgeben? Du kannst mir auch Fragen zu Versand, Abholung oder Zahlung stellen.', 'Hi! 👋 I’ll help you with your gift. Tell me who it’s for, the occasion and your budget. You can also ask about delivery, pick-up or payment.', 'أهلاً! 👋 أنا بساعدك تختار هديتك. احكيلي لمين، شو المناسبة، وقديش حابب تدفع. وفيك تسألني عن التوصيل، الاستلام أو الدفع.');
   K('as_ph', 'Schreib deine Frage …', 'Type your question …', 'اكتب سؤالك …');

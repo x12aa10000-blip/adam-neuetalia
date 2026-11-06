@@ -122,7 +122,7 @@
     }
     const html = `<div style="background:#efeae5;padding:22px 12px;font-family:Jost,'ui-sans','ui-ar',Arial,sans-serif;color:#1c1819;font-size:16px;line-height:1.55" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
       <div style="max-width:560px;margin:0 auto;background:#fff;padding:28px 26px">
-        <div style="font-family:'ui-serif',Georgia,serif;font-size:26px;margin-bottom:18px">Adam &amp; Neuetalia</div>${body}
+        <div style="font-family:'ui-serif',Georgia,serif;font-size:26px;margin-bottom:18px">Adam</div>${body}
         <p style="margin-top:28px;color:#5d5558;font-size:13px;border-top:0">${esc(s.shop.name)} · ${esc(s.shop.street)} · ${esc(s.shop.zip)} ${esc(s.shop.city)} · ${esc(s.shop.phone)}</p>
       </div></div>`;
     return { subject, html };
@@ -131,10 +131,11 @@
   /* ---------------- PDFs ---------------- */
   async function fontsReady() { try { await Promise.all(['400 16px ui-sans', '500 16px ui-sans', '500 16px ui-serif', '400 16px ui-ar'].map(f => document.fonts.load(f))); } catch (e) { } }
   const SHOPHEAD = (d, s) => {
-    d.font(20, 500, '"ui-serif", serif').text('Adam & Neuetalia', 18, 24);
+    d.font(20, 500, '"ui-serif", serif').text('Adam', 18, 24);
     d.font(8.5).text(`${s.shop.street} · ${s.shop.zip} ${s.shop.city} · ${s.shop.phone} · ${s.shop.email}`, 18, 30, { color: '#5d5558' });
   };
-  const FOOT = (d, s) => { d.font(7.5).text(`${s.shop.owner} · ${s.shop.street}, ${s.shop.zip} ${s.shop.city} · USt-IdNr. ${s.shop.taxId} · ${s.shop.bank} · IBAN ${s.shop.iban}`, 105, 287, { align: 'center', color: '#5d5558' }); };
+  const real = v => v && !/^DE0{6,}|^DE00 0000/.test(String(v).trim());
+  const FOOT = (d, s) => { const sh = s.shop; const parts = [sh.owner && sh.owner !== sh.name ? sh.name + ' · Inh. ' + sh.owner : sh.name, `${sh.street}, ${sh.zip} ${sh.city}`, real(sh.taxId) ? 'USt-IdNr. ' + sh.taxId : (sh.taxNo ? 'St.-Nr. ' + sh.taxNo : ''), real(sh.iban) ? `${sh.bank || ''} · IBAN ${sh.iban}` : ''].filter(Boolean); d.font(7.5).text(parts.join(' · '), 105, 287, { align: 'center', color: '#5d5558' }); };
   const addrLines = a => a ? [a.name, a.street, `${a.zip} ${a.city}`, a.country && a.country !== 'DE' ? a.country : ''].filter(Boolean) : [];
 
   DOCS.invoice = async function (o) {
@@ -191,13 +192,11 @@
     let y = 41; [o.ship.recipient || a.name, a.street, `${a.zip} ${a.city}`, a.country && a.country !== 'DE' ? a.country : 'DEUTSCHLAND'].filter(Boolean).forEach((l, i) => { d.font(i === 0 ? 13 : 12, i === 0 ? 500 : 400).text(l, 6, y); y += 6.4; });
     if (o.ship.window) { d.font(10, 500).text('Zeitfenster ' + o.ship.window + ' · ' + C.date(o.ship.date, { day: '2-digit', month: '2-digit' }, 'de'), 6, y + 2); }
     d.rect(4, 82, 97, .5, '#000');
-    // code-128 look-alike (demo)
-    const code = (o.tracking && o.tracking.code) || ('00340434' + String(o.no).replace(/\D/g, '').padStart(12, '0'));
-    let seed = 0; for (const ch of code) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
-    let x = 8; while (x < 97) { seed = (seed * 1103515245 + 12345) >>> 0; const w = .35 + (seed % 4) * .32; d.rect(x, 88, w, 30, '#000'); x += w + .35 + ((seed >> 5) % 3) * .3; }
-    d.font(9).text(code.replace(/(\d{4})/g, '$1 ').trim(), 52.5, 124, { align: 'center' });
+    // address label for the parcel (the DHL postage label comes from the DHL portal / app)
+    d.font(30, 500).text(o.no, 52.5, 108, { align: 'center' });
+    if (o.tracking && o.tracking.code) d.font(9).text('Sendung ' + o.tracking.code, 52.5, 124, { align: 'center' });
     d.font(9, 500).text('Bestellung ' + o.no, 6, 133).text(o.items.reduce((a, i) => a + i.qty, 0) + ' Artikel', 99, 133, { align: 'right' });
-    d.font(6.5).text('DEMO – kein gültiges Versandetikett. Echte Etiketten kommen später über DHL/Sendcloud.', 52.5, 142, { align: 'center', color: '#8a8285' });
+    d.font(6.5).text('Adressaufkleber – Frankierung über DHL Geschäftskundenportal oder Post & DHL App.', 52.5, 142, { align: 'center', color: '#8a8285' });
     return C.docsToPdf([d], 'Etikett ' + o.no);
   };
 

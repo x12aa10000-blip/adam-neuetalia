@@ -12,7 +12,7 @@
   const BOXES = [
     { id: 'kraft', price: 4.9, c: '#c89b6d', c2: '#a97b4f', l: L3('Kraftkarton', 'Kraft box', 'كرتون طبيعي') },
     { id: 'rosa', price: 6.9, c: '#f7a9c9', c2: '#ef86b2', l: L3('Rosa Box', 'Pink box', 'بوكس زهري') },
-    { id: 'zebra', price: 7.9, c: '#ffffff', c2: '#efb7cd', pattern: 'swirl', l: L3('Neuetalia-Box', 'Neuetalia box', 'بوكس نيوتاليا') },
+    { id: 'zebra', price: 7.9, c: '#ffffff', c2: '#efb7cd', pattern: 'swirl', l: L3('Adam-Box', 'Adam box', 'بوكس آدم') },
     { id: 'schwarz', price: 9.9, c: '#262326', c2: '#111', gold: 1, l: L3('Schwarz & Gold', 'Black & gold', 'أسود وذهبي') },
     { id: 'samt', price: 12.9, c: '#8f1730', c2: '#6c0f22', velvet: 1, l: L3('Samtbox Rot', 'Red velvet box', 'بوكس مخمل أحمر') }
   ];
@@ -43,7 +43,7 @@
     { id: 'roses', l: L3('Rosen', 'Roses', 'ورود') }, { id: 'love', l: L3('Liebe', 'Love', 'حب') },
     { id: 'birthday', l: L3('Geburtstag', 'Birthday', 'عيد ميلاد') }, { id: 'eid', l: L3('Eid & Ramadan', 'Eid & Ramadan', 'عيد ورمضان') },
     { id: 'baby', l: L3('Baby & Familie', 'Baby & family', 'مولود وعائلة') }, { id: 'thanks', l: L3('Danke', 'Thank you', 'شكراً') },
-    { id: 'neuetalia', l: L3('Neuetalia', 'Neuetalia', 'نيوتاليا') }, { id: 'minimal', l: L3('Schlicht', 'Simple', 'بسيط') }
+    { id: 'neuetalia', l: L3('Adam', 'Adam', 'آدم') }, { id: 'minimal', l: L3('Schlicht', 'Simple', 'بسيط') }
   ];
   const CARD_FONTS = ['greatvibes', 'dancing', 'playfair', 'montserrat', 'caveat', 'ruqaa', 'amiri', 'marhey'];
   B.opts = { BOXES, SIZES, FILLS, RIBBONS, EXTRAS, CARDS };
@@ -205,7 +205,7 @@
     const lg = x.createLinearGradient(0, Y - lidH, 0, Y); lg.addColorStop(0, shade(bx.c, -.02)); lg.addColorStop(.75, shade(bx.c, -.12)); lg.addColorStop(1, shade(bx.c, -.32)); x.fillStyle = lg; x.fillRect(X, Y - lidH, bw, lidH);
     if (bx.pattern) { x.globalAlpha = .9; swirl(x, X, Y - lidH, bw, lidH, bx.c2); x.globalAlpha = 1; const sh = x.createLinearGradient(0, Y - lidH, 0, Y); sh.addColorStop(0, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(0,0,0,.25)'); x.fillStyle = sh; x.fillRect(X, Y - lidH, bw, lidH); }
     if (bx.velvet) noiseFill(x, X, Y - lidH, bw, lidH, .08, 4);
-    if (bx.gold || bx.id === 'samt' || bx.id === 'kraft' || bx.id === 'rosa') { x.fillStyle = bx.gold ? '#d9b660' : bx.id === 'kraft' ? 'rgba(70,40,20,.55)' : 'rgba(255,255,255,.85)'; x.font = `600 ${30 * k * sc}px "ui-sans", sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; if ('letterSpacing' in x) x.letterSpacing = `${6 * k}px`; x.fillText('NEUETALIA', W / 2, Y - lidH * .42); if ('letterSpacing' in x) x.letterSpacing = '0px'; x.font = `400 ${15 * k * sc}px "ui-serif-i", Georgia, serif`; x.fillText('Alles für ein Lächeln', W / 2, Y - lidH * .18); }
+    if (bx.gold || bx.id === 'samt' || bx.id === 'kraft' || bx.id === 'rosa') { x.fillStyle = bx.gold ? '#d9b660' : bx.id === 'kraft' ? 'rgba(70,40,20,.55)' : 'rgba(255,255,255,.85)'; x.font = `600 ${30 * k * sc}px "ui-sans", sans-serif`; x.textAlign = 'center'; x.textBaseline = 'middle'; if ('letterSpacing' in x) x.letterSpacing = `${6 * k}px`; x.fillText('ADAM', W / 2, Y - lidH * .42); if ('letterSpacing' in x) x.letterSpacing = '0px'; x.font = `400 ${15 * k * sc}px "ui-serif-i", Georgia, serif`; x.fillText('Alles für ein Lächeln', W / 2, Y - lidH * .18); }
     x.restore();
     // hinge shadow line
     x.fillStyle = 'rgba(0,0,0,.28)'; x.fillRect(X, Y - 3 * k, bw, 5 * k);
@@ -315,7 +315,7 @@
     if (d === 'eid') { x.fillStyle = '#d4af37'; x.beginPath(); x.arc(W - 110 * k, 100 * k, 52 * k, 0, 7); x.fill(); x.fillStyle = bg; x.beginPath(); x.arc(W - 88 * k, 86 * k, 48 * k, 0, 7); x.fill(); for (let i = 0; i < 40; i++) { x.fillStyle = `rgba(255,220,140,${.3 + R() * .6})`; x.beginPath(); x.arc(R() * W, R() * H, (1 + R() * 2.5) * k, 0, 7); x.fill(); } x.strokeStyle = '#d4af37'; x.lineWidth = 3 * k; x.strokeRect(22 * k, 22 * k, W - 44 * k, H - 44 * k); ink = '#f6e7b5'; }
     if (d === 'baby') { for (let i = 0; i < 30; i++) { x.fillStyle = ['#a9d3ec', '#f7a9c9', '#ffe08a'][i % 3]; const px = R() * W, py = R() * H, s = (8 + R() * 12) * k; x.beginPath(); for (let j = 0; j < 10; j++) { const a = j * Math.PI / 5 - Math.PI / 2, r = j % 2 ? s * .45 : s; x.lineTo(px + Math.cos(a) * r, py + Math.sin(a) * r); } x.fill(); } x.fillStyle = 'rgba(255,255,255,.88)'; rr(x, 60 * k, 60 * k, W - 120 * k, H - 120 * k, 20 * k); x.fill(); ink = '#2b5f86'; }
     if (d === 'thanks') { x.fillStyle = '#01CAC9'; x.fillRect(0, 0, 18 * k, H); x.fillStyle = 'rgba(1,202,201,.18)'; x.beginPath(); x.arc(W, H, 220 * k, 0, 7); x.fill(); ink = '#0b6463'; }
-    if (d === 'neuetalia') { swirl(x, 0, 0, W, H, '#ffffff'); x.fillStyle = 'rgba(255,255,255,.92)'; rr(x, 50 * k, 50 * k, W - 100 * k, H - 100 * k, 22 * k); x.fill(); x.fillStyle = '#FE90BE'; x.font = `700 ${22 * k}px ui-sans, sans-serif`; x.textAlign = 'center'; x.fillText('NEUETALIA', W / 2, H - 70 * k); ink = '#333'; }
+    if (d === 'neuetalia') { swirl(x, 0, 0, W, H, '#ffffff'); x.fillStyle = 'rgba(255,255,255,.92)'; rr(x, 50 * k, 50 * k, W - 100 * k, H - 100 * k, 22 * k); x.fill(); x.fillStyle = '#FE90BE'; x.font = `700 ${22 * k}px ui-sans, sans-serif`; x.textAlign = 'center'; x.fillText('ADAM', W / 2, H - 70 * k); ink = '#333'; }
     if (d === 'minimal') { x.strokeStyle = '#d4af37'; x.lineWidth = 2 * k; x.strokeRect(26 * k, 26 * k, W - 52 * k, H - 52 * k); x.strokeRect(34 * k, 34 * k, W - 68 * k, H - 68 * k); }
     const font = card.font || 'greatvibes';
     const txt = (card.text || '').trim() || t('card_ph_short');

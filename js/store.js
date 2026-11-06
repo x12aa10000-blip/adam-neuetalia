@@ -96,7 +96,7 @@
 
   /* ---------------- settings ---------------- */
   const DEFAULT_SETTINGS = {
-    shop: { name: 'Adam & Neuetalia', owner: 'Adam & Neuetalia', street: 'Steindamm 62', zip: '20099', city: 'Hamburg', phone: '+49 177 6449312', wa: '4915751000018', email: 'info@adamneuetalia.com',
+    shop: { name: 'Adam', owner: 'Adam', street: 'Steindamm 62', zip: '20099', city: 'Hamburg', phone: '+49 177 6449312', wa: '4915751000018', email: 'info@adamneuetalia.com',
       taxId: 'DE000000000', court: 'Amtsgericht Hamburg', iban: 'DE00 0000 0000 0000 0000 00', bank: 'Hamburger Sparkasse' },
     hours: { wd: '09:00 – 22:00', sun: '09:00 – 16:00' },
     cutoff: '14:00',

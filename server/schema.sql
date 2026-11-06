@@ -505,6 +505,7 @@ begin
   end loop;
 
   perform shop.log('auftrag', 'Neue Bestellung ' || no || ' · ' || shop.money((tt.t->>'total')::numeric), 'kunde');
+  perform shop.cleanup();
   perform shop.mail_order(o);
   return shop.order_public(o);
 end $$;
@@ -941,3 +942,70 @@ begin
   return 'OK: ' || u;
 end $$;
 revoke all on function shop.set_owner(text, text) from public;
+
+-- ---------------------------------------------------------------------
+-- Passwort vergessen (Kunden): Link per E-Mail, 1 Stunde gültig.
+-- Antwort ist immer gleich, damit niemand herausfinden kann, wer ein Konto hat.
+-- ---------------------------------------------------------------------
+alter table shop.sessions drop constraint if exists sessions_kind_check;
+alter table shop.sessions add constraint sessions_kind_check check (kind in ('admin', 'cust', 'reset'));
+
+create or replace function public.shop_cust_pw_forgot(p_email text, p_lang text) returns jsonb language plpgsql security definer set search_path = '' as $$
+declare e text := lower(trim(coalesce(p_email, ''))); c shop.customers; tok text; site text; lang text := case when p_lang in ('de', 'en', 'ar') then p_lang else 'de' end; link text;
+begin
+  perform shop.limit_hits('pw_forgot', 5, interval '30 minutes');
+  perform shop.limit_hits('pw_forgot_e', 3, interval '30 minutes', e);
+  select * into c from shop.customers where email = e and pw_hash is not null;
+  site := shop.kvget('settings')#>>'{shop,url}';
+  if found and coalesce(site, '') ~ '^https://' then
+    delete from shop.sessions where kind = 'reset' and subject = c.id;
+    tok := shop.new_token();
+    insert into shop.sessions(token_hash, kind, subject, expires_at) values (shop.thash(tok), 'reset', c.id, clock_timestamp() + interval '1 hour');
+    link := regexp_replace(site, '/+$', '') || '/#/konto/passwort?t=' || tok;
+    perform shop.send_mail(e,
+      case lang when 'en' then 'Reset your password' when 'ar' then 'إعادة تعيين كلمة السر' else 'Passwort zurücksetzen' end,
+      '<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto" dir="' || case when lang = 'ar' then 'rtl' else 'ltr' end || '"><p>' ||
+      case lang when 'en' then 'You requested a new password. The link is valid for 1 hour.' when 'ar' then 'طلبت كلمة سر جديدة. الرابط صالح لمدة ساعة.' else 'Du hast ein neues Passwort angefordert. Der Link ist 1 Stunde gültig.' end ||
+      '</p><p><a href="' || shop.h(link) || '" style="display:inline-block;background:#1c1819;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none">' ||
+      case lang when 'en' then 'Set new password' when 'ar' then 'تعيين كلمة سر جديدة' else 'Neues Passwort festlegen' end || '</a></p><p style="color:#777;font-size:12px">' ||
+      case lang when 'en' then 'If this was not you, simply ignore this e-mail.' when 'ar' then 'إذا لم تطلب ذلك، تجاهل هذه الرسالة.' else 'Wenn du das nicht warst, ignoriere diese E-Mail einfach.' end || '</p></div>', 'pw_reset', '');
+  end if;
+  return jsonb_build_object('ok', true, 'mail', exists (select 1 from shop.secrets where k = 'resend_key'));
+end $$;
+
+create or replace function public.shop_cust_pw_reset(p_token text, p_pw text) returns jsonb language plpgsql security definer set search_path = '' as $$
+declare s shop.sessions; c shop.customers;
+begin
+  perform shop.limit_hits('pw_reset', 10, interval '30 minutes');
+  if length(coalesce(p_pw, '')) < 8 or length(p_pw) > 200 then perform shop.err('pw_short'); end if;
+  if p_token is null or length(p_token) <> 64 then return jsonb_build_object('error_code', 'expired'); end if;
+  select * into s from shop.sessions where token_hash = shop.thash(p_token) and kind = 'reset' and expires_at > clock_timestamp();
+  if not found then return jsonb_build_object('error_code', 'expired'); end if;
+  update shop.customers set pw_hash = extensions.crypt(p_pw, extensions.gen_salt('bf', 10)), updated_at = clock_timestamp() where id = s.subject returning * into c;
+  delete from shop.sessions where subject = s.subject and kind in ('cust', 'reset');
+  perform shop.log('kunde', 'Passwort zurückgesetzt: ' || c.email, 'kunde');
+  return jsonb_build_object('token', shop.cust_login_token(c.id), 'me', shop.cust_out(c));
+end $$;
+
+-- Kundenfotos 90 Tage nach Abschluss der Bestellung löschen (läuft bei jeder neuen Bestellung mit)
+create or replace function shop.cleanup() returns void language sql as $$
+  delete from shop.photos p where not p.public and p.order_no is not null and exists (
+    select 1 from shop.items i where i.kind = 'order' and i.id = p.order_no and i.data->>'status' in ('zugestellt', 'storniert') and i.updated_at < clock_timestamp() - interval '90 days');
+  delete from shop.sessions where expires_at < clock_timestamp();
+$$;
+
+do $$
+declare f record; r text;
+begin
+  for f in select p.oid::regprocedure as sig from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+           where n.nspname = 'public' and p.proname like 'shop\_%' loop
+    execute format('revoke all on function %s from public', f.sig);
+    foreach r in array array['anon', 'authenticated'] loop
+      if exists (select 1 from pg_roles where rolname = r) then execute format('grant execute on function %s to %I', f.sig, r); end if;
+    end loop;
+  end loop;
+  foreach r in array array['anon', 'authenticated'] loop
+    if exists (select 1 from pg_roles where rolname = r) then execute format('revoke all on all functions in schema shop from %I', r); end if;
+  end loop;
+end $$;
+revoke all on all functions in schema shop from public;

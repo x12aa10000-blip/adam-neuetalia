@@ -72,7 +72,7 @@
     slides: [{ img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' }, { img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' }, { img: '', e: L3(), t: L3(), p: L3(), b: L3(), link: '' }],
     tiles: { her: { img: '', t: L3() }, him: { img: '', t: L3() }, promo: { img: '', t: L3(), p: L3() }, kids: { img: '', t: L3() }, all: { img: '', t: L3() }, custom: { img: '', t: L3(), p: L3() } },
     texts: {},
-    locations: [{ id: 'l1', name: 'Adam & Neuetalia', street: 'Steindamm 62', zip: '20099', city: 'Hamburg', phone: '+49 177 6449312', hours: L3('Mo–Sa 09:00–22:00 · So 09:00–16:00', 'Mon–Sat 09:00–22:00 · Sun 09:00–16:00', 'الإثنين–السبت 09:00–22:00 · الأحد 09:00–16:00') }],
+    locations: [{ id: 'l1', name: 'Adam', street: 'Steindamm 62', zip: '20099', city: 'Hamburg', phone: '+49 177 6449312', hours: L3('Mo–Sa 09:00–22:00 · So 09:00–16:00', 'Mon–Sat 09:00–22:00 · Sun 09:00–16:00', 'الإثنين–السبت 09:00–22:00 · الأحد 09:00–16:00') }],
     social: { ig: 'https://www.instagram.com/neuetalia', tt: 'https://www.tiktok.com/@neuetalia', fb: 'https://www.facebook.com/neuetalia' },
     boxes: {}, extras: {}, paypal: { clientId: '' }
   });
@@ -120,8 +120,8 @@
   /* ---------------- logo ---------------- */
   V.logo = function () {
     const c = SITE.get();
-    if (c.logo) return `<a class="logo" href="#/" aria-label="Adam &amp; Neuetalia"><img ${V.src(c.logo)} alt="Adam &amp; Neuetalia"></a>`;
-    return `<a class="logo" href="#/" aria-label="Adam &amp; Neuetalia"><small>Adam &amp;</small><b><i>N</i>EUETALI<em>A</em></b></a>`;
+    if (c.logo) return `<a class="logo" href="#/" aria-label="Adam"><img ${V.src(c.logo)} alt="Adam"></a>`;
+    return `<a class="logo" href="#/" aria-label="Adam"><small>Adam &amp;</small><b><i>N</i>EUETALI<em>A</em></b></a>`;
   };
 
   /* ---------------- header: categories drop down, live search ---------------- */
@@ -347,7 +347,7 @@
   V.locs = () => SITE.get().locations.filter(l => l && (l.street || l.name));
   V.locsHTML = function () {
     const ls = V.locs(); if (!ls.length) return '';
-    return `<div class="locs"><div class="loc-list">${ls.map((l, i) => `<div class="loc" data-v5="loc" data-i="${i}" role="button" tabindex="0" aria-pressed="${i === 0}"><i>${V.ic('store')}</i><b>${esc(l.name || 'Adam & Neuetalia')}</b><span>${esc(l.street)}, ${esc(l.zip)} ${esc(l.city)}</span><small>${V.hrs(L(l.hours))}</small>
+    return `<div class="locs"><div class="loc-list">${ls.map((l, i) => `<div class="loc" data-v5="loc" data-i="${i}" role="button" tabindex="0" aria-pressed="${i === 0}"><i>${V.ic('store')}</i><b>${esc(l.name || 'Adam')}</b><span>${esc(l.street)}, ${esc(l.zip)} ${esc(l.city)}</span><small>${V.hrs(L(l.hours))}</small>
       <div class="vbtns">${l.phone ? `<a class="btn ghost sm" href="tel:${esc(String(l.phone).replace(/\s/g, ''))}">${ic('phone')} ${t('v5_call')}</a>` : ''}<a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locAddr(l))}">${ic('route')} ${t('route')}</a></div></div>`).join('')}</div>
       <div class="loc-map"><iframe title="${esc(t('v5_map'))}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="${esc(mapUrl(ls[0]))}"></iframe></div></div>`;
   };

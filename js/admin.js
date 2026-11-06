@@ -30,7 +30,7 @@
     const s = session(); const open = ST.orders().filter(o => o.status === 'neu').length;
     const qs = ST.questions().filter(q => !q.answer).length + ST.reviews().filter(r => !r.ok && !r.hidden).length;
     app().className = 'adm';
-    app().innerHTML = `<header class="a-top"><a class="a-logo" href="#/admin">Adam <i>&amp;</i> Neuetalia</a><span class="a-sub">Verwaltung</span>
+    app().innerHTML = `<header class="a-top"><a class="a-logo" href="#/admin">Adam</a><span class="a-sub">Verwaltung</span>
       <span class="sp"></span><a class="btn ghost sm" href="#/" target="_self">${ic('store')}<span class="lbl"> Shop ansehen</span></a><span class="a-user">${ic('user')} ${esc(s.user)}</span><button class="ibtn a-out" data-a="logout" aria-label="Abmelden">${ic('logout')}</button><button class="ibtn a-dots" data-a="anav" aria-label="Menü"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg></button></header>
       <div class="a-body"><nav class="a-nav" aria-label="Verwaltung">${TABS.filter(x => !x[3] || isOwner()).map(([k, i, l]) => `<a href="#/admin${k ? '/' + k : ''}"${k === tab ? ' aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'bestellungen' && open ? `<em>${open}</em>` : ''}${k === 'bewertungen' && qs ? `<em>${qs}</em>` : ''}</a>`).join('')}</nav>
       <main class="a-main" id="amain">${html}</main></div>`;
@@ -61,7 +61,7 @@
   A.login = function () {
     app().className = 'adm login';
     document.documentElement.lang = 'de'; document.documentElement.dir = 'ltr';
-    app().innerHTML = `<div class="a-login"><a class="a-logo" href="#/">Adam <i>&amp;</i> Neuetalia</a><h1>Verwaltung</h1>
+    app().innerHTML = `<div class="a-login"><a class="a-logo" href="#/">Adam</a><h1>Verwaltung</h1>
       <form data-aform="login"><label class="fld"><span>Benutzer</span><select class="in" name="user">${staff().map(s => `<option value="${esc(s.user)}">${esc(s.user)}</option>`).join('')}</select></label>
       <label class="fld"><span>PIN</span><input class="in big" name="pin" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required></label><button class="btn block">Anmelden</button></form>
       <p class="muted small">Der Werkstatt-Zugang sieht nur Bestellungen, Produktion und Versand.</p><a class="link" href="#/">← Zurück zum Shop</a></div>`;

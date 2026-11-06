@@ -15,7 +15,7 @@
     const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#b8924f'); g.addColorStop(.5, '#f1dcaa'); g.addColorStop(1, '#a8824a');
     x.strokeStyle = g; x.lineWidth = 2; x.strokeRect(34, 34, W - 68, H - 68); x.lineWidth = 1; x.strokeRect(46, 46, W - 92, H - 92);
     x.fillStyle = g; x.textAlign = 'center';
-    x.font = '500 78px "ui-serif", Georgia, serif'; x.fillText('Adam & Neuetalia', W / 2, 270);
+    x.font = '500 78px "ui-serif", Georgia, serif'; x.fillText('Adam', W / 2, 270);
     x.font = '400 22px "ui-sans", sans-serif'; if ('letterSpacing' in x) x.letterSpacing = '9px'; x.fillText('GESCHENKGUTSCHEIN', W / 2, 340); if ('letterSpacing' in x) x.letterSpacing = '0px';
     x.font = '500 46px "ui-serif-i", Georgia, serif'; x.fillText('für ein Lächeln', W / 2, 440);
     x.font = '400 18px "ui-sans", sans-serif'; x.fillStyle = '#9e938c'; x.fillText('Steindamm 62 · Hamburg', W / 2, 560);
@@ -63,7 +63,7 @@
   S.catImg = function (cat) { const p = ST.products().find(p => p.cat === cat && p.best) || ST.products().find(p => p.cat === cat || (p.also || []).includes(cat)); return p ? p.views[0].thumb : ''; };
 
   /* ---------------- shell ---------------- */
-  const LOGO = () => `<a class="logo" href="#/" aria-label="Adam &amp; Neuetalia"><small>Adam &amp;</small><b><i>N</i>EUETALI<em>A</em></b></a>`;
+  const LOGO = () => `<a class="logo" href="#/" aria-label="Adam"><small>Adam &amp;</small><b><i>N</i>EUETALI<em>A</em></b></a>`;
   S.header = function () {
     const n = ST.cartCount(); const me = ST.me(); const s = ST.settings();
     const mins = ST.minutesToCutoff();
@@ -98,7 +98,7 @@
           <div class="vbtns" style="margin-top:12px"><a class="btn teal sm" target="_blank" rel="noopener" href="https://wa.me/${esc(s.shop.wa)}">${ic('chat')} WhatsApp</a><a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.shop.name + ', ' + s.shop.street + ', ' + s.shop.city)}">${ic('route')} ${t('route')}</a></div></div>
       </div>
       <div class="ft-bar"><div class="wrap"><span>${esc(s.shop.name)} · ${esc(s.shop.street)} · ${esc(s.shop.zip)} ${esc(s.shop.city)}</span><span class="ft-soc"><a href="https://www.instagram.com/neuetalia" target="_blank" rel="noopener" aria-label="Instagram">IG</a><a href="https://www.tiktok.com/@neuetalia" target="_blank" rel="noopener" aria-label="TikTok">TT</a><a href="https://www.facebook.com/neuetalia" target="_blank" rel="noopener" aria-label="Facebook">f</a><a href="https://wa.me/${esc(s.shop.wa)}" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a></span><span>${ic('mail')} ${esc(s.shop.email)}</span></div></div>
-      <div class="wrap ft-legal"><a href="#/rechtliches/impressum">${t('imprint')}</a><a href="#/rechtliches/datenschutz">${t('privacy')}</a><a href="#/rechtliches/agb">${t('terms')}</a><a href="#/rechtliches/widerruf">${t('withdrawal')}</a><a href="#/rechtliches/versand">${t('ship_pay')}</a><button data-act="cookies">${t('cookie_settings')}</button><a href="#/admin">${t('admin_area')}</a><span style="margin-inline-start:auto">© 2026 ${esc(s.shop.name)} · ${t('demo_note')}</span></div>
+      <div class="wrap ft-legal"><a href="#/rechtliches/impressum">${t('imprint')}</a><a href="#/rechtliches/datenschutz">${t('privacy')}</a><a href="#/rechtliches/agb">${t('terms')}</a><a href="#/rechtliches/widerruf">${t('withdrawal')}</a><a href="#/rechtliches/versand">${t('ship_pay')}</a><button data-act="cookies">${t('cookie_settings')}</button><a href="#/admin">${t('admin_area')}</a><span style="margin-inline-start:auto">© 2026 ${esc(s.shop.name)}</span></div>
     </footer>`;
   };
   S.tabbar = function () {
@@ -145,7 +145,7 @@
     const ov = C.sheet({ title: t('menu'), start: true, foot: false, kind: 'side menu', noFocus: true });
     const s = ST.settings();
     const links = [['#/anlass', 'gift', t('nav_occ')], ['#/gutschein', 'cards', t('nav_gift')], ['#/verfolgen', 'truck', t('track_title')], ['#/konto', 'user', t('account')], ['#/wunschliste', 'heart', t('wishlist')], ['#/hilfe', 'chat', t('nav_help')]];
-    ov.panel.insertAdjacentHTML('afterbegin', `<a class="m-logo" href="#/">Adam <i>&amp;</i> Neuetalia</a>`);
+    ov.panel.insertAdjacentHTML('afterbegin', `<a class="m-logo" href="#/">Adam</a>`);
     ov.body.innerHTML = `<button class="m-search" data-act="search">${ic('search')} ${esc(t('search_ph'))}</button>
       <p class="m-h">${t('categories')}</p>
       <div class="m-cats">${CATS().map(c => `<a class="m-cat" href="#/c/${c}"><img src="${esc(S.catImg(c))}" alt="" loading="lazy"><span>${t('cat_' + c)}</span></a>`).join('')}<a class="m-cat all" href="#/c/alle"><span>${t('nav_shop')} →</span></a></div>

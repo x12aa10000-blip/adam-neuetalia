@@ -314,7 +314,7 @@
       if (a === 'down' && i < WC.sections.length - 1) [WC.sections[i + 1], WC.sections[i]] = [WC.sections[i], WC.sections[i + 1]];
       if (a === 'tile-x') WC.tiles[b.dataset.k].img = '';
       if (a === 'slide-x') WC.slides[i].img = '';
-      if (a === 'loc-add') WC.locations.push({ id: 'l' + ST.uid(''), name: 'Adam & Neuetalia', street: '', zip: '', city: 'Hamburg', phone: '', hours: { de: '', en: '', ar: '' } });
+      if (a === 'loc-add') WC.locations.push({ id: 'l' + ST.uid(''), name: 'Adam', street: '', zip: '', city: 'Hamburg', phone: '', hours: { de: '', en: '', ar: '' } });
       if (a === 'loc-x') WC.locations.splice(i, 1);
       if (a === 'box-x') { WC.boxes[b.dataset.k].img = ''; }
       if (a === 'ex-x') { WC.extras[b.dataset.k].img = ''; }

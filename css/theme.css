@@ -1,4 +1,4 @@
-/* Neuetalia look (from the Figma design): pink #FE90BE, purple #6425FE, turquoise #01CAC9, text #333.
+/* Adam look (from the Figma design): pink #FE90BE, purple #6425FE, turquoise #01CAC9, text #333.
    Loaded after the base styles; it only changes the look, never the markup the system relies on. */
 :root{
   --pink:#FE90BE; --pink-d:#f0679f; --pink-l:#ffe6f1; --pink-xl:#fff4f9;

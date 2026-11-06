@@ -447,7 +447,7 @@
   K('privacy_p1', 'Wir verarbeiten deine Daten nur, um deine Bestellung auszuführen (Art. 6 Abs. 1 lit. b DSGVO).', 'We process your data only to fulfil your order (Art. 6(1)(b) GDPR).', 'نعالج بياناتك فقط لتنفيذ طلبك (المادة 6 من اللائحة الأوروبية لحماية البيانات).');
   K('privacy_p2', 'Fotos, die du hochlädst, nutzen wir ausschließlich für die Fertigung und löschen sie 30 Tage nach Zustellung.', 'Photos you upload are used only for production and deleted 30 days after delivery.', 'الصور اللي بترفعها منستخدمها للتصنيع فقط ومنحذفها بعد 30 يوم من التسليم.');
   K('privacy_p3', 'Du hast das Recht auf Auskunft, Berichtigung und Löschung. Schreib uns dafür eine E-Mail.', 'You have the right to access, correction and deletion. Just email us.', 'إلك الحق تعرف بياناتك وتصححها وتحذفها. راسلنا بالإيميل.');
-  K('terms_p1', 'Verträge kommen mit Adam & Neuetalia, Steindamm 62, 20099 Hamburg zustande.', 'Contracts are concluded with Adam & Neuetalia, Steindamm 62, 20099 Hamburg.', 'العقد بيكون مع Adam & Neuetalia، شتايندام 62، 20099 هامبورغ.');
+  K('terms_p1', 'Verträge kommen mit Adam, Steindamm 62, 20099 Hamburg zustande.', 'Contracts are concluded with Adam, Steindamm 62, 20099 Hamburg.', 'العقد بيكون مع Adam، شتايندام 62، 20099 هامبورغ.');
   K('terms_p2', 'Mit dem Klick auf „Zahlungspflichtig bestellen“ gibst du ein verbindliches Angebot ab. Die Bestätigung per E-Mail ist die Annahme.', 'By clicking “Place order and pay” you make a binding offer. The email confirmation is our acceptance.', 'لما تضغط «اطلب وادفع» بتكون قدمت طلب ملزم، وإيميل التأكيد هو قبولنا.');
   K('terms_p3', 'Alle Preise inkl. gesetzlicher MwSt. Personalisierte Artikel werden nach deinen Angaben gefertigt.', 'All prices include VAT. Personalised items are made to your specifications.', 'كل الأسعار شاملة الضريبة. المنتجات المخصصة بتنصنع حسب طلبك.');
   K('withdraw_p1', 'Du hast grundsätzlich ein 14-tägiges Widerrufsrecht.', 'You generally have a 14-day right of withdrawal.', 'عندك بشكل عام حق الإلغاء خلال 14 يوماً.');
@@ -491,7 +491,7 @@
   K('ml_cx_p', 'deine Bestellung wurde storniert.', 'your order has been cancelled.', 'تم إلغاء طلبك.');
   K('ml_cx_refund', '{total} werden dir in den nächsten Tagen erstattet.', '{total} will be refunded in the next few days.', 'رح نرجعلك {total} خلال الأيام الجاية.');
   K('ml_gc_s', 'Ein Geschenk für dich von {from}', 'A gift for you from {from}', 'هدية إلك من {from}');
-  K('ml_gc_p', '{from} schenkt dir einen Gutschein über {amount} bei Adam & Neuetalia.', '{from} is giving you a gift card worth {amount} at Adam & Neuetalia.', '{from} أهداك بطاقة بقيمة {amount} من Adam & Neuetalia.');
+  K('ml_gc_p', '{from} schenkt dir einen Gutschein über {amount} bei Adam.', '{from} is giving you a gift card worth {amount} at Adam.', '{from} أهداك بطاقة بقيمة {amount} من Adam.');
   K('ml_gc_use', 'Einlösbar online an der Kasse oder im Laden am Steindamm 62.', 'Redeem online at checkout or in our shop on Steindamm 62.', 'استخدمها أونلاين عند الدفع أو بالمحل بشتايندام 62.');
   K('ml_gc_btn', 'Geschenk aussuchen', 'Choose a gift', 'اختار هديتك');
   K('ml_ans_s', 'Antwort auf deine Frage', 'Answer to your question', 'الرد على سؤالك');
