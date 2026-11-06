@@ -322,3 +322,147 @@ html[lang="ar"] .adm .a-head h1{letter-spacing:0;font-weight:600}
 }
 /* the totals card must stay the positioning box for its paper layers when it stops being sticky */
 @media (max-width:960px){.sumbox.sticky,.sumbox{position:relative!important}}
+
+/* =====================================================================
+   BOLD PASS – the wrapping paper covers the whole counter.
+   Pink header, pink-paper ground, white cards lying on it, ink actions,
+   ink footer and tab bar, ink admin sidebar. Visual only.
+   ===================================================================== */
+:root{--ground:color-mix(in srgb,var(--pk) 9%,transparent);--on-ground:var(--ink)}
+html{background:var(--wh)}
+body{background:var(--ground)}
+#app,.shop,main{background:transparent}
+
+/* header: a sheet of pink wrapping paper with the ribbon under it */
+.hd,header.hd{background:var(--pk)!important;color:var(--on-pk);box-shadow:0 4px 0 var(--ribbon),0 16px 26px -22px color-mix(in srgb,var(--ink) 60%,transparent)!important}
+.hd .logo,.hd a,.hd .ibtn,.hd .hd-act,.hd .hd-act span,.hd .hd-act small,.hd-nav .ni>a,.hd-nav .ni>button{color:var(--on-pk)!important}
+.hd .ic{color:var(--on-pk)}
+.hd .lg-dot{background:var(--wh)!important}
+.hd .logo{font-size:clamp(26px,2.4vw,34px)}
+.hd-sbox .in,.hd-search .in,.hd-search input{background:var(--wh)!important;color:var(--ink)!important}
+.hd-sbox button,.hd-search button,.hd-search .sbtn{background:var(--ink)!important;color:var(--on-ink)!important}
+.hd-sbox button .ic,.hd-search button .ic{color:var(--on-ink)!important}
+.hd-nav{border-top:1px solid color-mix(in srgb,var(--ink) 14%,transparent)}
+.hd-nav .ni>a:hover,.hd-nav .ni>button:hover,.hd-nav .ni.open>button{background:color-mix(in srgb,var(--wh) 45%,transparent)!important}
+.hd-nav .ni>a.on::after{background:var(--ink)}
+.hd-nav .ni.cats>button{background:var(--ink)!important;color:var(--on-ink)!important}
+.hd-nav .ni.cats>button .ic{color:var(--on-ink)!important}
+.hd-nav .ni.cats>button:hover,.hd-nav .ni.cats.open>button{background:var(--wh)!important;color:var(--ink)!important}
+.hd-nav .ni.cats>button:hover .ic,.hd-nav .ni.cats.open>button .ic{color:var(--ink)!important}
+.hd .mm,.hd .mm a,.hd .mm span,.hd .mm b,.hd .mm small{color:var(--ink)!important}
+.hd .mm .ic{color:var(--ink)}
+.hd-act .cnt{background:var(--ink)!important;color:var(--on-ink)!important}
+
+/* actions: ink is the main action, turquoise adds to the bag, pink stays the paper */
+.btn{background:var(--ink);color:var(--on-ink)}
+.btn .ic{color:inherit}
+.btn:hover{background:var(--pk);color:var(--on-pk)}
+.btn.ghost,.btn.line-l{background:var(--wh);color:var(--ink)}
+.btn.ghost:hover,.btn.line-l:hover{background:var(--wh);color:var(--ink)}
+.btn.soft{background:var(--wh);color:var(--ink);box-shadow:inset 0 0 0 1px var(--hair)}
+
+/* white cards lying on the pink paper */
+.pcard{background:var(--wh);padding:8px;border-radius:var(--r-l);box-shadow:var(--sh-card);transition:transform .35s var(--ease),box-shadow .35s var(--ease)}
+.pcard:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:var(--sh-l)}
+.pcard .pimg{border-radius:var(--r);box-shadow:none}
+.pcard .pc-body{margin:0;padding:12px 6px 4px;background:transparent;box-shadow:none;border-radius:0}
+.pcard .wish{top:16px!important;inset-inline-end:16px!important}
+.pcard .ptags{top:16px!important;inset-inline-start:16px!important}
+.co-sec,.cline,.tabs details,.tabs-left details,.faq details,.loc,.trackform,.gcp-form,.help-contact,.auth-box,.bx-sec,.fside,.mopt,.pay,#cfg,.cfg,.stage-col .info,.legal,.acc-benefits{background:var(--wh)!important}
+.legal{padding:clamp(20px,3vw,40px);border-radius:var(--r-l);box-shadow:var(--sh)}
+.fside{box-shadow:var(--sh)}
+.tabs details[open],.faq details[open]{box-shadow:inset 0 0 0 1.5px var(--ink)}
+
+/* section titles carry a ribbon */
+.sh .ttl,.s8-h h2,.lhead h1,.a-head h1,.sec>.wrap>h2{position:relative}
+.sh .ttl::after,.s8-h h2::after,.lhead h1::after{content:"";display:block;width:56px;height:5px;border-radius:3px;background:var(--ribbon);margin-top:12px}
+.lhead h1,.sh .ttl,.s8-h h2{font-size:clamp(34px,4.2vw,64px)!important;letter-spacing:-.035em}
+html[lang="ar"] .lhead h1,html[lang="ar"] .sh .ttl,html[lang="ar"] .s8-h h2{letter-spacing:0}
+
+/* hero: big name, the gift as a photo print lying on the paper */
+.s8-hero{background:transparent!important;padding-top:clamp(24px,4vw,56px)}
+.s8-copy h1{font-size:clamp(48px,6.4vw,104px)!important;line-height:.95}
+html[lang="ar"] .s8-copy h1{line-height:1.2}
+.s8-copy{background:var(--wh)}
+.s8-copy::after{background:var(--wh)}
+.s8-copy::before{background:var(--pk)}
+.s8-stage{background:var(--wh)!important;padding:12px 12px 44px;border-radius:6px!important;transform:rotate(1.6deg);box-shadow:0 2px 4px color-mix(in srgb,var(--ink) 10%,transparent),0 30px 50px -28px color-mix(in srgb,var(--ink) 55%,transparent)!important}
+.s8-stage canvas{border-radius:3px}
+.s8-usp ul{background:var(--wh)}
+
+/* dark band: the ink part of the counter */
+.s8-band.s8-pink,.s8-pink{background:var(--ink)!important;color:var(--on-ink)}
+.s8-pink h2,.s8-pink p,.s8-pink li,.s8-pink .ic{color:var(--on-ink)!important}
+.s8-pink .s8-ticks .ic{color:var(--ribbon)!important}
+.s8-pink .btn{background:var(--pk);color:var(--on-pk)}
+.s8-pink .btn:hover{background:var(--wh);color:var(--ink)}
+.s8-band-i{border-radius:6px!important;transform:rotate(-1.4deg);background:var(--wh);padding:10px;box-shadow:0 30px 50px -28px color-mix(in srgb,var(--ink) 70%,transparent)}
+
+/* footer + phone tab bar in ink */
+.ft{background:var(--ink)!important;color:var(--on-ink)!important;border-top:0!important;box-shadow:0 -4px 0 var(--ribbon)}
+.ft p,.ft span,.ft a,.ft h3,.ft h4,.ft li,.ft small,.ft .muted{color:var(--on-ink)!important}
+.ft h3{color:var(--pk)!important}
+.ft .ft-logos span,.ft-logos span{background:transparent!important;color:var(--on-ink)!important;border:1px solid color-mix(in srgb,var(--on-ink) 30%,transparent)!important}
+.ft .ft-soc a{background:color-mix(in srgb,var(--on-ink) 14%,transparent)!important;color:var(--on-ink)!important}
+.ft .ft-soc a .ic{color:var(--on-ink)!important}
+.ft .btn{background:var(--pk)!important;color:var(--on-pk)!important}
+.ft .btn.ghost,.ft .btn.line-l{background:transparent!important;color:var(--on-ink)!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--on-ink) 40%,transparent)!important}
+.ft .btn .ic{color:inherit!important}
+.ft .lg-dot{background:var(--pk)!important}
+.ft-bar,.ft-legal{border-top:1px solid color-mix(in srgb,var(--on-ink) 16%,transparent)}
+.tabbar{background:var(--ink)!important;border-top:0!important;box-shadow:0 -4px 0 var(--ribbon)!important}
+.tabbar a,.tabbar button,.tabbar span,.tabbar .ic{color:color-mix(in srgb,var(--on-ink) 82%,transparent)!important}
+.tabbar .on,.tabbar .on span,.tabbar .on .ic{color:var(--on-ink)!important}
+.tabbar .home i{background:var(--pk)!important;color:var(--on-pk)!important;box-shadow:0 0 0 4px var(--ink)!important}
+.tabbar .home i .ic{color:var(--on-pk)!important}
+.tabbar .cnt{background:var(--pk)!important;color:var(--on-pk)!important}
+.sticky-buy{background:var(--wh)!important;box-shadow:0 -4px 0 var(--ribbon),0 -10px 24px -18px color-mix(in srgb,var(--ink) 50%,transparent)!important}
+.sticky-buy .btn:not(.ghost),.sticky-buy [data-act=add]{background:var(--ribbon)!important;color:var(--on-tq)!important}
+
+/* admin: ink sidebar, pink current place, white work on pink paper */
+.adm,.adm .a-body,.adm .a-main{background:var(--ground)!important}
+.adm .a-nav{background:var(--ink)!important;border:0!important}
+.adm .a-nav a{color:color-mix(in srgb,var(--on-ink) 86%,transparent)!important}
+.adm .a-nav a .ic{color:color-mix(in srgb,var(--on-ink) 70%,transparent)!important}
+.adm .a-nav a:hover{background:color-mix(in srgb,var(--on-ink) 10%,transparent)!important}
+.adm .a-nav a[aria-current],.an-list a[aria-current]{background:var(--pk)!important;color:var(--on-pk)!important}
+.adm .a-nav a[aria-current] .ic,.an-list a[aria-current] .ic{color:var(--on-pk)!important}
+.adm .a-nav .a-ng{color:var(--pk)!important}
+.adm .a-nav em{background:var(--wh)!important;color:var(--ink)!important}
+.adm .a-nav a[aria-current] em{background:var(--ink)!important;color:var(--on-ink)!important}
+.adm .a-card,.adm .kpi,.adm .orow,.adm .ptable,.adm .ctable,.adm .qrow,.adm .prow{background:var(--wh)!important}
+.adm .a-card,.adm .kpi{box-shadow:var(--sh)!important}
+.adm .a-head{border-bottom-color:color-mix(in srgb,var(--ink) 12%,transparent)}
+.adm .a-filter .in,.adm .in{background:var(--wh)}
+
+/* admin login: a white card with room to breathe; one language switch only */
+.a-login{background:transparent!important;gap:18px}
+.adm.login{background:var(--ground)!important;min-height:100vh}
+.a-login form{padding:clamp(20px,5vw,32px)!important;display:grid;gap:16px;background:var(--wh)!important}
+.a-login .fld{display:grid;gap:8px}
+.a-login:has(.a-lang) .lang-sw{display:none}
+.a-login h1{font-size:clamp(34px,8vw,48px)!important}
+
+/* account: one card, not a card inside a card */
+.acc-auth{background:transparent!important;box-shadow:none!important;border:0!important}
+.tabs2{background:var(--ground)!important;border-radius:var(--r)!important;box-shadow:none!important;padding:4px}
+.tabs2 button,.tabs2 a{border-radius:var(--r-s)!important}
+.tabs2 [aria-selected="true"],.tabs2 .on,.tabs2 [aria-pressed="true"]{background:var(--ink)!important;color:var(--on-ink)!important;box-shadow:none!important}
+
+@media (max-width:900px){
+  .s8-copy{background:none}
+  .s8-stage{transform:none;padding:8px 8px 8px}
+  .s8-band-i{transform:none}
+  .pcard{padding:6px}
+  .pcard:hover{transform:none}
+  .lhead h1,.sh .ttl,.s8-h h2{font-size:clamp(30px,8vw,40px)!important}
+  .s8-copy h1{font-size:clamp(40px,11vw,56px)!important}
+}
+@media (prefers-reduced-motion:reduce){.s8-stage,.s8-band-i,.pcard:hover{transform:none!important}}
+.ft .logo,.ft .ft-name,.ft .ft-brand .logo,.ft .ft-brand a{color:var(--on-ink)!important}
+.s8-pink .s8-ticks li{background:color-mix(in srgb,var(--on-ink) 12%,transparent)!important;color:var(--on-ink)!important;border-radius:var(--r-s)}
+.ft b,.ft strong{color:var(--on-ink)!important}
+/* white cards always get room inside */
+.gcp-form,.trackform,.acc-benefits{padding:clamp(18px,4vw,32px)!important;border-radius:var(--r-l)}
+.fside{padding:14px!important}
+.pcard{background:var(--wh)!important}

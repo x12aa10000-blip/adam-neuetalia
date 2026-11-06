@@ -273,7 +273,7 @@
   for (const [k, de, en, ar, dde, den, dar] of [['paypal', 'PayPal', 'PayPal', 'PayPal', 'Schnell mit deinem PayPal-Konto', 'Fast with your PayPal account', 'بسرعة من حساب PayPal'], ['card', 'Kreditkarte', 'Credit card', 'بطاقة ائتمان', 'Visa, Mastercard, Amex', 'Visa, Mastercard, Amex', 'فيزا، ماستركارد، أمكس'], ['klarna', 'Klarna', 'Klarna', 'Klarna', 'Später bezahlen', 'Pay later', 'ادفع لاحقاً'], ['applepay', 'Apple Pay', 'Apple Pay', 'Apple Pay', 'Mit Face ID oder Touch ID', 'With Face ID or Touch ID', 'ببصمة الوجه أو الإصبع'], ['vorkasse', 'Vorkasse', 'Bank transfer', 'تحويل بنكي', 'Überweisung, Start nach Zahlungseingang', 'Transfer, we start once paid', 'تحويل، منبلش بعد وصول المبلغ'], ['cash', 'Bar bei Abholung', 'Cash on pick-up', 'كاش عند الاستلام', 'Im Laden bezahlen', 'Pay in the shop', 'ادفع بالمحل']]) { K('pay_' + k, de, en, ar); K('payd_' + k, dde, den, dar); }
   K('order_note', 'Hinweis zur Bestellung', 'Note about your order', 'ملاحظة للطلب');
   K('create_acc', 'Kundenkonto anlegen (Bestellungen verfolgen, schneller bestellen)', 'Create an account (track orders, faster checkout)', 'أنشئ حساباً (تتبع الطلبات وطلب أسرع)');
-  K('password', 'Passwort (mind. 6 Zeichen)', 'Password (min. 6 characters)', 'كلمة السر (6 أحرف على الأقل)');
+  K('password', 'Passwort (mind. 8 Zeichen)', 'Password (min. 8 characters)', 'كلمة السر (8 أحرف على الأقل)');
   K('marketing_opt', 'Ja, ich möchte Angebote und Erinnerungen an Anlässe per E-Mail (jederzeit abbestellbar).', 'Yes, email me offers and occasion reminders (unsubscribe any time).', 'نعم، بدي عروض وتذكير بالمناسبات بالإيميل (بقدر ألغي بأي وقت).');
   K('coupon', 'Rabattcode', 'Discount code', 'كود الخصم');
   K('giftcard_code', 'Gutscheincode', 'Gift card code', 'كود بطاقة الهدية');
@@ -388,7 +388,7 @@
   K('logout', 'Abmelden', 'Sign out', 'تسجيل الخروج');
   K('logged_out', 'Abgemeldet', 'Signed out', 'تم تسجيل الخروج');
   K('login_wrong', 'E-Mail oder Passwort stimmt nicht.', 'Email or password is wrong.', 'الإيميل أو كلمة السر غلط.');
-  K('pw_short', 'Das Passwort braucht mindestens 6 Zeichen.', 'The password needs at least 6 characters.', 'كلمة السر لازم تكون 6 أحرف على الأقل.');
+  K('pw_short', 'Das Passwort braucht mindestens 8 Zeichen.', 'The password needs at least 8 characters.', 'كلمة السر لازم تكون 8 أحرف على الأقل.');
   K('demo_acc_note', 'Demo: Konten werden nur in diesem Browser gespeichert.', 'Demo: accounts are stored in this browser only.', 'تجريبي: الحسابات محفوظة بهذا المتصفح فقط.');
   K('acc_b1', 'Bestellungen jederzeit verfolgen', 'Track orders any time', 'تتبّع طلباتك بأي وقت');
   K('acc_b2', 'Designs und Merkliste speichern', 'Save designs and your wishlist', 'احفظ التصاميم والمفضلة');

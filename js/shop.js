@@ -9,7 +9,7 @@
 
   /* ---------------- virtual gift card product ---------------- */
   S.giftcardImg = function () {
-    if (S._gci) return S._gci;
+    const lg = C.lang(); if (S._gci && S._gciL === lg) return S._gci;
     const W = 1000, H = 640, c = ENG.canvas(W, H), x = c.getContext('2d');
     // Figma palette only: pink card, ink lettering, turquoise and purple accents
     x.fillStyle = '#FE90BE'; x.fillRect(0, 0, W, H);
@@ -19,12 +19,12 @@
     x.fillStyle = '#333333'; x.textAlign = 'start';
     x.font = '700 120px "ui-pop", "ui-sans", sans-serif'; if ('letterSpacing' in x) x.letterSpacing = '-4px'; x.fillText('Adam', 80, 220); if ('letterSpacing' in x) x.letterSpacing = '0px';
     x.fillStyle = '#FFFFFF'; x.beginPath(); x.arc(80 + x.measureText('Adam').width + 14, 214, 13, 0, Math.PI * 2); x.fill();
-    x.fillStyle = '#333333'; x.font = '600 26px "ui-pop", "ui-sans", sans-serif'; if ('letterSpacing' in x) x.letterSpacing = '6px'; x.fillText('GESCHENKGUTSCHEIN', 84, 290); if ('letterSpacing' in x) x.letterSpacing = '0px';
-    x.font = '500 40px "ui-pop", "ui-sans", sans-serif'; x.fillText('für ein Lächeln', 84, 380);
-    x.textAlign = 'end'; x.font = '400 20px "ui-pop", "ui-sans", sans-serif'; x.fillText('Steindamm 62 · Hamburg', W - 70, H - 80);
+    x.fillStyle = '#333333'; x.font = '600 26px "ui-pop", "ui-ar2", "ui-sans", sans-serif'; if ('letterSpacing' in x) x.letterSpacing = lg === 'ar' ? '0px' : '6px'; x.fillText(lg === 'ar' ? t('gc_title') : t('gc_title').toUpperCase(), 84, 290); if ('letterSpacing' in x) x.letterSpacing = '0px';
+    x.font = '500 40px "ui-pop", "ui-ar2", "ui-sans", sans-serif'; x.fillText({ de: 'für ein Lächeln', en: 'for a smile', ar: 'من أجل ابتسامة' }[lg] || 'für ein Lächeln', 84, 380);
+    const sh = (ST.settings() || {}).shop || {}; x.textAlign = 'end'; x.font = '400 20px "ui-pop", "ui-sans", sans-serif'; x.fillText([sh.street || 'Steindamm 62', sh.city || 'Hamburg'].join(' · '), W - 70, H - 80);
     const url = c.toDataURL('image/jpeg', .92);
     if (document.fonts && document.fonts.status !== 'loaded') { document.fonts.ready.then(() => { S._gci = null; }); return url; }
-    S._gci = url; return S._gci;
+    S._gci = url; S._gciL = lg; return S._gci;
   };
   const GIFT = { id: 'gutschein', virtual: 1, hidden: 1, cat: 'gutschein', occ: [], price: 25, tax: 0, prod: 0, sd: 1, stock: 9999, active: true,
     name: { de: 'Geschenkgutschein', en: 'Gift card', ar: 'بطاقة هدية' }, desc: { de: '', en: '', ar: '' }, fields: [], views: [] };

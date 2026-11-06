@@ -123,7 +123,7 @@
           ${CO.method === 'pickup' ? '' : `<label class="check"><input type="checkbox" data-co="sameBill"${CO.sameBill ? ' checked' : ''}><span>${t('same_bill')}</span></label>`}
           ${CO.method === 'pickup' || !CO.sameBill ? `<h3 class="sub">${t('bill_addr')}</h3>${addrForm('bill', CO.bill, 'required')}` : ''}
           <label class="fld"><span>${t('order_note')} <small>${t('optional')}</small></span><textarea class="in" rows="2" maxlength="400" data-co="note">${esc(CO.note)}</textarea></label>
-          ${me ? '' : `<label class="check"><input type="checkbox" data-co="account"${CO.account ? ' checked' : ''}><span>${t('create_acc')}</span></label>${CO.account ? `<label class="fld"><span>${t('password')}</span><input class="in" type="password" data-co="pw" minlength="6" value="${esc(CO.pw)}" autocomplete="new-password"></label>` : ''}`}
+          ${me ? '' : `<label class="check"><input type="checkbox" data-co="account"${CO.account ? ' checked' : ''}><span>${t('create_acc')}</span></label>${CO.account ? `<label class="fld"><span>${t('password')}</span><input class="in" type="password" data-co="pw" minlength="8" value="${esc(CO.pw)}" autocomplete="new-password"></label>` : ''}`}
           <label class="check"><input type="checkbox" data-co="marketing"${CO.marketing ? ' checked' : ''}><span>${t('marketing_opt')}</span></label>
         </section>
         </form>
@@ -173,7 +173,7 @@
     if (CO.method !== 'pickup' && !String(CO.addr.name || '').trim() && !CO.isGift && CO.name.trim()) CO.addr.name = CO.name.trim(); // own address: no need to type the name twice
     if (CO.method !== 'pickup') { for (const f of ['name', 'street', 'zip', 'city']) if (!String(CO.addr[f]).trim()) bad.push('addr.' + f); if (CO.method === 'local' && !ST.localZip(CO.addr.zip)) bad.push('addr.zip'); else if (CO.method === 'dhl' && String(CO.addr.zip).trim() && !/^\d{5}$/.test(String(CO.addr.zip).trim())) bad.push('addr.zip'); }
     if (CO.method === 'pickup' || !CO.sameBill) for (const f of ['name', 'street', 'zip', 'city']) if (!String(CO.bill[f]).trim()) bad.push('bill.' + f);
-    if (CO.account && !ST.me() && String(CO.pw).length < 6) bad.push('pw');
+    if (CO.account && !ST.me() && String(CO.pw).length < 8) bad.push('pw');
     if (!CO.agb) bad.push('agb');
     return bad;
   }
@@ -315,7 +315,7 @@
       SHOP.page(`<div class="wrap acc-auth"><div class="auth-art"><img src="img/p/p37.jpg" alt="" width="420" height="483"></div><div class="auth-box"><p class="muted">${t('auth_welcome')}</p><h1>${mode === 'login' ? t('login') : t('register')}</h1>
         <div class="tabs2" role="tablist"><a role="tab" href="#/konto" aria-selected="${mode === 'login'}">${t('login')}</a><a role="tab" href="#/konto/registrieren" aria-selected="${mode === 'reg'}">${t('register')}</a></div>
         ${mode === 'login' ? `<form class="authf" data-form="login" data-next="${esc((q && q.next) || '')}"><label class="fld"><span>${t('email')}</span><input class="in" name="email" type="email" autocomplete="email" required></label><label class="fld"><span>${t('password')}</span><input class="in" name="pw" type="password" autocomplete="current-password" required></label><button class="btn block">${t('login')}</button><p class="small"><a class="link" href="#/konto/passwort">${t('pw_forgot')}</a></p></form>` :
-        `<form class="authf" data-form="register"><label class="fld"><span>${t('full_name')}</span><input class="in" name="name" autocomplete="name" required></label><label class="fld"><span>${t('email')}</span><input class="in" name="email" type="email" autocomplete="email" required></label><label class="fld"><span>${t('phone')}</span><input class="in" name="phone" type="tel" autocomplete="tel"></label><label class="fld"><span>${t('password')}</span><input class="in" name="pw" type="password" minlength="6" autocomplete="new-password" required></label><label class="check"><input type="checkbox" name="marketing"><span>${t('marketing_opt')}</span></label><button class="btn block">${t('register')}</button></form>`}
+        `<form class="authf" data-form="register"><label class="fld"><span>${t('full_name')}</span><input class="in" name="name" autocomplete="name" required></label><label class="fld"><span>${t('email')}</span><input class="in" name="email" type="email" autocomplete="email" required></label><label class="fld"><span>${t('phone')}</span><input class="in" name="phone" type="tel" autocomplete="tel"></label><label class="fld"><span>${t('password')}</span><input class="in" name="pw" type="password" minlength="8" autocomplete="new-password" required></label><label class="check"><input type="checkbox" name="marketing"><span>${t('marketing_opt')}</span></label><button class="btn block">${t('register')}</button></form>`}
         <div class="acc-benefits"><p>${ic('truck')} ${t('acc_b1')}</p><p>${ic('heart')} ${t('acc_b2')}</p><p>${ic('bag')} ${t('acc_b3')}</p></div></div></div>`, 'acc');
       return;
     }
