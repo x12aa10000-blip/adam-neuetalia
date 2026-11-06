@@ -75,7 +75,8 @@ Not installed: "OWASP Security Review" (no official skill found), Trail of Bits 
   Automated audit of all computed colours on 17 shop + 6 admin pages, mobile and desktop: **0 colours outside the palette** (`tests/palette_audit.py`).
 - WCAG AA contrast audit of all visible text on 12 pages × 2 sizes: **0 failures** (`tests/contrast_audit.py`).
 - New "Adam" wordmark + favicon, one type family (Poppins / IBM Plex Sans Arabic), consistent buttons (pink = main action, turquoise = add to bag, purple = alerts/errors), calmer header, white headings on dark bands, gift card graphic in palette.
-- Admin: colour picker removed (colours fixed by Figma), team & password management, e-mail setup, save indicator, reminder for missing legal data.
+- Colours are fully editable by the owner (Admin › Website › Logo & Farben): main colour, add-to-bag colour, alerts/errors, text – Figma presets plus any free colour, one-click reset to Figma. Every shade in the CSS is mixed from these four colours, and the text on buttons switches between dark and white automatically to stay readable (tested: dark green → white button text).
+- Admin: team & password management, e-mail setup, save indicator, reminder for missing legal data.
 
 ## 8. Performance (simulated mobile 4G, local server)
 | Page | LCP before | LCP after | CLS before | CLS after |

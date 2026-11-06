@@ -230,7 +230,9 @@
     if (wsTab === 'look') body = `<section class="a-card"><h2>${W('Logo', 'الشعار (اللوجو)')}</h2><p class="hint">${W('Am besten als PNG mit durchsichtigem Hintergrund.', 'الأفضل ملف PNG بخلفية شفافة.')}</p>
         <div class="ws-img">${c.logo ? `<img class="logo-pv" ${V5.src(c.logo)} alt="">` : `<span class="muted">${W('Noch kein Logo – der Shop zeigt den Schriftzug.', 'لسا ما في لوجو – المتجر بيعرض الاسم مكتوب.')}</span>`}${upl('logo', W('Logo hochladen', 'رفع اللوجو'), 'image/png,image/svg+xml,image/jpeg,image/webp')}${c.logo ? `<button class="btn ghost sm danger" data-wsa="logo-x">${ic('trash')}</button>` : ''}</div>
         <label class="size" style="margin-top:14px"><span>${W('Größe im Kopf', 'حجم اللوجو فوق')}</span><input type="range" min="28" max="84" data-ws="logoH" data-num="1" value="${+c.logoH || 46}"><output>${+c.logoH || 46}px</output></label></section>
-      <section class="a-card"><h2>${W('Farben des Shops', 'ألوان المتجر')}</h2><p class="hint">${W('Die Farben sind fest nach dem Figma-Design: Rosa #FE90BE, Lila #6425FE, Türkis #01CAC9, Schrift #333333.', 'الألوان ثابتة حسب تصميم Figma: زهري #FE90BE، بنفسجي #6425FE، فيروزي #01CAC9، الكتابة #333333.')}</p></section>`;
+      <section class="a-card"><h2>${W('Farben des Shops', 'ألوان المتجر')}</h2><p class="hint">${W('Standard sind die Farben aus dem Figma-Design. Du kannst jede Farbe frei wählen – alle hellen Töne, Knöpfe und Rahmen passen sich automatisch an, und die Schrift auf Knöpfen wird automatisch hell oder dunkel, damit sie lesbar bleibt.', 'الأساس هو ألوان تصميم Figma. بتقدر تختار أي لون بدك – كل الدرجات الفاتحة والأزرار والإطارات بتتعدّل لحالها، والكتابة عالأزرار بتصير فاتحة أو غامقة لحالها لحتى تضل مقروءة.')}</p>
+        ${[['brand', W('Hauptfarbe (Knöpfe, Akzente)', 'اللون الأساسي (الأزرار واللمسات)'), '#FE90BE'], ['accent', W('In den Warenkorb / Hinzufügen', 'زر الإضافة للسلة'), '#01CAC9'], ['alert', W('Hinweise & Fehler', 'التنبيهات والأخطاء'), '#6425FE'], ['text', W('Schrift', 'لون الكتابة'), '#333333']].map(([k, l, fig]) => { const cur = /^#[0-9a-f]{6}$/i.test(c[k] || '') && !(k === 'brand' && ['#f066a0', '#c2608b'].includes(String(c[k]).toLowerCase())) ? c[k] : fig; return `<span class="lb" style="margin-top:12px">${l}</span><div class="ws-cols">${['#FE90BE', '#6425FE', '#01CAC9', '#333333'].map(h => `<button type="button" class="preset" data-wsa="${k}" data-v="${h}" style="background:${h}" aria-pressed="${cur.toLowerCase() === h.toLowerCase()}" aria-label="${h}"></button>`).join('')}<input type="color" data-ws="${k}" value="${esc(cur)}" aria-label="${W('Eigene Farbe', 'لون خاص')}"><code class="muted small">${esc(cur.toUpperCase())}</code></div>`; }).join('')}
+        <div class="vbtns" style="margin-top:16px"><span class="btn">${W('Beispiel-Knopf', 'زر للتجربة')}</span><span class="btn teal">${W('In den Warenkorb', 'أضف للسلة')}</span><span class="btn purple">${W('Hinweis', 'تنبيه')}</span><button class="btn ghost sm" data-wsa="col-reset">${ic('rotateL')} ${W('Figma-Farben', 'ألوان Figma الأصلية')}</button></div></section>`;
     if (wsTab === 'home') body = `<section class="a-card"><h2>${W('Bereiche der Startseite', 'أقسام الصفحة الرئيسية')}</h2><p class="hint">${W('Ein- und ausschalten, mit den Pfeilen sortieren.', 'شغّل أو طفّي، ورتّب بالأسهم.')}</p>
         <div class="ws-sec">${c.sections.map((s, i) => `<div class="ws-row"><label class="tog"><input type="checkbox" data-wssec="${i}"${s.on ? ' checked' : ''}><span></span></label><b>${esc(W(...(SEC_L[s.id] || [s.id, s.id])))}</b><span class="ord"><button class="ibtn" data-wsa="up" data-i="${i}"${i ? '' : ' disabled'} aria-label="↑">▲</button><button class="ibtn" data-wsa="down" data-i="${i}"${i < c.sections.length - 1 ? '' : ' disabled'} aria-label="↓">▼</button></span></div>`).join('')}</div></section>
       <section class="a-card"><h2>${W('Kopfbereich: Live-Studio', 'أعلى الصفحة: الاستوديو المباشر')}</h2><p class="hint">${W('Der Kunde tippt einen Namen und sieht ihn sofort auf den Produkten. Hier änderst du die große Überschrift und den Text daneben. Leer lassen = Standardtext.', 'الزبون بيكتب اسم وبيشوفه فوراً على المنتجات. هون بتغيّر العنوان الكبير والنص اللي جنبه. خليه فاضي = النص الأصلي.')}</p>
@@ -272,7 +274,7 @@
     const m = $('#amain'); if (!m) return;
     m.oninput = e => {
       const el = e.target;
-      if (el.dataset.ws) { let v = el.value; if (el.dataset.num) v = el.value === '' ? '' : +el.value; setP(WC, el.dataset.ws, v); if (el.dataset.ws === 'logoH') el.nextElementSibling.textContent = v + 'px'; if (['brand', 'accent', 'logoH'].includes(el.dataset.ws)) SITE.save(WC); saveSoon(); }
+      if (el.dataset.ws) { let v = el.value; if (el.dataset.num) v = el.value === '' ? '' : +el.value; setP(WC, el.dataset.ws, v); if (el.dataset.ws === 'logoH') el.nextElementSibling.textContent = v + 'px'; if (['brand', 'accent', 'alert', 'text', 'logoH'].includes(el.dataset.ws)) SITE.save(WC); saveSoon(); }
       if (el.dataset.wsinner) { const b = el.dataset.wsinner; WC.boxes[b] = WC.boxes[b] || {}; const inn = (WC.boxes[b].inner || [.17, .3, .66, .52]).slice(); inn[+el.dataset.k] = Math.max(0, Math.min(1, (+el.value || 0) / 100)); WC.boxes[b].inner = inn; saveSoon(); }
     };
     m.onchange = async e => {
@@ -304,8 +306,8 @@
       const b = e.target.closest('[data-wsa]'); if (!b) return; e.preventDefault();
       const a = b.dataset.wsa, i = +b.dataset.i;
       if (a === 'editmode') { ST.set('editMode', true); location.href = 'index.html#/'; return; }
-      if (a === 'brand' || a === 'accent') { WC[a] = b.dataset.v; }
-      if (a === 'col-reset') { WC.brand = '#fe90be'; WC.accent = '#01cac9'; }
+      if (['brand', 'accent', 'alert', 'text'].includes(a)) { WC[a] = b.dataset.v; }
+      if (a === 'col-reset') { WC.brand = '#FE90BE'; WC.accent = '#01CAC9'; WC.alert = '#6425FE'; WC.text = '#333333'; }
       if (a === 'logo-x') WC.logo = '';
       if (a === 'up' && i > 0) [WC.sections[i - 1], WC.sections[i]] = [WC.sections[i], WC.sections[i - 1]];
       if (a === 'down' && i < WC.sections.length - 1) [WC.sections[i + 1], WC.sections[i]] = [WC.sections[i], WC.sections[i + 1]];

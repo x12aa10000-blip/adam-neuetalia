@@ -93,7 +93,17 @@
     tx(key, fb, v) { const o = SITE.get().texts[key]; const s = o && (o[C.lang()] || o.de); return s ? s : t(fb || key, v); },
     apply() {
       const c = SITE.get(); const r = document.documentElement.style;
-      // colours come only from the Figma palette in css/adam.css
+      // theme colours: Figma palette by default, the owner can choose any colour in Admin › Website › Logo & Farben
+      const FIG = { brand: '#FE90BE', accent: '#01CAC9', alert: '#6425FE', text: '#333333' };
+      const OLD = ['#f066a0', '#c2608b']; // earlier default brand colours count as "not chosen"
+      const pick = k => (hex(c[k]) && !(k === 'brand' && OLD.includes(String(c[k]).toLowerCase())) ? c[k] : FIG[k]);
+      const col = { pk: pick('brand'), tq: pick('accent'), pu: pick('alert'), ink: pick('text') };
+      const lum = h => { const n = parseInt(String(h).slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }).reduce((a, v, i) => a + v * [.2126, .7152, .0722][i], 0); };
+      const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+      const on = bg => (ratio(col.ink, bg) >= ratio('#FFFFFF', bg) ? 'var(--ink)' : '#FFFFFF');
+      for (const k in col) r.setProperty('--' + k, col[k]);
+      r.setProperty('--on-pk', on(col.pk)); r.setProperty('--on-tq', on(col.tq)); r.setProperty('--on-pu', on(col.pu)); r.setProperty('--on-ink', ratio('#FFFFFF', col.ink) >= 3 ? '#FFFFFF' : '#333333');
+      const tc = document.querySelector('meta[name=theme-color]'); if (tc) tc.setAttribute('content', col.pk);
       r.setProperty('--logo-h', (+c.logoH || 46) + 'px');
     }
   };

@@ -112,6 +112,7 @@
       ST.set('seeded', true);
     });
     ST.invalidate();
+    if (window.SITE && SITE.apply) SITE.apply();
     CL.ready = !!b.ready;
   }
   /* the visitor's own orders survive a reload */
@@ -404,6 +405,7 @@
       }
     });
     ST.invalidate();
+    if ((r.kv || {}).site && window.SITE && SITE.apply) SITE.apply();
     CL.mail = !!r.mail;
     return newOrders;
   }

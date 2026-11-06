@@ -19,8 +19,9 @@ JS = """() => {
       if ((p.startsWith('border') && parseFloat(cs[p.replace('Color', 'Width')]) === 0) || (p === 'outlineColor' && cs.outlineStyle === 'none')) continue;
       if ((p === 'fill' || p === 'stroke') && !(el instanceof SVGElement)) continue;
       if (p === 'color' && !el.childNodes.length) continue;
-      const m = /rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/.exec(v); if (!m) continue;
-      const k = m[1] + ',' + m[2] + ',' + m[3];
+      let m = /rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/.exec(v); let k;
+      if (m) k = m[1] + ',' + m[2] + ',' + m[3];
+      else { m = /color\\(srgb ([\\d.e-]+) ([\\d.e-]+) ([\\d.e-]+)/.exec(v); if (!m) { bad['unparsed ' + v] = el.tagName; continue; } k = [m[1], m[2], m[3]].map(x => Math.round(x * 255)).join(','); }
       if (!OK.includes(k)) { const key = p + ' rgb(' + k + ')'; bad[key] = bad[key] || (el.tagName.toLowerCase() + '.' + String(el.className.baseVal ?? el.className).split(' ').slice(0, 2).join('.')); }
     }
     for (const g of [cs.backgroundImage]) if (g && g.includes('gradient')) for (const m of g.matchAll(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/g)) { const k = m[1] + ',' + m[2] + ',' + m[3]; if (!OK.includes(k)) bad['gradient rgb(' + k + ')'] = el.tagName.toLowerCase() + '.' + String(el.className).split(' ')[0]; }

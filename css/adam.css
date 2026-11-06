@@ -6,10 +6,13 @@
    ===================================================================== */
 :root{
   --pk:#FE90BE; --pu:#6425FE; --tq:#01CAC9; --ink:#333333; --wh:#FFFFFF;
-  --pk-08:rgba(254,144,190,.08); --pk-14:rgba(254,144,190,.14); --pk-24:rgba(254,144,190,.24); --pk-45:rgba(254,144,190,.45);
-  --pu-08:rgba(100,37,254,.07); --pu-14:rgba(100,37,254,.14);
-  --tq-10:rgba(1,202,201,.1); --tq-20:rgba(1,202,201,.2);
-  --ink-80:rgba(51,51,51,.8); --ink-64:rgba(51,51,51,.68); --ink-45:rgba(51,51,51,.5); --ink-12:rgba(51,51,51,.12); --ink-07:rgba(51,51,51,.07); --ink-04:rgba(51,51,51,.035);
+  /* lighter shades are always mixed from the four theme colours, so an owner colour change reaches everything */
+  --pk-08:color-mix(in srgb,var(--pk) 8%,transparent); --pk-14:color-mix(in srgb,var(--pk) 14%,transparent); --pk-24:color-mix(in srgb,var(--pk) 24%,transparent); --pk-45:color-mix(in srgb,var(--pk) 45%,transparent);
+  --pu-08:color-mix(in srgb,var(--pu) 7%,transparent); --pu-14:color-mix(in srgb,var(--pu) 14%,transparent);
+  --tq-10:color-mix(in srgb,var(--tq) 10%,transparent); --tq-20:color-mix(in srgb,var(--tq) 20%,transparent);
+  --ink-80:color-mix(in srgb,var(--ink) 80%,transparent); --ink-64:color-mix(in srgb,var(--ink) 78%,transparent); --ink-45:color-mix(in srgb,var(--ink) 70%,transparent); --ink-12:color-mix(in srgb,var(--ink) 12%,transparent); --ink-07:color-mix(in srgb,var(--ink) 7%,transparent); --ink-04:color-mix(in srgb,var(--ink) 3.5%,transparent);
+  /* text colour on top of each theme colour (set by the shop to dark or white, whichever reads better) */
+  --on-pk:var(--ink); --on-tq:var(--ink); --on-pu:var(--wh); --on-ink:var(--wh);
   /* map every token the older layers use onto the palette */
   --brand:var(--pk); --brand-d:var(--ink); --brand-l:var(--pk-24); --brand-xl:var(--pk-08); --brand-soft:var(--pk); --accent:var(--tq);
   --pink:var(--pk); --pink-d:var(--ink); --pink-l:var(--pk-24); --pink-xl:var(--pk-08);
@@ -20,9 +23,9 @@
   --bg:var(--wh); --s1:var(--ink-04); --s2:var(--ink-07); --card:var(--wh);
   --err:var(--pu); --errbg:var(--pu-08); --errline:var(--pu); --ok:var(--ink); --okbg:var(--tq-10); --warn:var(--pu); --warnbg:var(--pu-08);
   --r:16px; --r-s:12px; --r-l:24px;
-  --sh:0 1px 2px rgba(51,51,51,.05),0 10px 30px -18px rgba(51,51,51,.28);
-  --sh-l:0 2px 6px rgba(51,51,51,.05),0 24px 48px -24px rgba(51,51,51,.32);
-  --sh-btn:0 10px 22px -14px rgba(51,51,51,.5);
+  --sh:0 1px 2px color-mix(in srgb,var(--ink) 5%,transparent),0 10px 30px -18px color-mix(in srgb,var(--ink) 28%,transparent);
+  --sh-l:0 2px 6px color-mix(in srgb,var(--ink) 5%,transparent),0 24px 48px -24px color-mix(in srgb,var(--ink) 32%,transparent);
+  --sh-btn:0 10px 22px -14px color-mix(in srgb,var(--ink) 50%,transparent);
   --f-sans:"ui-pop","ui-ar2",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-disp:"ui-pop","ui-ar2",system-ui,sans-serif;
   --f-it:"ui-pop","ui-ar2",system-ui,sans-serif;
@@ -31,7 +34,7 @@
 html[lang="ar"]{--f-sans:"ui-ar2","ui-pop",system-ui,sans-serif;--f-disp:"ui-ar2","ui-pop",system-ui,sans-serif;--f-it:"ui-ar2","ui-pop",sans-serif}
 html{-webkit-text-size-adjust:100%}
 body{background:var(--wh);color:var(--ink);font-family:var(--f-sans)}
-::selection{background:var(--pk);color:var(--ink)}
+::selection{background:var(--pk);color:var(--on-pk)}
 :focus-visible{outline:2px solid var(--pu)!important;outline-offset:2px}
 a{color:inherit}
 .link{color:var(--ink);text-decoration-color:var(--pk);text-decoration-thickness:2px;text-underline-offset:4px}
@@ -57,27 +60,27 @@ html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3{letter-spacing:0;line-h
 .ft-name{font-family:var(--f-sans)!important;font-weight:700;letter-spacing:-.04em}
 
 /* ---------- buttons ---------- */
-.btn{background:var(--pk);color:var(--ink);font-weight:600;border-radius:999px;box-shadow:var(--sh-btn)}
-.btn:hover{background:var(--ink);color:var(--wh)}
+.btn{background:var(--pk);color:var(--on-pk);font-weight:600;border-radius:999px;box-shadow:var(--sh-btn)}
+.btn:hover{background:var(--ink);color:var(--on-ink)}
 .btn:disabled,.btn.busy{opacity:.55;cursor:progress;transform:none}
 .btn .ic{color:inherit}
 .btn.ghost,.btn.line-l,.btn.danger{background:var(--wh);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink-12)}
 .btn.ghost:hover,.btn.line-l:hover{background:var(--wh);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
 .btn.danger{color:var(--pu);box-shadow:inset 0 0 0 1.5px var(--pu-14)}
-.btn.danger:hover{background:var(--pu);color:var(--wh);box-shadow:none}
-.btn.gold,.btn.teal{background:var(--tq);color:var(--ink)}
-.btn.gold:hover,.btn.teal:hover{background:var(--ink);color:var(--wh)}
-.btn.purple{background:var(--pu);color:var(--wh)}
+.btn.danger:hover{background:var(--pu);color:var(--on-pu);box-shadow:none}
+.btn.gold,.btn.teal{background:var(--tq);color:var(--on-tq)}
+.btn.gold:hover,.btn.teal:hover{background:var(--ink);color:var(--on-ink)}
+.btn.purple{background:var(--pu);color:var(--on-pu)}
 .btn.purple:hover{background:var(--ink)}
-.btn.soft{background:var(--pk-14);color:var(--ink);box-shadow:none}.btn.soft:hover{background:var(--pk);color:var(--ink)}
+.btn.soft{background:var(--pk-14);color:var(--ink);box-shadow:none}.btn.soft:hover{background:var(--pk);color:var(--on-pk)}
 /* Figma: "add to bag" is turquoise */
-[data-act=add].btn,.buyrow .btn,.sticky-buy .btn,.sticky-buy .btn[data-act=add],.bx-cta .btn,[data-act=bx-cart]{background:var(--tq);color:var(--ink)}
-[data-act=add].btn:hover,.buyrow .btn:hover,.sticky-buy .btn:hover{background:var(--ink);color:var(--wh)}
-[data-act=place]{background:var(--pk);color:var(--ink)}
+[data-act=add].btn,.buyrow .btn,.sticky-buy .btn,.sticky-buy .btn[data-act=add],.bx-cta .btn,[data-act=bx-cart]{background:var(--tq);color:var(--on-tq)}
+[data-act=add].btn:hover,.buyrow .btn:hover,.sticky-buy .btn:hover{background:var(--ink);color:var(--on-ink)}
+[data-act=place]{background:var(--pk);color:var(--on-pk)}
 .pc-add{background:var(--tq-10);color:var(--ink);box-shadow:inset 0 0 0 1px var(--tq-20)}
-.pc-add:hover{background:var(--tq);color:var(--ink);box-shadow:none}
+.pc-add:hover{background:var(--tq);color:var(--on-tq);box-shadow:none}
 .ibtn{color:var(--ink)}
-.ibtn .cnt,.tabbar .cnt{background:var(--pu);color:var(--wh)}
+.ibtn .cnt,.tabbar .cnt{background:var(--pu);color:var(--on-pu)}
 .ibtn .dot{background:var(--tq)}
 .ibtn:hover{background:var(--pk-14)}
 
@@ -97,10 +100,10 @@ html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3{letter-spacing:0;line-h
 .topbar{background:var(--pk-14);color:var(--ink)}
 .topbar .ic{color:var(--ink)}
 .langs,.lang-seg{background:var(--wh)!important;box-shadow:inset 0 0 0 1px var(--ink-12)}
-.langs button[aria-pressed="true"],.lang-seg button[aria-pressed="true"]{background:var(--ink)!important;color:var(--wh)!important}
-.hd,header.hd{background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--ink-07)}
+.langs button[aria-pressed="true"],.lang-seg button[aria-pressed="true"]{background:var(--ink)!important;color:var(--on-ink)!important}
+.hd,header.hd{background:color-mix(in srgb,var(--wh) 92%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--ink-07)}
 .hd-search .in,.hd-search input{background:var(--ink-04)!important;border-color:transparent!important}
-.hd-search button,.hd-search .sbtn{background:var(--pk)!important;color:var(--ink)!important}
+.hd-search button,.hd-search .sbtn{background:var(--pk)!important;color:var(--on-pk)!important}
 .nav a[aria-current],.nav a:hover{color:var(--ink);box-shadow:inset 0 -2px 0 var(--pk)}
 
 /* ---------- surfaces, cards, badges ---------- */
@@ -110,27 +113,27 @@ html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3{letter-spacing:0;line-h
 .price s,.was{color:var(--ink-45)}
 .price .sale,.sale-price,.pc-foot .sale{color:var(--pu)}
 .badge,.pc-badge,.tag{background:var(--wh);color:var(--ink);box-shadow:0 0 0 1px var(--ink-07)}
-.badge.best,.pc-badge.best,.b-best{background:var(--ink);color:var(--wh)}
-.badge.sale,.b-sale{background:var(--pu);color:var(--wh)}
-.badge.new,.b-new{background:var(--tq);color:var(--ink)}
+.badge.best,.pc-badge.best,.b-best{background:var(--ink);color:var(--on-ink)}
+.badge.sale,.b-sale{background:var(--pu);color:var(--on-pu)}
+.badge.new,.b-new{background:var(--tq);color:var(--on-tq)}
 /* Figma technique labels */
-.t-print,.tag-print{background:var(--pu)!important;color:var(--wh)!important}
-.t-laser,.tag-laser{background:var(--pk)!important;color:var(--ink)!important}
-.t-embroid,.tag-stick{background:var(--tq)!important;color:var(--ink)!important}
+.t-print,.tag-print{background:var(--pu)!important;color:var(--on-pu)!important}
+.t-laser,.tag-laser{background:var(--pk)!important;color:var(--on-pk)!important}
+.t-embroid,.tag-stick{background:var(--tq)!important;color:var(--on-tq)!important}
 .stars,.star.on,.rv-stars{color:var(--pk)}
 .chips a,.chips button{background:var(--wh);color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink-12)}
-.chips a[aria-current],.chips button[aria-pressed="true"]{background:var(--ink)!important;color:var(--wh)!important;box-shadow:none}
+.chips a[aria-current],.chips button[aria-pressed="true"]{background:var(--ink)!important;color:var(--on-ink)!important;box-shadow:none}
 .callout,.infobox{border-radius:var(--r)}
 .f-blush,.callout.f-blush{background:var(--pk-08)}
 .f-sage,.callout.f-sage{background:var(--tq-10)}
 .okline,.okmark{color:var(--ink)}
-.okmark{background:var(--tq)!important;color:var(--ink)!important}
+.okmark{background:var(--tq)!important;color:var(--on-tq)!important}
 .sec-warn{background:var(--pu-08)!important;border:1px solid var(--pu-14)!important;color:var(--ink)!important}
 .sec-warn .ic{color:var(--pu)}
 
 /* ---------- toasts, modals, loading ---------- */
-.toast{background:var(--ink);color:var(--wh);border-radius:14px}
-.toast.err{background:var(--pu);color:var(--wh)}
+.toast{background:var(--ink);color:var(--on-ink);border-radius:14px}
+.toast.err{background:var(--pu);color:var(--on-pu)}
 .ov .panel,.sheet{border-radius:var(--r-l)}
 .spin{border-color:var(--pk-24)!important;border-top-color:var(--ink)!important}
 .boot-load{position:fixed;inset:0;display:grid;place-items:center;background:var(--wh);z-index:9999}
@@ -140,15 +143,15 @@ html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3{letter-spacing:0;line-h
 @keyframes sk{to{background-position:-200% 0}}
 
 /* ---------- tab bar (mobile) ---------- */
-.tabbar{background:var(--wh);box-shadow:0 -1px 0 var(--ink-07),0 -12px 30px -18px rgba(51,51,51,.35)}
+.tabbar{background:var(--wh);box-shadow:0 -1px 0 var(--ink-07),0 -12px 30px -18px color-mix(in srgb,var(--ink) 35%,transparent)}
 .tabbar a,.tabbar button{color:var(--ink-64)}
 .tabbar .on{color:var(--ink)}
-.tabbar .home i{background:var(--pk);color:var(--ink);box-shadow:0 10px 20px -10px rgba(51,51,51,.5)}
+.tabbar .home i{background:var(--pk);color:var(--on-pk);box-shadow:0 10px 20px -10px color-mix(in srgb,var(--ink) 50%,transparent)}
 .tabbar .home span{color:var(--ink)}
 
 /* ---------- footer ---------- */
 .ft{background:var(--ink-04);color:var(--ink)}
-.ft-bar,.ft-legal{background:var(--ink)!important;color:var(--wh)!important}
+.ft-bar,.ft-legal{background:var(--ink)!important;color:var(--on-ink)!important}
 .ft-legal a,.ft-legal button,.ft-bar a{color:var(--wh)!important;opacity:.85}
 .ft-legal a:hover,.ft-legal button:hover{opacity:1;text-decoration:underline;text-decoration-color:var(--pk)}
 
@@ -161,19 +164,19 @@ html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3{letter-spacing:0;line-h
 .map-consent{display:grid;place-items:center;gap:8px;text-align:center;padding:28px 18px;background:var(--ink-04);border-radius:var(--r);min-height:220px;align-content:center}
 
 /* ---------- admin ---------- */
-.adm .a-top{background:var(--ink);color:var(--wh)}
-.adm .a-nav a[aria-current]{background:var(--ink);color:var(--wh)}
-.adm .a-nav a em{background:var(--pk);color:var(--ink)}
+.adm .a-top{background:var(--ink);color:var(--on-ink)}
+.adm .a-nav a[aria-current]{background:var(--ink);color:var(--on-ink)}
+.adm .a-nav a em{background:var(--pk);color:var(--on-pk)}
 .adm .kpi{border-radius:var(--r)}
 .adm .bars i{background:var(--pk)}
 .badge.st-neu{background:var(--pk-24);color:var(--ink)}
 .badge.st-freigabe{background:var(--pu-08);color:var(--pu)}
-.badge.st-produktion{background:var(--pu);color:var(--wh)}
+.badge.st-produktion{background:var(--pu);color:var(--on-pu)}
 .badge.st-bereit{background:var(--tq-20);color:var(--ink)}
-.badge.st-unterwegs{background:var(--tq);color:var(--ink)}
+.badge.st-unterwegs{background:var(--tq);color:var(--on-tq)}
 .badge.st-zugestellt{background:var(--ink-07);color:var(--ink)}
 .badge.st-storniert{background:var(--ink-04);color:var(--ink-45);text-decoration:line-through}
-.sync-st{font-size:13px;opacity:.85;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.12)}
+.sync-st{font-size:13px;opacity:.85;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--wh) 12%,transparent)}
 .sync-st[data-st=err]{background:var(--pu);opacity:1}
 .team-l{list-style:none;padding:0;margin:0 0 10px;display:grid;gap:8px}
 .team-l li{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:var(--r-s);background:var(--ink-04)}
@@ -182,15 +185,15 @@ html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3{letter-spacing:0;line-h
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 
 /* ---------- contrast fixes (WCAG AA) ---------- */
-:root{--ink-64:rgba(51,51,51,.78); --ink-45:rgba(51,51,51,.7); --muted:var(--ink-64); --soft:var(--ink-45)}
+:root{--muted:var(--ink-64); --soft:var(--ink-45)}
 .vat-note,.muted.small,small.muted{color:var(--ink-64)}
 .s8-ink,.s8-ink h2,.s8-ink h3,.s8-ink p,.s8-ink label,.s8-purple,.s8-purple h2,.s8-purple h3,.s8-purple p{color:var(--wh)!important}
 .s8-ink p,.s8-purple p{opacity:.92}
-.s8-ink .btn,.s8-purple .btn{background:var(--pk);color:var(--ink)}
+.s8-ink .btn,.s8-purple .btn{background:var(--pk);color:var(--on-pk)}
 .s8-ink .btn:hover,.s8-purple .btn:hover{background:var(--wh);color:var(--ink)}
-.s8-ink .btn.ghost,.s8-purple .btn.ghost{background:transparent;color:var(--wh);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7)}
+.s8-ink .btn.ghost,.s8-purple .btn.ghost{background:transparent;color:var(--wh);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--wh) 70%,transparent)}
 .s8-ink .in,.s8-purple .in{background:var(--wh);color:var(--ink)}
-.s8-finder .btn{background:var(--ink);color:var(--wh)}
+.s8-finder .btn{background:var(--ink);color:var(--on-ink)}
 .s8-finder .btn:hover{background:var(--pk)!important;color:var(--ink)}
 .ft .btn,.ft-visit .btn{color:var(--ink)}
 .ft .btn.teal,.ft .btn.gold{background:var(--tq)}
@@ -198,6 +201,6 @@ html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3{letter-spacing:0;line-h
 .ft-visit a.btn,.ft a.btn:not(.ghost){color:var(--ink)!important}
 label:has(>input[name=stars])>span{color:var(--ink-45)}
 label:has(>input[name=stars]:checked)>span,label:has(>input[name=stars]:checked)~label>span{color:var(--ink)}
-form[data-form=giftcard] .btn:not(.ghost){background:var(--tq);color:var(--ink)}
-form[data-form=giftcard] .btn:not(.ghost):hover{background:var(--ink);color:var(--wh)}
+form[data-form=giftcard] .btn:not(.ghost){background:var(--tq);color:var(--on-tq)}
+form[data-form=giftcard] .btn:not(.ghost):hover{background:var(--ink);color:var(--on-ink)}
 .hx-live i{animation:none!important}
