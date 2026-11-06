@@ -131,7 +131,7 @@
     save(e); css(); apply(document.body); place(); bar();
   }
   const firstText = el => { const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let n, k = 0; while ((n = tw.nextNode())) { if (n.parentElement.closest(SKIP)) continue; if (n.nodeValue.trim()) { k++; if (k === 1) var f = n; } } return k && k <= 4 ? f : null; };
-  const PAL = ['#fe90be', '#f066a0', '#ba2c67', '#ffe3ef', '#fef3f8', '#01cac9', '#6425fe', '#2d2930', '#6c6670', '#ffffff', '#000000', '#d4af37'];
+  const PAL = ['#fe90be', '#6425fe', '#01cac9', '#333333', '#ffffff'];
   const rgb2hex = c => { const m = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?/.exec(c || ''); if (!m || m[4] === '0') return ''; return '#' + [m[1], m[2], m[3]].map(x => (+x).toString(16).padStart(2, '0')).join(''); };
   function panel() {
     let pn = $('.em-panel'); if (!pn) { pn = document.createElement('aside'); pn.className = 'em-panel em-ui'; document.body.appendChild(pn); }

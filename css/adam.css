@@ -1,0 +1,203 @@
+/* =====================================================================
+   ADAM – design layer (loaded last). Only the five Figma colours:
+   #FE90BE pink · #6425FE purple (alerts) · #01CAC9 turquoise (add) · #333333 ink · #FFFFFF
+   Lighter shades are the same colours with transparency.
+   Text on pink / turquoise is ink (#333) for readable contrast; white only on purple and ink.
+   ===================================================================== */
+:root{
+  --pk:#FE90BE; --pu:#6425FE; --tq:#01CAC9; --ink:#333333; --wh:#FFFFFF;
+  --pk-08:rgba(254,144,190,.08); --pk-14:rgba(254,144,190,.14); --pk-24:rgba(254,144,190,.24); --pk-45:rgba(254,144,190,.45);
+  --pu-08:rgba(100,37,254,.07); --pu-14:rgba(100,37,254,.14);
+  --tq-10:rgba(1,202,201,.1); --tq-20:rgba(1,202,201,.2);
+  --ink-80:rgba(51,51,51,.8); --ink-64:rgba(51,51,51,.68); --ink-45:rgba(51,51,51,.5); --ink-12:rgba(51,51,51,.12); --ink-07:rgba(51,51,51,.07); --ink-04:rgba(51,51,51,.035);
+  /* map every token the older layers use onto the palette */
+  --brand:var(--pk); --brand-d:var(--ink); --brand-l:var(--pk-24); --brand-xl:var(--pk-08); --brand-soft:var(--pk); --accent:var(--tq);
+  --pink:var(--pk); --pink-d:var(--ink); --pink-l:var(--pk-24); --pink-xl:var(--pk-08);
+  --purple:var(--pu); --purple-l:var(--pu-08); --teal:var(--tq); --teal-d:var(--tq); --teal-l:var(--tq-10); --sun:var(--pk-24);
+  --gold:var(--pk); --acc:var(--pk); --acc-2:var(--ink); --on-acc:var(--ink);
+  --blush:var(--pk-08); --sage:var(--tq-10); --slate:var(--pu-08); --dark:var(--ink); --on-dark:var(--wh);
+  --muted:var(--ink-64); --soft:var(--ink-45); --line:var(--ink-07); --line2:var(--ink-12); --fline:var(--ink-12); --field:var(--wh);
+  --bg:var(--wh); --s1:var(--ink-04); --s2:var(--ink-07); --card:var(--wh);
+  --err:var(--pu); --errbg:var(--pu-08); --errline:var(--pu); --ok:var(--ink); --okbg:var(--tq-10); --warn:var(--pu); --warnbg:var(--pu-08);
+  --r:16px; --r-s:12px; --r-l:24px;
+  --sh:0 1px 2px rgba(51,51,51,.05),0 10px 30px -18px rgba(51,51,51,.28);
+  --sh-l:0 2px 6px rgba(51,51,51,.05),0 24px 48px -24px rgba(51,51,51,.32);
+  --sh-btn:0 10px 22px -14px rgba(51,51,51,.5);
+  --f-sans:"ui-pop","ui-ar2",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-disp:"ui-pop","ui-ar2",system-ui,sans-serif;
+  --f-it:"ui-pop","ui-ar2",system-ui,sans-serif;
+  --ease:cubic-bezier(.22,.7,.2,1);
+}
+html[lang="ar"]{--f-sans:"ui-ar2","ui-pop",system-ui,sans-serif;--f-disp:"ui-ar2","ui-pop",system-ui,sans-serif;--f-it:"ui-ar2","ui-pop",sans-serif}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--wh);color:var(--ink);font-family:var(--f-sans)}
+::selection{background:var(--pk);color:var(--ink)}
+:focus-visible{outline:2px solid var(--pu)!important;outline-offset:2px}
+a{color:inherit}
+.link{color:var(--ink);text-decoration-color:var(--pk);text-decoration-thickness:2px;text-underline-offset:4px}
+.link:hover{text-decoration-color:var(--pu)}
+
+/* ---------- typography: one family, clear hierarchy ---------- */
+h1,h2,h3,.s8-copy h1,.s8-h h2,.s8-band-t h2,.s8-news h2,.s8-finder h2,.pdp-more .sec-s h2{font-family:var(--f-disp)!important;font-style:normal;letter-spacing:-.02em;color:var(--ink)}
+h1{font-weight:700}
+h2,h3{font-weight:600}
+html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3{letter-spacing:0;line-height:1.3}
+.s8-copy h1{font-size:clamp(38px,5vw,72px);line-height:1.02;font-weight:700}
+.s8-copy h1 em,.hx h1 em{font-style:normal;color:var(--ink);background:linear-gradient(transparent 62%,var(--pk-45) 62%,var(--pk-45) 92%,transparent 92%);padding:0 .06em}
+.s8-name input{font-family:var(--f-sans)!important;font-weight:600}
+.muted,.lead,.hint{color:var(--ink-64)}
+
+/* ---------- logo ---------- */
+.logo,.a-logo,.m-logo{display:inline-flex;align-items:center;gap:0;text-decoration:none;color:var(--ink)}
+.logo small{display:none}
+.logo b,.a-logo b{font-family:var(--f-sans)!important;font-weight:700;font-size:clamp(26px,2.4vw,32px);letter-spacing:-.04em;line-height:1;color:var(--ink)}
+.logo b i,.logo b em{font-style:normal;color:inherit;font-family:inherit}
+.logo .lg-dot,.a-logo .lg-dot{display:inline-block;width:.32em;height:.32em;border-radius:50%;background:var(--pk);margin-inline-start:.08em;transform:translateY(.18em)}
+.a-logo{font-family:var(--f-sans)!important;font-weight:700;letter-spacing:-.04em;font-size:24px;color:var(--wh)}
+.ft-name{font-family:var(--f-sans)!important;font-weight:700;letter-spacing:-.04em}
+
+/* ---------- buttons ---------- */
+.btn{background:var(--pk);color:var(--ink);font-weight:600;border-radius:999px;box-shadow:var(--sh-btn)}
+.btn:hover{background:var(--ink);color:var(--wh)}
+.btn:disabled,.btn.busy{opacity:.55;cursor:progress;transform:none}
+.btn .ic{color:inherit}
+.btn.ghost,.btn.line-l,.btn.danger{background:var(--wh);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink-12)}
+.btn.ghost:hover,.btn.line-l:hover{background:var(--wh);color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn.danger{color:var(--pu);box-shadow:inset 0 0 0 1.5px var(--pu-14)}
+.btn.danger:hover{background:var(--pu);color:var(--wh);box-shadow:none}
+.btn.gold,.btn.teal{background:var(--tq);color:var(--ink)}
+.btn.gold:hover,.btn.teal:hover{background:var(--ink);color:var(--wh)}
+.btn.purple{background:var(--pu);color:var(--wh)}
+.btn.purple:hover{background:var(--ink)}
+.btn.soft{background:var(--pk-14);color:var(--ink);box-shadow:none}.btn.soft:hover{background:var(--pk);color:var(--ink)}
+/* Figma: "add to bag" is turquoise */
+[data-act=add].btn,.buyrow .btn,.sticky-buy .btn,.sticky-buy .btn[data-act=add],.bx-cta .btn,[data-act=bx-cart]{background:var(--tq);color:var(--ink)}
+[data-act=add].btn:hover,.buyrow .btn:hover,.sticky-buy .btn:hover{background:var(--ink);color:var(--wh)}
+[data-act=place]{background:var(--pk);color:var(--ink)}
+.pc-add{background:var(--tq-10);color:var(--ink);box-shadow:inset 0 0 0 1px var(--tq-20)}
+.pc-add:hover{background:var(--tq);color:var(--ink);box-shadow:none}
+.ibtn{color:var(--ink)}
+.ibtn .cnt,.tabbar .cnt{background:var(--pu);color:var(--wh)}
+.ibtn .dot{background:var(--tq)}
+.ibtn:hover{background:var(--pk-14)}
+
+/* ---------- fields ---------- */
+.in,select.in,textarea.in{background:var(--wh);border:1.5px solid var(--ink-12);color:var(--ink);border-radius:var(--r-s)}
+.in::placeholder{color:var(--ink-45)}
+.in:hover{border-color:var(--ink-45)}
+.in:focus{border-color:var(--ink);box-shadow:0 0 0 4px var(--pk-24);outline:none}
+.fld.bad .in,.fld.bad select,.check.bad{border-color:var(--pu)!important;box-shadow:0 0 0 3px var(--pu-08)!important}
+.fld .err,.ferr,.v5-err,.fld-err{color:var(--pu)!important;font-weight:500}
+.warn{color:var(--pu);background:var(--pu-08);border-radius:var(--r-s);padding:10px 14px}
+.note{background:var(--ink-04);color:var(--ink-80);border-radius:var(--r-s);padding:12px 16px}
+.check input,.mopt input,input[type=checkbox],input[type=radio]{accent-color:var(--ink)}
+.mopt:has(input:checked),.seg label input:checked+span,.seg button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--ink)!important;background:var(--pk-08)!important}
+
+/* ---------- top bar & header ---------- */
+.topbar{background:var(--pk-14);color:var(--ink)}
+.topbar .ic{color:var(--ink)}
+.langs,.lang-seg{background:var(--wh)!important;box-shadow:inset 0 0 0 1px var(--ink-12)}
+.langs button[aria-pressed="true"],.lang-seg button[aria-pressed="true"]{background:var(--ink)!important;color:var(--wh)!important}
+.hd,header.hd{background:rgba(255,255,255,.92);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--ink-07)}
+.hd-search .in,.hd-search input{background:var(--ink-04)!important;border-color:transparent!important}
+.hd-search button,.hd-search .sbtn{background:var(--pk)!important;color:var(--ink)!important}
+.nav a[aria-current],.nav a:hover{color:var(--ink);box-shadow:inset 0 -2px 0 var(--pk)}
+
+/* ---------- surfaces, cards, badges ---------- */
+.pcard .pimg{background:var(--ink-04)}
+.pc-name{color:var(--ink)}
+.price,.pc-foot .price{color:var(--ink);font-weight:700}
+.price s,.was{color:var(--ink-45)}
+.price .sale,.sale-price,.pc-foot .sale{color:var(--pu)}
+.badge,.pc-badge,.tag{background:var(--wh);color:var(--ink);box-shadow:0 0 0 1px var(--ink-07)}
+.badge.best,.pc-badge.best,.b-best{background:var(--ink);color:var(--wh)}
+.badge.sale,.b-sale{background:var(--pu);color:var(--wh)}
+.badge.new,.b-new{background:var(--tq);color:var(--ink)}
+/* Figma technique labels */
+.t-print,.tag-print{background:var(--pu)!important;color:var(--wh)!important}
+.t-laser,.tag-laser{background:var(--pk)!important;color:var(--ink)!important}
+.t-embroid,.tag-stick{background:var(--tq)!important;color:var(--ink)!important}
+.stars,.star.on,.rv-stars{color:var(--pk)}
+.chips a,.chips button{background:var(--wh);color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink-12)}
+.chips a[aria-current],.chips button[aria-pressed="true"]{background:var(--ink)!important;color:var(--wh)!important;box-shadow:none}
+.callout,.infobox{border-radius:var(--r)}
+.f-blush,.callout.f-blush{background:var(--pk-08)}
+.f-sage,.callout.f-sage{background:var(--tq-10)}
+.okline,.okmark{color:var(--ink)}
+.okmark{background:var(--tq)!important;color:var(--ink)!important}
+.sec-warn{background:var(--pu-08)!important;border:1px solid var(--pu-14)!important;color:var(--ink)!important}
+.sec-warn .ic{color:var(--pu)}
+
+/* ---------- toasts, modals, loading ---------- */
+.toast{background:var(--ink);color:var(--wh);border-radius:14px}
+.toast.err{background:var(--pu);color:var(--wh)}
+.ov .panel,.sheet{border-radius:var(--r-l)}
+.spin{border-color:var(--pk-24)!important;border-top-color:var(--ink)!important}
+.boot-load{position:fixed;inset:0;display:grid;place-items:center;background:var(--wh);z-index:9999}
+.boot-load .spin{width:34px;height:34px;border-width:3px;border-style:solid;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.skeleton{background:linear-gradient(90deg,var(--ink-04),var(--ink-07),var(--ink-04));background-size:200% 100%;animation:sk 1.2s linear infinite}
+@keyframes sk{to{background-position:-200% 0}}
+
+/* ---------- tab bar (mobile) ---------- */
+.tabbar{background:var(--wh);box-shadow:0 -1px 0 var(--ink-07),0 -12px 30px -18px rgba(51,51,51,.35)}
+.tabbar a,.tabbar button{color:var(--ink-64)}
+.tabbar .on{color:var(--ink)}
+.tabbar .home i{background:var(--pk);color:var(--ink);box-shadow:0 10px 20px -10px rgba(51,51,51,.5)}
+.tabbar .home span{color:var(--ink)}
+
+/* ---------- footer ---------- */
+.ft{background:var(--ink-04);color:var(--ink)}
+.ft-bar,.ft-legal{background:var(--ink)!important;color:var(--wh)!important}
+.ft-legal a,.ft-legal button,.ft-bar a{color:var(--wh)!important;opacity:.85}
+.ft-legal a:hover,.ft-legal button:hover{opacity:1;text-decoration:underline;text-decoration-color:var(--pk)}
+
+/* ---------- legal pages ---------- */
+.legal h1{font-size:clamp(30px,4vw,44px);margin-bottom:8px}
+.legal h2{font-size:18px;margin:28px 0 8px;font-weight:600}
+.legal p,.legal li{line-height:1.7;color:var(--ink-80)}
+.legal .formbox{background:var(--ink-04);border-radius:var(--r);padding:18px 20px;margin-top:10px}
+.legal a{text-decoration:underline;text-decoration-color:var(--pk);text-underline-offset:3px}
+.map-consent{display:grid;place-items:center;gap:8px;text-align:center;padding:28px 18px;background:var(--ink-04);border-radius:var(--r);min-height:220px;align-content:center}
+
+/* ---------- admin ---------- */
+.adm .a-top{background:var(--ink);color:var(--wh)}
+.adm .a-nav a[aria-current]{background:var(--ink);color:var(--wh)}
+.adm .a-nav a em{background:var(--pk);color:var(--ink)}
+.adm .kpi{border-radius:var(--r)}
+.adm .bars i{background:var(--pk)}
+.badge.st-neu{background:var(--pk-24);color:var(--ink)}
+.badge.st-freigabe{background:var(--pu-08);color:var(--pu)}
+.badge.st-produktion{background:var(--pu);color:var(--wh)}
+.badge.st-bereit{background:var(--tq-20);color:var(--ink)}
+.badge.st-unterwegs{background:var(--tq);color:var(--ink)}
+.badge.st-zugestellt{background:var(--ink-07);color:var(--ink)}
+.badge.st-storniert{background:var(--ink-04);color:var(--ink-45);text-decoration:line-through}
+.sync-st{font-size:13px;opacity:.85;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.12)}
+.sync-st[data-st=err]{background:var(--pu);opacity:1}
+.team-l{list-style:none;padding:0;margin:0 0 10px;display:grid;gap:8px}
+.team-l li{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:var(--r-s);background:var(--ink-04)}
+
+/* ---------- motion: subtle, and off for people who ask for less ---------- */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* ---------- contrast fixes (WCAG AA) ---------- */
+:root{--ink-64:rgba(51,51,51,.78); --ink-45:rgba(51,51,51,.7); --muted:var(--ink-64); --soft:var(--ink-45)}
+.vat-note,.muted.small,small.muted{color:var(--ink-64)}
+.s8-ink,.s8-ink h2,.s8-ink h3,.s8-ink p,.s8-ink label,.s8-purple,.s8-purple h2,.s8-purple h3,.s8-purple p{color:var(--wh)!important}
+.s8-ink p,.s8-purple p{opacity:.92}
+.s8-ink .btn,.s8-purple .btn{background:var(--pk);color:var(--ink)}
+.s8-ink .btn:hover,.s8-purple .btn:hover{background:var(--wh);color:var(--ink)}
+.s8-ink .btn.ghost,.s8-purple .btn.ghost{background:transparent;color:var(--wh);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.7)}
+.s8-ink .in,.s8-purple .in{background:var(--wh);color:var(--ink)}
+.s8-finder .btn{background:var(--ink);color:var(--wh)}
+.s8-finder .btn:hover{background:var(--pk)!important;color:var(--ink)}
+.ft .btn,.ft-visit .btn{color:var(--ink)}
+.ft .btn.teal,.ft .btn.gold{background:var(--tq)}
+.stars,.star.on,.rv-stars,.rating .on,[class*=star] .on{color:var(--ink)}
+.ft-visit a.btn,.ft a.btn:not(.ghost){color:var(--ink)!important}
+label:has(>input[name=stars])>span{color:var(--ink-45)}
+label:has(>input[name=stars]:checked)>span,label:has(>input[name=stars]:checked)~label>span{color:var(--ink)}
+form[data-form=giftcard] .btn:not(.ghost){background:var(--tq);color:var(--ink)}
+form[data-form=giftcard] .btn:not(.ghost):hover{background:var(--ink);color:var(--wh)}
+.hx-live i{animation:none!important}

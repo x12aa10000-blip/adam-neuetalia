@@ -93,9 +93,7 @@
     tx(key, fb, v) { const o = SITE.get().texts[key]; const s = o && (o[C.lang()] || o.de); return s ? s : t(fb || key, v); },
     apply() {
       const c = SITE.get(); const r = document.documentElement.style;
-      const P = V.palette(hex(c.brand) ? c.brand : BRAND0);
-      for (const k in P) r.setProperty('--' + k, P[k]);
-      r.setProperty('--accent', hex(c.accent) ? c.accent : '#01cac9');
+      // colours come only from the Figma palette in css/adam.css
       r.setProperty('--logo-h', (+c.logoH || 46) + 'px');
     }
   };
@@ -121,7 +119,7 @@
   V.logo = function () {
     const c = SITE.get();
     if (c.logo) return `<a class="logo" href="#/" aria-label="Adam"><img ${V.src(c.logo)} alt="Adam"></a>`;
-    return `<a class="logo" href="#/" aria-label="Adam"><small>Adam &amp;</small><b><i>N</i>EUETALI<em>A</em></b></a>`;
+    return `<a class="logo" href="#/" aria-label="Adam"><b>Adam</b><span class="lg-dot" aria-hidden="true"></span></a>`;
   };
 
   /* ---------------- header: categories drop down, live search ---------------- */

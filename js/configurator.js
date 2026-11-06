@@ -13,7 +13,7 @@
     if (f.show.gte != null) return +v >= f.show.gte;
     return true;
   }
-  const SPOTIFY_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#1DB954"/><path d="M6.5 9.3c3.8-1.1 8.1-.8 11.2 1M7.2 12.4c3.1-.9 6.5-.6 9.2.9M7.9 15.3c2.5-.7 5-.5 7.1.7" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
+  const SPOTIFY_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#333333"/><path d="M6.5 9.3c3.8-1.1 8.1-.8 11.2 1M7.2 12.4c3.1-.9 6.5-.6 9.2.9M7.9 15.3c2.5-.7 5-.5 7.1.7" stroke="#fff" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
   const masterOf = (p, f) => f.sf ? ENG.fieldById(p, f.sf) : f;
   const fontsOf = (p, f) => { const m = masterOf(p, f); return (m && m.fonts) || [m && m.font || 'times']; };
   const zonesFor = (p, fid) => p.views.flatMap((v, vi) => v.zones.map(z => ({ z, vi }))).filter(({ z }) => z.f === fid || ENG.styleField(z) === fid || (z.tpl && z.tpl.includes('{' + fid)));
@@ -52,7 +52,7 @@
     SHOP.page(`<div class="wrap pdp-crumb"><a href="#/c/${esc(p.cat)}">${ic('back', 'flip')} ${t('cat_' + p.cat)}</a></div>
     <div class="wrap pdp">
       <div class="stage-col">
-        <div class="stage" id="stage"><canvas id="pv" aria-label="${esc(t('live_preview'))}"></canvas>
+        <div class="stage" id="stage"><canvas id="pv" width="${(p.views[0] || {}).w || 900}" height="${(p.views[0] || {}).h || 900}" aria-label="${esc(t('live_preview'))}"></canvas>
           <div class="stage-tools"><button class="chip" data-act="orig" aria-pressed="false">${ic('eye')} ${t('show_original')}</button><button class="chip" data-act="zoom">${ic('zoomIn')} ${t('zoom')}</button></div>
           <div class="stage-busy" hidden></div>
         </div>

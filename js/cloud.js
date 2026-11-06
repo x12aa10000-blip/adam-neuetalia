@@ -415,6 +415,8 @@
     applyPull(r, true);
     // first start of a new shop: copy the full default settings to the server
     if (r.role === 'owner' && !(r.kv || {}).settings) { const s = ST.settings(); delete s.staff; queue.kv.set('settings', s); flushSoon(); }
+    // new brand name: replace the old shop name once (owner can still change it in the settings)
+    if (r.role === 'owner') { const s = ST.settings(); if (/Neuetalia/i.test(s.shop.name || '') || /Neuetalia/i.test(s.shop.owner || '')) { s.shop.name = 'Adam'; if (/Neuetalia/i.test(s.shop.owner || '')) s.shop.owner = 'Adam'; ST.saveSettings(s); } }
     if (r.role === 'owner') pushPrices();
     // the shop address is needed for links in e-mails (taken from the owner's own browser, never from visitors)
     if (r.role === 'owner' && /^https:/.test(location.origin)) { const s = ST.settings(); if (!s.shop.url) { s.shop.url = location.origin + location.pathname.replace(/admin\.html$/, ''); ST.saveSettings(s); } }

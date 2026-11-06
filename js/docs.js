@@ -37,14 +37,14 @@
   const methodName = (m, lang) => t('m_' + m, null, lang);
   const trackUrl = code => 'https://www.dhl.de/de/privatkunden/dhl-sendungsverfolgung.html?piececode=' + encodeURIComponent(code || '');
   DOCS.trackUrl = trackUrl;
-  const btn = (href, label) => `<p style="margin:26px 0"><a href="${href}" style="display:inline-block;background:#1c1819;color:#f6f3ef;padding:14px 24px;text-decoration:none;font-weight:500">${esc(label)}</a></p>`;
+  const btn = (href, label) => `<p style="margin:26px 0"><a href="${href}" style="display:inline-block;background:#333333;color:rgba(254,144,190,0.223);padding:14px 24px;text-decoration:none;font-weight:500">${esc(label)}</a></p>`;
   function itemsTable(o, lang, hidePrices) {
-    return `<table style="width:100%;border-collapse:collapse;margin:18px 0">${o.items.map(it => `<tr><td style="padding:10px 0;width:76px;vertical-align:top"><img src="${esc(it.preview || '')}" width="64" height="64" alt="" style="display:block;width:64px;height:64px;object-fit:cover;background:#eee"></td>
-      <td style="padding:10px 12px;vertical-align:top"><b>${esc(L(it.name, lang))}</b><br><span style="color:#5d5558;font-size:14px">${esc(DOCS.linesText(it, lang))}</span><br><span style="color:#5d5558;font-size:14px">${t('qty', null, lang)}: ${it.qty}</span></td>
+    return `<table style="width:100%;border-collapse:collapse;margin:18px 0">${o.items.map(it => `<tr><td style="padding:10px 0;width:76px;vertical-align:top"><img src="${esc(it.preview || '')}" width="64" height="64" alt="" style="display:block;width:64px;height:64px;object-fit:cover;background:rgba(51,51,51,0.083)"></td>
+      <td style="padding:10px 12px;vertical-align:top"><b>${esc(L(it.name, lang))}</b><br><span style="color:rgba(51,51,51,0.814);font-size:14px">${esc(DOCS.linesText(it, lang))}</span><br><span style="color:rgba(51,51,51,0.814);font-size:14px">${t('qty', null, lang)}: ${it.qty}</span></td>
       ${hidePrices ? '' : `<td style="padding:10px 0;vertical-align:top;text-align:end;white-space:nowrap">${eur(it.unit * it.qty, lang)}</td>`}</tr>`).join('')}</table>`;
   }
   function totalsTable(o, lang) {
-    const T = o.totals; const r = (a, b, strong) => `<tr><td style="padding:3px 0;${strong ? 'font-weight:600' : 'color:#5d5558'}">${a}</td><td style="padding:3px 0;text-align:end;${strong ? 'font-weight:600' : ''}">${b}</td></tr>`;
+    const T = o.totals; const r = (a, b, strong) => `<tr><td style="padding:3px 0;${strong ? 'font-weight:600' : 'color:rgba(51,51,51,0.814)'}">${a}</td><td style="padding:3px 0;text-align:end;${strong ? 'font-weight:600' : ''}">${b}</td></tr>`;
     return `<table style="width:100%;border-collapse:collapse;margin:6px 0 18px">${r(t('subtotal', null, lang), eur(T.sub, lang))}${r(t('shipping', null, lang) + ' · ' + methodName(o.ship.method, lang), T.ship ? eur(T.ship, lang) : t('free', null, lang))}${T.wrap ? r(t('gift_wrap', null, lang), eur(T.wrap, lang)) : ''}${T.discount ? r(t('discount', null, lang) + ' ' + esc(o.coupon), '−' + eur(T.discount, lang)) : ''}${T.gift ? r(t('giftcard', null, lang), '−' + eur(T.gift, lang)) : ''}${r(t('total', null, lang), eur(T.total, lang), true)}</table>`;
   }
   function when(o, lang) {
@@ -63,7 +63,7 @@
       case 'confirm':
         subject = t('ml_confirm_s', { no: o.no }, lang);
         body = `<p>${hi}</p><p>${t('ml_confirm_p', null, lang)}</p><p><b>${esc(when(o, lang))}</b></p>${itemsTable(o, lang)}${totalsTable(o, lang)}
-          ${o.pay.method === 'vorkasse' && o.pay.status !== 'bezahlt' ? `<p style="background:#f1ebe6;padding:14px 16px">${t('ml_bank', { total: eur(o.totals.total, lang), iban: esc(s.shop.iban), bank: esc(s.shop.bank), no: o.no }, lang)}</p>` : ''}
+          ${o.pay.method === 'vorkasse' && o.pay.status !== 'bezahlt' ? `<p style="background:rgba(254,144,190,0.348);padding:14px 16px">${t('ml_bank', { total: eur(o.totals.total, lang), iban: esc(s.shop.iban), bank: esc(s.shop.bank), no: o.no }, lang)}</p>` : ''}
           ${o.approval ? `<p>${t('ml_confirm_proof', null, lang)}</p>` : ''}<p>${t('ml_confirm_cancel', { min: s.cancelMinutes }, lang)}</p>${btn(trackHref, t('ml_track_btn', null, lang))}`;
         break;
       case 'owner_new':
@@ -72,7 +72,7 @@
         break;
       case 'approval':
         subject = t('ml_appr_s', { no: o.no }, lang);
-        body = `<p>${hi}</p><p>${t('ml_appr_p', null, lang)}</p>${itemsTable({ items: o.items.filter(i => i.approval) }, lang, true)}${x.msg ? `<p style="background:#f1ebe6;padding:14px 16px">${esc(x.msg)}</p>` : ''}${btn(`#/freigabe/${o.no}/${x.token || (o.items.find(i => i.approval) || {}).approval.token}`, t('ml_appr_btn', null, lang))}<p style="color:#5d5558;font-size:14px">${t('ml_appr_note', null, lang)}</p>`;
+        body = `<p>${hi}</p><p>${t('ml_appr_p', null, lang)}</p>${itemsTable({ items: o.items.filter(i => i.approval) }, lang, true)}${x.msg ? `<p style="background:rgba(254,144,190,0.348);padding:14px 16px">${esc(x.msg)}</p>` : ''}${btn(`#/freigabe/${o.no}/${x.token || (o.items.find(i => i.approval) || {}).approval.token}`, t('ml_appr_btn', null, lang))}<p style="color:rgba(51,51,51,0.814);font-size:14px">${t('ml_appr_note', null, lang)}</p>`;
         break;
       case 'production':
         subject = t('ml_prod_s', { no: o.no }, lang);
@@ -80,7 +80,7 @@
         break;
       case 'ready_pickup':
         subject = t('ml_rp_s', { no: o.no }, lang);
-        body = `<p>${hi}</p><p>${t('ml_rp_p', null, lang)}</p><p style="background:#f1ebe6;padding:14px 16px"><b>${esc(s.shop.name)}</b><br>${esc(s.shop.street)}, ${esc(s.shop.zip)} ${esc(s.shop.city)}<br>${t('mon_sat', null, lang)} ${esc(s.hours.wd)} · ${t('sunday', null, lang)} ${esc(s.hours.sun)}</p><p>${t('ml_rp_bring', { no: o.no }, lang)}</p>${o.pay.status !== 'bezahlt' ? `<p>${t('ml_pay_at_pickup', { total: eur(o.totals.total, lang) }, lang)}</p>` : ''}`;
+        body = `<p>${hi}</p><p>${t('ml_rp_p', null, lang)}</p><p style="background:rgba(254,144,190,0.348);padding:14px 16px"><b>${esc(s.shop.name)}</b><br>${esc(s.shop.street)}, ${esc(s.shop.zip)} ${esc(s.shop.city)}<br>${t('mon_sat', null, lang)} ${esc(s.hours.wd)} · ${t('sunday', null, lang)} ${esc(s.hours.sun)}</p><p>${t('ml_rp_bring', { no: o.no }, lang)}</p>${o.pay.status !== 'bezahlt' ? `<p>${t('ml_pay_at_pickup', { total: eur(o.totals.total, lang) }, lang)}</p>` : ''}`;
         break;
       case 'ready_local':
         subject = t('ml_rl_s', { no: o.no }, lang);
@@ -96,7 +96,7 @@
         break;
       case 'delivered':
         subject = t('ml_dl_s', { no: o.no }, lang);
-        body = `<p>${hi}</p><p>${t('ml_dl_p', null, lang)}</p>${btn(trackHref + '&review=1', t('ml_dl_btn', null, lang))}<p style="color:#5d5558;font-size:14px">${t('ml_dl_help', null, lang)}</p>`;
+        body = `<p>${hi}</p><p>${t('ml_dl_p', null, lang)}</p>${btn(trackHref + '&review=1', t('ml_dl_btn', null, lang))}<p style="color:rgba(51,51,51,0.814);font-size:14px">${t('ml_dl_help', null, lang)}</p>`;
         break;
       case 'cancelled':
         subject = t('ml_cx_s', { no: o.no }, lang);
@@ -104,26 +104,26 @@
         break;
       case 'giftcard':
         subject = t('ml_gc_s', { from: esc(x.from || s.shop.name) }, lang);
-        body = `<p>${x.to ? t('ml_hi', { n: esc(x.to) }, lang) : t('ml_hi0', null, lang)}</p><p>${t('ml_gc_p', { from: esc(x.from || ''), amount: eur(x.amount, lang) }, lang)}</p>${x.msg ? `<p style="font-family:Georgia,serif;font-style:italic;font-size:19px">„${esc(x.msg)}“</p>` : ''}<p style="background:#1c1819;color:#f6f3ef;padding:18px;text-align:center;font-size:22px;letter-spacing:.06em">${esc(x.code)}<br><span style="font-size:15px;letter-spacing:0">${eur(x.amount, lang)}</span></p><p>${t('ml_gc_use', null, lang)}</p>${btn('#/', t('ml_gc_btn', null, lang))}`;
+        body = `<p>${x.to ? t('ml_hi', { n: esc(x.to) }, lang) : t('ml_hi0', null, lang)}</p><p>${t('ml_gc_p', { from: esc(x.from || ''), amount: eur(x.amount, lang) }, lang)}</p>${x.msg ? `<p style="font-family:Georgia,serif;font-style:italic;font-size:19px">„${esc(x.msg)}“</p>` : ''}<p style="background:#333333;color:rgba(254,144,190,0.223);padding:18px;text-align:center;font-size:22px;letter-spacing:.06em">${esc(x.code)}<br><span style="font-size:15px;letter-spacing:0">${eur(x.amount, lang)}</span></p><p>${t('ml_gc_use', null, lang)}</p>${btn('#/', t('ml_gc_btn', null, lang))}`;
         break;
       case 'answer':
         subject = t('ml_ans_s', null, lang);
-        body = `<p>${t('ml_hi0', null, lang)}</p><p>${t('ml_ans_p', { p: esc(x.product || '') }, lang)}</p><p style="color:#5d5558">„${esc(x.q || '')}“</p><p style="background:#f1ebe6;padding:14px 16px">${esc(x.a || '')}</p>`;
+        body = `<p>${t('ml_hi0', null, lang)}</p><p>${t('ml_ans_p', { p: esc(x.product || '') }, lang)}</p><p style="color:rgba(51,51,51,0.814)">„${esc(x.q || '')}“</p><p style="background:rgba(254,144,190,0.348);padding:14px 16px">${esc(x.a || '')}</p>`;
         break;
       case 'complaint':
         subject = `Reklamation zu ${o.no}`;
-        body = `<p><b>${esc(o.cust.name)}</b> meldet ein Problem:</p><p style="background:#f1ebe6;padding:14px 16px">${esc(x.text || '')}</p>${btn('#/admin/o/' + o.no, 'Im Admin öffnen')}`;
+        body = `<p><b>${esc(o.cust.name)}</b> meldet ein Problem:</p><p style="background:rgba(254,144,190,0.348);padding:14px 16px">${esc(x.text || '')}</p>${btn('#/admin/o/' + o.no, 'Im Admin öffnen')}`;
         break;
       case 'approved':
         subject = `${o.no}: Kunde hat das Design ${x.ok ? 'freigegeben' : 'nicht freigegeben'}`;
-        body = `<p>${x.ok ? 'Das Design wurde freigegeben. Die Bestellung kann in die Produktion.' : 'Der Kunde wünscht eine Änderung:'}</p>${x.msg ? `<p style="background:#f1ebe6;padding:14px 16px">${esc(x.msg)}</p>` : ''}${btn('#/admin/o/' + o.no, 'Im Admin öffnen')}`;
+        body = `<p>${x.ok ? 'Das Design wurde freigegeben. Die Bestellung kann in die Produktion.' : 'Der Kunde wünscht eine Änderung:'}</p>${x.msg ? `<p style="background:rgba(254,144,190,0.348);padding:14px 16px">${esc(x.msg)}</p>` : ''}${btn('#/admin/o/' + o.no, 'Im Admin öffnen')}`;
         break;
       default: subject = m.tpl; body = '';
     }
-    const html = `<div style="background:#efeae5;padding:22px 12px;font-family:Jost,'ui-sans','ui-ar',Arial,sans-serif;color:#1c1819;font-size:16px;line-height:1.55" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
+    const html = `<div style="background:rgba(254,144,190,0.375);padding:22px 12px;font-family:Jost,'ui-sans','ui-ar',Arial,sans-serif;color:#333333;font-size:16px;line-height:1.55" dir="${lang === 'ar' ? 'rtl' : 'ltr'}">
       <div style="max-width:560px;margin:0 auto;background:#fff;padding:28px 26px">
         <div style="font-family:'ui-serif',Georgia,serif;font-size:26px;margin-bottom:18px">Adam</div>${body}
-        <p style="margin-top:28px;color:#5d5558;font-size:13px;border-top:0">${esc(s.shop.name)} · ${esc(s.shop.street)} · ${esc(s.shop.zip)} ${esc(s.shop.city)} · ${esc(s.shop.phone)}</p>
+        <p style="margin-top:28px;color:rgba(51,51,51,0.814);font-size:13px;border-top:0">${esc(s.shop.name)} · ${esc(s.shop.street)} · ${esc(s.shop.zip)} ${esc(s.shop.city)} · ${esc(s.shop.phone)}</p>
       </div></div>`;
     return { subject, html };
   };
@@ -132,26 +132,26 @@
   async function fontsReady() { try { await Promise.all(['400 16px ui-sans', '500 16px ui-sans', '500 16px ui-serif', '400 16px ui-ar'].map(f => document.fonts.load(f))); } catch (e) { } }
   const SHOPHEAD = (d, s) => {
     d.font(20, 500, '"ui-serif", serif').text('Adam', 18, 24);
-    d.font(8.5).text(`${s.shop.street} · ${s.shop.zip} ${s.shop.city} · ${s.shop.phone} · ${s.shop.email}`, 18, 30, { color: '#5d5558' });
+    d.font(8.5).text(`${s.shop.street} · ${s.shop.zip} ${s.shop.city} · ${s.shop.phone} · ${s.shop.email}`, 18, 30, { color: 'rgba(51,51,51,0.814)' });
   };
   const real = v => v && !/^DE0{6,}|^DE00 0000/.test(String(v).trim());
-  const FOOT = (d, s) => { const sh = s.shop; const parts = [sh.owner && sh.owner !== sh.name ? sh.name + ' · Inh. ' + sh.owner : sh.name, `${sh.street}, ${sh.zip} ${sh.city}`, real(sh.taxId) ? 'USt-IdNr. ' + sh.taxId : (sh.taxNo ? 'St.-Nr. ' + sh.taxNo : ''), real(sh.iban) ? `${sh.bank || ''} · IBAN ${sh.iban}` : ''].filter(Boolean); d.font(7.5).text(parts.join(' · '), 105, 287, { align: 'center', color: '#5d5558' }); };
+  const FOOT = (d, s) => { const sh = s.shop; const parts = [sh.owner && sh.owner !== sh.name ? sh.name + ' · Inh. ' + sh.owner : sh.name, `${sh.street}, ${sh.zip} ${sh.city}`, real(sh.taxId) ? 'USt-IdNr. ' + sh.taxId : (sh.taxNo ? 'St.-Nr. ' + sh.taxNo : ''), real(sh.iban) ? `${sh.bank || ''} · IBAN ${sh.iban}` : ''].filter(Boolean); d.font(7.5).text(parts.join(' · '), 105, 287, { align: 'center', color: 'rgba(51,51,51,0.814)' }); };
   const addrLines = a => a ? [a.name, a.street, `${a.zip} ${a.city}`, a.country && a.country !== 'DE' ? a.country : ''].filter(Boolean) : [];
 
   DOCS.invoice = async function (o) {
     await fontsReady(); const s = ST.settings(); const lang = 'de';
     const d = C.Doc(210, 297, 150); SHOPHEAD(d, s);
     let y = 52; addrLines(o.bill || (o.ship.addr) || { name: o.cust.name }).forEach(l => { d.font(10.5).text(l, 18, y); y += 5.2; });
-    d.font(9.5);[['Rechnungsnr.', o.invoice], ['Bestellnr.', o.no], ['Rechnungsdatum', C.date(o.created, { day: '2-digit', month: '2-digit', year: 'numeric' }, lang)], ['Leistungsdatum', C.date(o.ship.date, { day: '2-digit', month: '2-digit', year: 'numeric' }, lang)]].forEach(([a, b], i) => { d.text(a, 130, 52 + i * 5.2, { color: '#5d5558' }); d.text(b, 192, 52 + i * 5.2, { align: 'right' }); });
+    d.font(9.5);[['Rechnungsnr.', o.invoice], ['Bestellnr.', o.no], ['Rechnungsdatum', C.date(o.created, { day: '2-digit', month: '2-digit', year: 'numeric' }, lang)], ['Leistungsdatum', C.date(o.ship.date, { day: '2-digit', month: '2-digit', year: 'numeric' }, lang)]].forEach(([a, b], i) => { d.text(a, 130, 52 + i * 5.2, { color: 'rgba(51,51,51,0.814)' }); d.text(b, 192, 52 + i * 5.2, { align: 'right' }); });
     y = 86; d.font(17, 500, '"ui-serif", serif').text('Rechnung', 18, y); y += 10;
     d.font(9, 500).text('Pos.', 18, y).text('Artikel', 28, y).text('Menge', 132, y, { align: 'right' }).text('Einzel', 156, y, { align: 'right' }).text('MwSt.', 170, y, { align: 'right' }).text('Gesamt', 192, y, { align: 'right' });
-    y += 2.5; d.rect(18, y, 174, .25, '#1c1819'); y += 6;
+    y += 2.5; d.rect(18, y, 174, .25, '#333333'); y += 6;
     o.items.forEach((it, i) => {
       d.font(9.5, 500).text(String(i + 1), 18, y).text(L(it.name, lang), 28, y, { max: 96 });
       d.font(9.5).text(String(it.qty), 132, y, { align: 'right' }).text(eur(it.unit, lang), 156, y, { align: 'right' }).text((it.tax || 0) + ' %', 170, y, { align: 'right' }).text(eur(it.unit * it.qty, lang), 192, y, { align: 'right' });
       y += 4.6; d.font(8); const ly = d.wrap(DOCS.linesText(it, lang), 28, y, 92, 3.8); y = ly + 6;
     });
-    const T = o.totals; d.rect(18, y - 2, 174, .25, '#bdb5b0'); y += 4;
+    const T = o.totals; d.rect(18, y - 2, 174, .25, 'rgba(51,51,51,0.355)'); y += 4;
     const row = (a, b, bold) => { d.font(9.5, bold ? 500 : 400).text(a, 140, y, { align: 'right' }).text(b, 192, y, { align: 'right' }); y += 5.2; };
     row('Zwischensumme', eur(T.sub, lang)); row('Versand · ' + t('m_' + o.ship.method, null, lang), eur(T.ship, lang));
     if (T.wrap) row('Geschenkverpackung', eur(T.wrap, lang)); if (T.discount) row('Rabatt ' + o.coupon, '−' + eur(T.discount, lang));
@@ -160,7 +160,7 @@
     if (T.gift) row('bezahlt mit Gutschein ' + o.giftcard, '−' + eur(T.gift, lang));
     y += 4; d.font(9.5).text(`Zahlungsart: ${t('pay_' + o.pay.method, null, lang)} · Status: ${o.pay.status === 'bezahlt' ? 'bezahlt' : o.pay.status === 'erstattet' ? 'erstattet' : 'offen'}`, 18, y);
     if (o.pay.status !== 'bezahlt' && o.pay.method === 'vorkasse') { y += 5.2; d.text(`Bitte überweise ${eur(T.total, lang)} an ${s.shop.bank}, IBAN ${s.shop.iban}, Verwendungszweck ${o.no}.`, 18, y); }
-    y += 9; d.font(9).text('Vielen Dank für deinen Einkauf. Personalisierte Artikel sind vom Widerruf ausgeschlossen (§ 312g Abs. 2 Nr. 1 BGB).', 18, y, { color: '#5d5558' });
+    y += 9; d.font(9).text('Vielen Dank für deinen Einkauf. Personalisierte Artikel sind vom Widerruf ausgeschlossen (§ 312g Abs. 2 Nr. 1 BGB).', 18, y, { color: 'rgba(51,51,51,0.814)' });
     FOOT(d, s);
     return C.docsToPdf([d], 'Rechnung ' + o.invoice);
   };
@@ -169,12 +169,12 @@
     await fontsReady(); const s = ST.settings(); const lang = o.lang || 'de';
     const d = C.Doc(210, 297, 150); SHOPHEAD(d, s);
     let y = 52; addrLines(o.ship.addr || { name: o.ship.recipient || o.cust.name, street: t('m_pickup', null, 'de') }).forEach(l => { d.font(10.5).text(l, 18, y); y += 5.2; });
-    d.font(9.5);[['Lieferschein zu', o.no], ['Datum', C.date(o.ship.date, { day: '2-digit', month: '2-digit', year: 'numeric' }, 'de')], ['Versandart', t('m_' + o.ship.method, null, 'de')]].forEach(([a, b], i) => { d.text(a, 130, 52 + i * 5.2, { color: '#5d5558' }); d.text(b, 192, 52 + i * 5.2, { align: 'right' }); });
+    d.font(9.5);[['Lieferschein zu', o.no], ['Datum', C.date(o.ship.date, { day: '2-digit', month: '2-digit', year: 'numeric' }, 'de')], ['Versandart', t('m_' + o.ship.method, null, 'de')]].forEach(([a, b], i) => { d.text(a, 130, 52 + i * 5.2, { color: 'rgba(51,51,51,0.814)' }); d.text(b, 192, 52 + i * 5.2, { align: 'right' }); });
     y = 86; d.font(17, 500, '"ui-serif", serif').text('Lieferschein', 18, y); y += 10;
-    d.font(9, 500).text('Menge', 18, y).text('Artikel', 34, y); y += 2.5; d.rect(18, y, 174, .25, '#1c1819'); y += 6;
+    d.font(9, 500).text('Menge', 18, y).text('Artikel', 34, y); y += 2.5; d.rect(18, y, 174, .25, '#333333'); y += 6;
     o.items.forEach(it => { d.font(10, 500).text(it.qty + ' ×', 18, y).text(L(it.name, 'de'), 34, y, { max: 150 }); y += 4.6; d.font(8.5); y = d.wrap(DOCS.linesText(it, 'de'), 34, y, 150, 4) + 7; });
-    if (o.gift.card) { y += 6; d.rect(18, y, 174, 40, '#f4efea'); d.font(9, 500).text('Grußkarte', 26, y + 9, { color: '#5d5558' }); d.font(15, 500, '"ui-serif-i", serif'); d.wrap(o.gift.card, 26, y + 19, 158, 7); y += 46; }
-    y += 6; d.font(9).text(o.gift.hidePrices ? 'Geschenksendung – ohne Preisangaben.' : 'Die Rechnung erhältst du per E-Mail.', 18, y, { color: '#5d5558' });
+    if (o.gift.card) { y += 6; d.rect(18, y, 174, 40, 'rgba(254,144,190,0.286)'); d.font(9, 500).text('Grußkarte', 26, y + 9, { color: 'rgba(51,51,51,0.814)' }); d.font(15, 500, '"ui-serif-i", serif'); d.wrap(o.gift.card, 26, y + 19, 158, 7); y += 46; }
+    y += 6; d.font(9).text(o.gift.hidePrices ? 'Geschenksendung – ohne Preisangaben.' : 'Die Rechnung erhältst du per E-Mail.', 18, y, { color: 'rgba(51,51,51,0.814)' });
     FOOT(d, s);
     return C.docsToPdf([d], 'Lieferschein ' + o.no);
   };
@@ -183,20 +183,20 @@
     await fontsReady(); const s = ST.settings();
     const d = C.Doc(105, 148, 300);
     d.rect(0, 0, 105, 148, '#fff');
-    d.font(7, 500).text('ABSENDER', 6, 9, { color: '#5d5558' });
+    d.font(7, 500).text('ABSENDER', 6, 9, { color: 'rgba(51,51,51,0.814)' });
     d.font(8.5).text(s.shop.name, 6, 13.5).text(s.shop.street, 6, 17.5).text(`${s.shop.zip} ${s.shop.city}`, 6, 21.5);
     d.font(13, 500).text(o.ship.method === 'eu' ? 'DHL PAKET INTERNATIONAL' : o.ship.method === 'local' ? 'KURIER HAMBURG' : 'DHL PAKET', 99, 13, { align: 'right' });
-    d.rect(4, 26, 97, .5, '#000');
-    d.font(7, 500).text('EMPFÄNGER', 6, 33, { color: '#5d5558' });
+    d.rect(4, 26, 97, .5, '#333333');
+    d.font(7, 500).text('EMPFÄNGER', 6, 33, { color: 'rgba(51,51,51,0.814)' });
     const a = o.ship.addr || { name: o.cust.name, street: '', zip: '', city: '' };
     let y = 41; [o.ship.recipient || a.name, a.street, `${a.zip} ${a.city}`, a.country && a.country !== 'DE' ? a.country : 'DEUTSCHLAND'].filter(Boolean).forEach((l, i) => { d.font(i === 0 ? 13 : 12, i === 0 ? 500 : 400).text(l, 6, y); y += 6.4; });
     if (o.ship.window) { d.font(10, 500).text('Zeitfenster ' + o.ship.window + ' · ' + C.date(o.ship.date, { day: '2-digit', month: '2-digit' }, 'de'), 6, y + 2); }
-    d.rect(4, 82, 97, .5, '#000');
+    d.rect(4, 82, 97, .5, '#333333');
     // address label for the parcel (the DHL postage label comes from the DHL portal / app)
     d.font(30, 500).text(o.no, 52.5, 108, { align: 'center' });
     if (o.tracking && o.tracking.code) d.font(9).text('Sendung ' + o.tracking.code, 52.5, 124, { align: 'center' });
     d.font(9, 500).text('Bestellung ' + o.no, 6, 133).text(o.items.reduce((a, i) => a + i.qty, 0) + ' Artikel', 99, 133, { align: 'right' });
-    d.font(6.5).text('Adressaufkleber – Frankierung über DHL Geschäftskundenportal oder Post & DHL App.', 52.5, 142, { align: 'center', color: '#8a8285' });
+    d.font(6.5).text('Adressaufkleber – Frankierung über DHL Geschäftskundenportal oder Post & DHL App.', 52.5, 142, { align: 'center', color: 'rgba(51,51,51,0.593)' });
     return C.docsToPdf([d], 'Etikett ' + o.no);
   };
 
@@ -207,7 +207,7 @@
       const d = C.Doc(210, 297, 130); let y = 18;
       d.font(18, 500, '"ui-serif", serif').text('Produktion ' + o.no, 14, y);
       d.font(9.5).text(`${t('m_' + o.ship.method, null, 'de')} · fällig ${C.date(o.ship.date, { weekday: 'short', day: '2-digit', month: '2-digit' }, 'de')}${o.ship.window ? ' · ' + o.ship.window : ''} · ${o.cust.name}`, 196, y, { align: 'right' });
-      y += 6; d.rect(14, y, 182, .3, '#1c1819'); y += 6;
+      y += 6; d.rect(14, y, 182, .3, '#333333'); y += 6;
       for (const it of o.items) {
         const p = ST.product(it.pid); if (!p) continue;
         if (y > 230) { docs.push(d); break; }
@@ -217,9 +217,9 @@
         if (cv.width > 10) d.img(cv, 14, y, Math.min(w, 70), Math.min(w, 70) === w ? h : 70 * cv.height / cv.width);
         d.font(11, 500).text(it.qty + ' × ' + L(it.name, 'de'), 90, y + 5, { max: 106 });
         let yy = y + 11; d.font(9);
-        for (const [a, b] of DOCS.lines(it, 'de')) { d.text(a + ':', 90, yy, { color: '#5d5558' }); yy = d.wrap(b, 120, yy, 76, 4.2) + 4.6; }
-        d.text('Technik: ' + (window.PDP ? PDP.technique(p) : ''), 90, yy, { color: '#5d5558' });
-        y = Math.max(y + h, yy) + 8; d.rect(14, y - 4, 182, .2, '#d8d1cc');
+        for (const [a, b] of DOCS.lines(it, 'de')) { d.text(a + ':', 90, yy, { color: 'rgba(51,51,51,0.814)' }); yy = d.wrap(b, 120, yy, 76, 4.2) + 4.6; }
+        d.text('Technik: ' + (window.PDP ? PDP.technique(p) : ''), 90, yy, { color: 'rgba(51,51,51,0.814)' });
+        y = Math.max(y + h, yy) + 8; d.rect(14, y - 4, 182, .2, 'rgba(51,51,51,0.221)');
       }
       if (o.gift.wrap || o.gift.card) { d.font(10, 500).text(`${o.gift.wrap ? 'Geschenkverpackung' : ''}${o.gift.wrap && o.gift.card ? ' · ' : ''}${o.gift.card ? 'Grußkarte: „' + o.gift.card + '“' : ''}`, 14, Math.min(y + 4, 280), { max: 182 }); }
       if (o.note) d.font(9.5).text('Notiz: ' + o.note, 14, Math.min(y + 11, 286), { max: 182 });
@@ -274,7 +274,7 @@
   const f3 = v => (Math.round(v * 1000) / 1000).toString();
   function vecSVG(v) {
     const d = v.loops.map(l => 'M' + l.map(([x, y]) => f3(x / v.k) + ' ' + f3(y / v.k)).join('L') + 'Z').join('');
-    return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${f3(v.w)}mm" height="${f3(v.h)}mm" viewBox="0 0 ${f3(v.w)} ${f3(v.h)}">\n<title>${esc(v.title)}</title>\n<path fill="#000" fill-rule="evenodd" d="${d}"/>\n</svg>\n`;
+    return `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${f3(v.w)}mm" height="${f3(v.h)}mm" viewBox="0 0 ${f3(v.w)} ${f3(v.h)}">\n<title>${esc(v.title)}</title>\n<path fill="#333333" fill-rule="evenodd" d="${d}"/>\n</svg>\n`;
   }
   function vecDXF(v) {
     const L = ['0', 'SECTION', '2', 'HEADER', '9', '$INSUNITS', '70', '4', '9', '$MEASUREMENT', '70', '1', '0', 'ENDSEC', '0', 'SECTION', '2', 'ENTITIES'];

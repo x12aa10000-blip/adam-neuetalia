@@ -11,14 +11,17 @@
   S.giftcardImg = function () {
     if (S._gci) return S._gci;
     const W = 1000, H = 640, c = ENG.canvas(W, H), x = c.getContext('2d');
-    x.fillStyle = '#151112'; x.fillRect(0, 0, W, H);
-    const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#b8924f'); g.addColorStop(.5, '#f1dcaa'); g.addColorStop(1, '#a8824a');
-    x.strokeStyle = g; x.lineWidth = 2; x.strokeRect(34, 34, W - 68, H - 68); x.lineWidth = 1; x.strokeRect(46, 46, W - 92, H - 92);
-    x.fillStyle = g; x.textAlign = 'center';
-    x.font = '500 78px "ui-serif", Georgia, serif'; x.fillText('Adam', W / 2, 270);
-    x.font = '400 22px "ui-sans", sans-serif'; if ('letterSpacing' in x) x.letterSpacing = '9px'; x.fillText('GESCHENKGUTSCHEIN', W / 2, 340); if ('letterSpacing' in x) x.letterSpacing = '0px';
-    x.font = '500 46px "ui-serif-i", Georgia, serif'; x.fillText('für ein Lächeln', W / 2, 440);
-    x.font = '400 18px "ui-sans", sans-serif'; x.fillStyle = '#9e938c'; x.fillText('Steindamm 62 · Hamburg', W / 2, 560);
+    // Figma palette only: pink card, ink lettering, turquoise and purple accents
+    x.fillStyle = '#FE90BE'; x.fillRect(0, 0, W, H);
+    x.fillStyle = '#FFFFFF'; x.globalAlpha = .18; x.beginPath(); x.arc(W - 120, 110, 260, 0, Math.PI * 2); x.fill(); x.globalAlpha = 1;
+    x.fillStyle = '#01CAC9'; x.beginPath(); x.arc(110, H - 90, 46, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#6425FE'; x.beginPath(); x.arc(186, H - 90, 18, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#333333'; x.textAlign = 'start';
+    x.font = '700 120px "ui-pop", "ui-sans", sans-serif'; if ('letterSpacing' in x) x.letterSpacing = '-4px'; x.fillText('Adam', 80, 220); if ('letterSpacing' in x) x.letterSpacing = '0px';
+    x.fillStyle = '#FFFFFF'; x.beginPath(); x.arc(80 + x.measureText('Adam').width + 14, 214, 13, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#333333'; x.font = '600 26px "ui-pop", "ui-sans", sans-serif'; if ('letterSpacing' in x) x.letterSpacing = '6px'; x.fillText('GESCHENKGUTSCHEIN', 84, 290); if ('letterSpacing' in x) x.letterSpacing = '0px';
+    x.font = '500 40px "ui-pop", "ui-sans", sans-serif'; x.fillText('für ein Lächeln', 84, 380);
+    x.textAlign = 'end'; x.font = '400 20px "ui-pop", "ui-sans", sans-serif'; x.fillText('Steindamm 62 · Hamburg', W - 70, H - 80);
     const url = c.toDataURL('image/jpeg', .92);
     if (document.fonts && document.fonts.status !== 'loaded') { document.fonts.ready.then(() => { S._gci = null; }); return url; }
     S._gci = url; return S._gci;
@@ -63,7 +66,7 @@
   S.catImg = function (cat) { const p = ST.products().find(p => p.cat === cat && p.best) || ST.products().find(p => p.cat === cat || (p.also || []).includes(cat)); return p ? p.views[0].thumb : ''; };
 
   /* ---------------- shell ---------------- */
-  const LOGO = () => `<a class="logo" href="#/" aria-label="Adam"><small>Adam &amp;</small><b><i>N</i>EUETALI<em>A</em></b></a>`;
+  const LOGO = () => `<a class="logo" href="#/" aria-label="Adam"><b>Adam</b><span class="lg-dot" aria-hidden="true"></span></a>`;
   S.header = function () {
     const n = ST.cartCount(); const me = ST.me(); const s = ST.settings();
     const mins = ST.minutesToCutoff();
@@ -145,7 +148,7 @@
     const ov = C.sheet({ title: t('menu'), start: true, foot: false, kind: 'side menu', noFocus: true });
     const s = ST.settings();
     const links = [['#/anlass', 'gift', t('nav_occ')], ['#/gutschein', 'cards', t('nav_gift')], ['#/verfolgen', 'truck', t('track_title')], ['#/konto', 'user', t('account')], ['#/wunschliste', 'heart', t('wishlist')], ['#/hilfe', 'chat', t('nav_help')]];
-    ov.panel.insertAdjacentHTML('afterbegin', `<a class="m-logo" href="#/">Adam</a>`);
+    ov.panel.insertAdjacentHTML('afterbegin', `<a class="m-logo" href="#/">Adam<span class="lg-dot" aria-hidden="true"></span></a>`);
     ov.body.innerHTML = `<button class="m-search" data-act="search">${ic('search')} ${esc(t('search_ph'))}</button>
       <p class="m-h">${t('categories')}</p>
       <div class="m-cats">${CATS().map(c => `<a class="m-cat" href="#/c/${c}"><img src="${esc(S.catImg(c))}" alt="" loading="lazy"><span>${t('cat_' + c)}</span></a>`).join('')}<a class="m-cat all" href="#/c/alle"><span>${t('nav_shop')} →</span></a></div>
@@ -277,7 +280,7 @@
 
     ${camp ? `<section class="split blush rev" style="margin-top:clamp(52px,7vw,96px)"><div class="sp-img"><img src="${esc(occImg('liebe'))}" alt="" loading="lazy"></div><div class="sp-txt rv"><span class="eyb">${t('camp_eyb')}</span><h2>${esc(camp.title)}</h2><p class="lead">${esc(camp.text)}</p><div><a class="btn" href="${camp.href}">${esc(camp.cta)}</a></div></div></section>` : ''}
 
-    <section class="split dark" style="margin-top:14px"><div class="sp-img"><div class="gc-card"><img src="${S.giftcardImg()}" alt="" loading="lazy"></div></div><div class="sp-txt rv"><span class="eyb" style="color:#ffd1e5">${t('nav_gift')}</span><h2>${t('gc_h')}</h2><p class="lead">${t('gc_p')}</p><div><a class="btn" href="#/gutschein">${t('gc_cta')}</a></div></div></section>
+    <section class="split dark" style="margin-top:14px"><div class="sp-img"><div class="gc-card"><img src="${S.giftcardImg()}" alt="" loading="lazy"></div></div><div class="sp-txt rv"><span class="eyb" style="color:#FE90BE">${t('nav_gift')}</span><h2>${t('gc_h')}</h2><p class="lead">${t('gc_p')}</p><div><a class="btn" href="#/gutschein">${t('gc_cta')}</a></div></div></section>
 
     <section class="sec faq-sec"><div class="wrap narrow">
       <div class="sh rv"><h2 class="ttl">${t('faq_h')}</h2><a class="more" href="#/hilfe">${t('faq_more')}</a></div>
