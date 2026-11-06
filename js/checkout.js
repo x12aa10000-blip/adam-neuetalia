@@ -179,7 +179,9 @@
     const btn = $('[data-act="place"]'); const busy = on => { if (btn) { btn.disabled = on; btn.classList.toggle('busy', on); } };
     busy(true);
     try {
-      if (CLOUD.on) { const ck = await CLOUD.checkOrder(D); if (ck.err) { C.toast(CLOUD.msg(ck.err === 'fields' || ck.err === 'zip' ? 'generic' : ck.err), 'err'); return; } }
+      if (CLOUD.on) { const ck = await CLOUD.checkOrder(D); if (ck.err) {
+        if (['price_changed', 'product_unavailable', 'price'].includes(ck.err)) { await CLOUD.refreshPublic(); SHOP.refreshHeader(); K.checkout(); }
+        C.toast(CLOUD.msg(ck.err === 'fields' || ck.err === 'zip' ? 'generic' : ck.err === 'price' ? 'price_changed' : ck.err), 'err'); return; } }
       const ok = await K.pay(CO.pay, ST.totals(ST.cart(), { method: CO.method, wrap: CO.wrap, coupon: CO.coupon, giftcard: CO.giftcard }).total);
       if (!ok) return;
       if (K.payRef) { D.payRef = K.payRef; K.payRef = ''; }

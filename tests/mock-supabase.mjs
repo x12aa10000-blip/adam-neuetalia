@@ -8,7 +8,7 @@ const lit = v => { if (v === null || v === undefined) return 'NULL'; const s = t
 function call(fn, args, ip) {
   const named = Object.entries(args || {}).map(([k, v]) => `${k} => ${lit(v)}`).join(', ');
   const sql = `set request.headers = ${lit(JSON.stringify({ 'x-forwarded-for': ip }))}; set role anon; select coalesce(to_json(public.${fn}(${named}))::text, 'null');`;
-  return new Promise(res => execFile('psql', ['-X', '-q', '-At', '-v', 'ON_ERROR_STOP=1', '-d', DB, '-c', sql], { maxBuffer: 64 << 20 }, (err, out, errout) => res({ err: err ? (errout || String(err)) : null, out })));
+  return new Promise(res => { const ch = execFile('psql', ['-X', '-q', '-At', '-v', 'ON_ERROR_STOP=1', '-d', DB], { maxBuffer: 64 << 20 }, (err, out, errout) => res({ err: err ? (errout || String(err)) : null, out })); ch.stdin.end(sql); });
 }
 http.createServer(async (req, res) => {
   const cors = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'apikey, authorization, content-type, x-client-info', 'Access-Control-Allow-Methods': 'POST, OPTIONS' };

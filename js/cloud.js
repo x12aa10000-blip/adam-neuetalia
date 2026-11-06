@@ -104,7 +104,10 @@
       ST.set('prodOv', b.prodOv || {}); ST.set('customProducts', b.customProducts || []);
       if (b.catCfg) ST.set('catCfg', b.catCfg); if (b.site) ST.set('site', b.site);
       ST.set('reviews', b.reviews || []); ST.set('questions', b.questions || []);
-      ST.set('coupons', b.promo || []); ST.set('giftcards', []);
+      // keep codes this visitor already checked (they are re-checked by the server at checkout anyway)
+      const promo = b.promo || []; const had = ST.get('coupons', []) || [];
+      ST.set('coupons', promo.concat(had.filter(c => !promo.some(x => x.code === c.code))));
+      if (!ST.get('giftcards', null)) ST.set('giftcards', []);
       ST.set('emails', []); ST.set('activity', []); ST.set('customers', []);
       ST.set('seeded', true);
     });
@@ -128,6 +131,7 @@
       const b = await rpc('shop_boot');
       applyPublic(b);
       if (!admin()) quiet(() => ST.set('orders', loadMine()));
+      if (!isAdminPage) CL.repriceCart();
       if (custTok()) await CL.refreshMe().catch(() => { });
       if (isAdminPage && admin()) await CL.adminStart().catch(e => { if (e.code === 'auth') quiet(() => ST.set('adminSession', null)); });
     } catch (e) {
@@ -236,6 +240,23 @@
       return { o };
     } catch (e) { return { err: e.code || 'fail' }; }
   };
+  /* bring the bag to today's prices (after the owner changed a price or removed a product) */
+  CL.repriceCart = function () {
+    const cart = ST.cart(); if (!cart.length) return false;
+    let changed = false; const keep = [];
+    const tb = window.BOX && BOX._tables ? BOX._tables() : null;
+    for (const i of cart) {
+      let u = i.unit;
+      if (i.pid === 'gutschein') { keep.push(i); continue; }
+      if (i.pid === 'geschenkbox') { const b = (i.D && i.D.box) || {}; if (tb && tb.boxes[b.box] != null) u = ST.round2(tb.boxes[b.box] + (tb.sizes[b.size] || 0) + (tb.fills[b.fill] || 0) + Object.entries(b.extras || {}).reduce((a, [k, n]) => a + (tb.extras[k] || 0) * n, 0)); }
+      else { const p = ST.product(i.pid); if (!p || p.active === false || p.deleted) { changed = true; continue; } u = ST.unitPrice(p, i.D); }
+      if (Math.abs(u - i.unit) > 0.004) { changed = true; i.unit = u; }
+      keep.push(i);
+    }
+    if (changed) { quiet(() => ST.saveCart(keep)); }
+    return changed;
+  };
+  CL.refreshPublic = async function () { try { applyPublic(await rpc('shop_boot')); } catch (e) { } return CL.repriceCart(); };
   CL.fetchOrder = async function (no, email) {
     const o = await rpc('shop_order_get', { p_no: no, p_email: email }).catch(() => null);
     if (o) CL.keepOrder(o); return o;

@@ -1,0 +1,114 @@
+[
+ {
+  "test": "Owner login",
+  "result": "PASS"
+ },
+ {
+  "test": "Register: too short password refused",
+  "result": "PASS"
+ },
+ {
+  "test": "Register works",
+  "result": "PASS"
+ },
+ {
+  "test": "Logout works",
+  "result": "PASS"
+ },
+ {
+  "test": "Login with wrong password refused",
+  "result": "PASS"
+ },
+ {
+  "test": "Login on a second device",
+  "result": "PASS"
+ },
+ {
+  "test": "Password-forgotten form answers",
+  "result": "PASS"
+ },
+ {
+  "test": "Wishlist saved in account",
+  "result": "PASS"
+ },
+ {
+  "test": "Photo product (rosen-fotodeckel) added to bag",
+  "result": "PASS"
+ },
+ {
+  "test": "Order with photo placed (logged-in customer)",
+  "result": "PASS"
+ },
+ {
+  "test": "Photo id stored in order",
+  "result": "PASS"
+ },
+ {
+  "test": "Owner can download the customer photo from the server",
+  "result": "PASS"
+ },
+ {
+  "test": "Order listed in customer account",
+  "result": "PASS"
+ },
+ {
+  "test": "Owner status change saved on server",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer tracking shows new status",
+  "result": "PASS"
+ },
+ {
+  "test": "Owner-created coupon accepted at checkout",
+  "result": "PASS"
+ },
+ {
+  "test": "Unknown coupon refused",
+  "result": "PASS"
+ },
+ {
+  "test": "Price changed by owner -> old cart price refused",
+  "result": "PASS"
+ },
+ {
+  "test": "Checkout re-shows the bag with the new price",
+  "result": "PASS"
+ },
+ {
+  "test": "Bag updated to current price after reload",
+  "result": "PASS"
+ },
+ {
+  "test": "Order after price update works",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer can cancel within the time window",
+  "result": "PASS"
+ },
+ {
+  "test": "Review arrives in owner area",
+  "result": "PASS"
+ },
+ {
+  "test": "Review not public before approval",
+  "result": "PASS"
+ },
+ {
+  "test": "Staff login works",
+  "result": "PASS"
+ },
+ {
+  "test": "Staff cannot open products",
+  "result": "PASS"
+ },
+ {
+  "test": "Staff logout",
+  "result": "PASS"
+ },
+ {
+  "test": "No JavaScript errors during all flows",
+  "result": "PASS"
+ }
+]
