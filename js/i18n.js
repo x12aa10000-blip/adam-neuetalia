@@ -105,6 +105,7 @@
   K('m_dhl', 'DHL Deutschland', 'DHL Germany', 'شحن DHL داخل ألمانيا');
   K('m_digital', 'Digital per E-Mail', 'Digital by e-mail', 'رقمي عبر الإيميل');
   K('m_digital_d', 'Kein Versand nötig – du bekommst alles per E-Mail.', 'No shipping needed – you get everything by e-mail.', 'ما في شحن – بيوصلك كل شي على الإيميل.');
+  K('plz_unknown', 'Diese Postleitzahl finden wir nicht – bitte kurz prüfen. Den Ort kannst du auch selbst eintragen.', 'We can\'t find this postcode – please check it. You can also type the town yourself.', 'ما لقينا هالرمز البريدي – تأكد منه لو سمحت. فيك تكتب اسم المدينة بنفسك كمان.');
   K('m_eu', 'DHL Europa', 'DHL Europe', 'شحن DHL لأوروبا');
   K('m_pickup_d', 'Steindamm 62, mit Wunschtermin', 'Steindamm 62, at a time you choose', 'شتايندام 62، بالموعد اللي بتختاره');
   K('m_local_d', 'Am selben Tag, im Zeitfenster deiner Wahl', 'Same day, in a time window you choose', 'بنفس اليوم وبالوقت اللي بتختاره');

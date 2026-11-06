@@ -401,6 +401,8 @@
         ${f('shipping.dhl.price', 'DHL Deutschland €', sh.dhl.price, 'number')}${f('shipping.dhl.days', 'DHL Laufzeit (Tage)', sh.dhl.days, 'number')}${f('shipping.eu.price', 'DHL EU €', sh.eu.price, 'number')}</div>
         <div class="row">${['pickup', 'local', 'dhl', 'eu'].map(m => `<label class="check"><input type="checkbox" name="shipping.${m}.on"${sh[m].on ? ' checked' : ''}><span>${M_L[m]} anbieten</span></label>`).join('')}</div></section>
       <section class="a-card"><h2>Zahlung & Ablauf</h2><div class="row">${Object.keys(PAY_L).map(k => `<label class="check"><input type="checkbox" name="payments.${k}"${s.payments[k] ? ' checked' : ''}><span>${PAY_L[k]}</span></label>`).join('')}</div>
+        <div class="grid3">${f('paypal.clientId', 'PayPal Client-ID (Live, öffentlich)', (s.paypal || {}).clientId || '')}</div>
+        <p class="muted small">PayPal und Karte erscheinen an der Kasse erst, wenn hier die Client-ID steht und der Haken gesetzt ist. Das geheime PayPal-Passwort (Secret) gehört nur auf den Server, nie hierher.</p>
         <div class="grid3">${f('cancelMinutes', 'Kunde kann stornieren innerhalb (Minuten)', s.cancelMinutes, 'number')}</div>
         <label class="check"><input type="checkbox" name="approvalDefault"${s.approvalDefault ? ' checked' : ''}><span>Design-Freigabe an der Kasse standardmäßig anbieten</span></label>
         <label class="check"><input type="checkbox" name="campaign.on"${s.campaign.on ? ' checked' : ''}><span>Saison-Aktion auf der Startseite (Valentinstag, Muttertag, Ramadan, Weihnachten automatisch)</span></label></section>

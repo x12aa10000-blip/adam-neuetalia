@@ -78,7 +78,7 @@
 (function () {
   const fit = () => document.querySelectorAll('.fonts button').forEach(b => {
     if (!b.clientWidth) return; b.style.fontSize = ''; let fs = parseFloat(getComputedStyle(b).fontSize), n = 0;
-    while (b.scrollWidth > b.clientWidth + 1 && fs > 11 && n++ < 14) { fs -= 1; b.style.fontSize = fs + 'px'; }
+    while (b.scrollWidth > b.clientWidth + 1 && fs > 8 && n++ < 8) { fs = Math.max(8, Math.floor(fs * b.clientWidth / b.scrollWidth * 10) / 10 - .3); b.style.fontSize = fs + 'px'; }
   });
   let tm; const mo = new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(fit, 80); });
   mo.observe(document.body, { childList: true, subtree: true, characterData: true });

@@ -321,7 +321,7 @@ html[lang="ar"] .adm .a-head h1{letter-spacing:0;font-weight:600}
   .sumbox::before{transform:translate(0,6px)}
 }
 /* the totals card must stay the positioning box for its paper layers when it stops being sticky */
-@media (max-width:960px){.sumbox.sticky,.sumbox{position:relative!important}}
+@media (max-width:960px){.sumbox.sticky,.sumbox{position:relative!important;top:auto!important}}
 
 /* =====================================================================
    BOLD PASS – the wrapping paper covers the whole counter.
@@ -469,3 +469,41 @@ html[lang="ar"] .s8-copy h1{line-height:1.2}
 .cp-uses{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap}
 .cp-uses label{display:inline-flex;align-items:center;gap:6px}
 .in.xs{width:72px;min-height:36px;padding:4px 8px}
+/* hero: the card always holds its content (no text spilling out of the white card at any width) */
+@media (min-width:901px){
+  .s8-hero-in{grid-template-columns:minmax(0,1fr) minmax(0,1.05fr)!important}
+  .s8-copy{grid-template-columns:minmax(0,1fr)!important;min-width:0}
+  .s8-copy>*{min-width:0;max-width:100%}
+  .s8-copy h1{overflow-wrap:break-word;font-size:clamp(44px,5.6vw,96px)!important}
+  html[lang="ar"] .s8-copy h1{letter-spacing:0!important;font-size:clamp(40px,4.8vw,80px)!important}
+  .s8-picks{gap:8px}
+}
+html[lang="ar"] .s8-copy h1{letter-spacing:0!important}
+/* hero product picks: never hidden off the edge — they wrap so every gift is visible and tappable */
+.s8-picks{flex-wrap:wrap!important;overflow:visible!important;-webkit-mask-image:none!important;mask-image:none!important;margin:0!important;padding:0!important}
+@media (max-width:900px){
+  .s8-picks{gap:6px!important}
+  .s8-picks button{padding:4px 12px 4px 4px!important;font-size:13px!important;gap:8px!important;min-height:44px}
+  html[dir="rtl"] .s8-picks button{padding:4px 4px 4px 12px!important}
+  .s8-picks button img{width:34px!important;height:34px!important}
+}
+/* occasion tiles: the name sits on its own white label, never on top of the writing in the photo */
+.s8-occ a{color:var(--ink)!important}
+.s8-occ a::after{display:none!important}
+.s8-occ span{inset-inline:auto!important;inset-inline-start:0!important;bottom:0!important;max-width:calc(100% - 24px);background:var(--wh);padding:10px 16px 10px;border-start-end-radius:var(--r);gap:0!important}
+.s8-occ b{color:var(--ink)!important;font-size:clamp(20px,2vw,28px)!important;overflow-wrap:anywhere}
+.s8-occ a.big b{font-size:clamp(24px,2.8vw,40px)!important}
+.s8-occ small{color:var(--text-2,var(--ink))!important;opacity:1!important;font-size:13px!important}
+/* product card badges never slide under the heart: stacked, and they keep clear of it */
+.pcard .ptags{display:flex!important;flex-direction:column;align-items:flex-start;gap:4px;inset-inline-end:auto!important;max-width:calc(100% - 76px);z-index:2}
+.pcard .ptags>*{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:560px){.pcard .wish{top:10px!important;inset-inline-end:10px!important}.pcard .ptags{top:10px!important;inset-inline-start:10px!important;max-width:calc(100% - 62px)}.pcard .ptag{font-size:11px!important;padding:3px 8px!important}}
+.pcard .wish{inset-inline-start:auto!important}
+bdi[dir="ltr"]{white-space:nowrap}
+/* admin numbers always fit their tile */
+.kpis{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))!important}
+.kpi{min-width:0;grid-template-columns:minmax(0,1fr)}
+.kpi>*{min-width:0;overflow-wrap:anywhere}
+.kpi b{font-size:clamp(26px,3.2vw,46px)!important;white-space:nowrap}
+.plz-hint{display:block;margin-top:6px;font-size:13px;color:var(--pu);line-height:1.4}
+.ft-logos{display:flex!important;flex-wrap:wrap;gap:8px}.ft-logos span{white-space:nowrap;padding:8px 14px!important;min-height:38px}

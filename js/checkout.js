@@ -161,9 +161,12 @@
   const fillList = (id, names) => { const dl = document.getElementById(id); if (dl) dl.innerHTML = [...new Set(names)].slice(0, 12).map(n => `<option value="${esc(n)}"></option>`).join(''); };
   K._plz = async function (k, el) {
     const a = CO[k]; const zip = String(a.zip || '');
+    if (el.dataset.co === k + '.zip' && !/^\d{5}$/.test(zip)) { const h = el.closest('.fld') && el.closest('.fld').querySelector('.plz-hint'); if (h) h.remove(); }
     if (el.dataset.co === k + '.zip' && /^\d{5}$/.test(zip)) {
       const list = await plzGet('Localities?postalCode=' + zip + '&pageSize=20'); const names = (Array.isArray(list) ? list : []).map(x => x.name).filter(Boolean);
       fillList('dl-' + k + '-city', names);
+      const zf = el.closest('.fld'); let hint = zf && zf.querySelector('.plz-hint');
+      if (zf && Array.isArray(list) && !names.length) { if (!hint) { hint = document.createElement('small'); hint.className = 'plz-hint'; hint.setAttribute('role', 'status'); zf.appendChild(hint); } hint.textContent = t('plz_unknown'); } else if (hint) hint.remove();
       const city = $(`[data-co="${k}.city"]`);
       if (names.length && city && (!a.city || !names.includes(a.city))) { a.city = names[0]; city.value = names[0]; city.closest('.fld') && city.closest('.fld').classList.remove('bad'); }
     }
