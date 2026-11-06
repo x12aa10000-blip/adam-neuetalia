@@ -159,28 +159,60 @@
         <div class="vbtns"><a class="btn gold" target="_blank" rel="noopener" href="https://wa.me/${esc(s.shop.wa)}">${ic('chat')} WhatsApp</a><a class="btn line-l" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.shop.name + ', ' + s.shop.street + ', ' + s.shop.city)}">${ic('route')} ${t('route')}</a></div></div>`;
   };
   S.searchIndex = null;
+  // everyday words people type for a category (DE / EN / Levantine + standard Arabic) – a match here ranks first
+  const SYN = {
+    schmuck: 'schmuck kette ketten halskette halsketten collier medaillon armband armbander ring ringe jewellery jewelry necklace chain bracelet pendant locket ring مجوهرات سلسله سلاسل سنسال سنسله طوق قلاده قلائد عقد اسواره اسوار خاتم ذهب',
+    anhaenger: 'schlusselanhanger keyring keychain مفاتيح ميداليه',
+    tassen: 'tasse tassen becher glas mug cup كوب كاسه فنجان مج',
+    kissen: 'kissen polster pillow cushion مخده وساده',
+    rosen: 'rose rosen rosenbox blumen box flowers ورد وردة ورود علبه بوكس',
+    gravur: 'holz gravur graviert wood engraving engraved خشب حفر',
+    textil: 'bestickt stickerei hoodie pullover embroidered تطريز هودي',
+    foto: 'foto bild photo picture صوره صور',
+    spotify: 'spotify song lied musik music اغنيه سبوتيفاي',
+    sets: 'set geschenkset gift set طقم اطقم',
+    deko: 'deko lampe licht decoration lamp ديكور لمبه ضو',
+    accessoires: 'accessoires zubehor accessories اكسسوارات'
+  };
+  // a term never matches inside these words (false friends of German compound search)
+  const NOT = { kette: ['plakette', 'etikette'], ketten: ['plaketten'] };
+  // words that mean the same thing as a word used in the German product names
+  const SAME = {}; [['kette', 'halskette necklace chain سلسله سنسال سنسله قلاده طوق عقد'], ['armband', 'bracelet اسواره اسوار'], ['ring', 'خاتم'],
+    ['tasse', 'mug cup كوب مج'], ['kissen', 'pillow cushion مخده وساده'], ['rose', 'roses ورد ورده ورود'], ['foto', 'photo picture صوره']]
+    .forEach(([k, v]) => v.split(' ').forEach(w => { SAME[C.norm(w)] = k; }));
   function index() {
     if (S.searchIndex) return S.searchIndex;
     S.searchIndex = ST.products().map(p => {
       const hay = ['de', 'en', 'ar'].map(l => [L(p.name, l), t('cat_' + p.cat, null, l), ...(p.occ || []).map(o => t('occ_' + o, null, l)), L(p.mat, l)].join(' ')).join(' ');
-      return { p, words: C.norm(hay).split(/[^\p{L}\p{N}]+/u).filter(w => w.length > 1), hay: C.norm(hay) };
+      const words = C.norm(hay).split(/[^\p{L}\p{N}]+/u).filter(w => w.length > 1);
+      const tags = C.norm((SYN[p.cat] || '') + ' ' + ['de', 'en', 'ar'].map(l => t('cat_' + p.cat, null, l)).join(' ')).split(/[^\p{L}\p{N}]+/u).filter(w => w.length > 1);
+      return { p, words, tags, hay: C.norm(hay) };
     });
     return S.searchIndex;
+  }
+  // 7 = category word that is also in the name, 5 = category word, 4 = word / word start, 3 = end of a compound (Herz-kette), 1 = typo
+  function hit(e, tm) {
+    const bad = NOT[tm] || [];
+    const ws = e.words.filter(w => !bad.includes(w));
+    const word = ws.some(w => w === tm || w.startsWith(tm)) ? 4 : tm.length > 3 && ws.some(w => w.endsWith(tm) || w.endsWith(tm + 'n')) ? 3 : 0;
+    const tag = e.tags.includes(tm) || e.tags.some(w => tm.length > 3 && w.startsWith(tm));
+    if (tag) return word ? 7 : 5; // the product's own name says it too → first
+    if (word) return word;
+    const tol = tm.length > 6 ? 2 : tm.length > 3 ? 1 : 0;
+    if (tol && Math.min(99, ...ws.map(w => C.lev(tm, w.slice(0, tm.length + 1)))) <= tol) return 1;
+    return 0;
   }
   S.search = function (q) {
     q = C.norm(q).trim(); if (!q) return [];
     const terms = q.split(/\s+/).filter(Boolean);
-    const out = [];
+    let out = [];
     for (const e of index()) {
-      let score = 0, ok = true;
-      for (const tm of terms) {
-        if (e.hay.includes(tm)) { score += 3; continue; }
-        const tol = tm.length > 6 ? 2 : tm.length > 3 ? 1 : 0;
-        const best = Math.min(99, ...e.words.map(w => C.lev(tm, w.slice(0, tm.length + 1))));
-        if (best <= tol) score += 1; else { ok = false; break; }
-      }
-      if (ok) out.push([score + (e.p.best ? .5 : 0), e.p]);
+      let score = 0, min = 9;
+      for (const tm of terms) { const h = Math.max(hit(e, tm), SAME[tm] ? hit(e, SAME[tm]) : 0); if (!h) { min = 0; break; } score += h; min = Math.min(min, h); }
+      if (min) out.push([score + (e.p.best ? .5 : 0), e.p, min]);
     }
+    // typo matches only when nothing real was found
+    if (out.some(x => x[2] > 1)) out = out.filter(x => x[2] > 1);
     return out.sort((a, b) => b[0] - a[0]).map(x => x[1]);
   };
   S.searchSheet = function () {

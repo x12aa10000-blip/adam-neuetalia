@@ -22,9 +22,13 @@
 
   const TABS = [
     ['', 'home', 'Übersicht'], ['bestellungen', 'inbox', 'Bestellungen'], ['produktion', 'layers', 'Produktion'], ['versand', 'truck', 'Versand'],
-    ['produkte', 'tag', 'Produkte', 1], ['kategorien', 'grid', 'Kategorien', 1], ['kunden', 'users', 'Kunden', 1], ['rabatte', 'gift', 'Rabatte & Gutscheine', 1], ['bewertungen', 'star', 'Bewertungen & Fragen'],
+    ['produkte', 'tag', 'Produkte', 1], ['kategorien', 'grid', 'Kategorien', 1], ['rabatte', 'gift', 'Rabatte & Gutscheine', 1], ['kunden', 'users', 'Kunden', 1], ['bewertungen', 'star', 'Bewertungen & Fragen'],
     ['emails', 'mail', 'E-Mails'], ['website', 'image', 'Website', 1], ['einstellungen', 'settings', 'Einstellungen', 1], ['aktivitaet', 'clock', 'Aktivität', 1]
   ];
+  const GROUP = { '': 'Tagesgeschäft', produkte: 'Sortiment', kunden: 'Kunden & Kontakt', website: 'Shop' };
+  const navLinks = (tab, open, qs) => { let g = null; return TABS.filter(x => !x[3] || isOwner()).map(([k, i, l]) => {
+    const grp = Object.prototype.hasOwnProperty.call(GROUP, k) ? GROUP[k] : g; const head = grp !== g ? `<p class="a-ng">${grp}</p>` : ''; g = grp;
+    return `${head}<a href="#/admin${k ? '/' + k : ''}"${k === tab ? ' aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'bestellungen' && open ? `<em>${open}</em>` : ''}${k === 'bewertungen' && qs ? `<em>${qs}</em>` : ''}</a>`; }).join(''); };
   function shell(tab, html) {
     C.applyLang(); document.documentElement.lang = 'de'; document.documentElement.dir = 'ltr';
     const s = session(); const open = ST.orders().filter(o => o.status === 'neu').length;
@@ -32,7 +36,7 @@
     app().className = 'adm';
     app().innerHTML = `<header class="a-top"><a class="a-logo" href="#/admin">Adam<span class="lg-dot" aria-hidden="true"></span></a><span class="a-sub">Verwaltung</span>
       <span class="sp"></span><a class="btn ghost sm" href="#/" target="_self">${ic('store')}<span class="lbl"> Shop ansehen</span></a><span class="a-user">${ic('user')} ${esc(s.user)}</span><button class="ibtn a-out" data-a="logout" aria-label="Abmelden">${ic('logout')}</button><button class="ibtn a-dots" data-a="anav" aria-label="Menü"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg></button></header>
-      <div class="a-body"><nav class="a-nav" aria-label="Verwaltung">${TABS.filter(x => !x[3] || isOwner()).map(([k, i, l]) => `<a href="#/admin${k ? '/' + k : ''}"${k === tab ? ' aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'bestellungen' && open ? `<em>${open}</em>` : ''}${k === 'bewertungen' && qs ? `<em>${qs}</em>` : ''}</a>`).join('')}</nav>
+      <div class="a-body"><nav class="a-nav" aria-label="Verwaltung">${navLinks(tab, open, qs)}</nav>
       <main class="a-main" id="amain">${html}</main></div>`;
   }
   A.show = function (parts) {
@@ -425,7 +429,7 @@
   A.navSheet = function () {
     const ov = C.sheet({ title: 'Verwaltung', start: false, foot: false, kind: 'side anav' });
     const open = ST.orders().filter(o => o.status === 'neu').length; const tab = (C.path().split('/')[2] || '');
-    ov.body.innerHTML = `<nav class="an-list">${TABS.filter(x => !x[3] || isOwner()).map(([k, i, l]) => `<a href="#/admin${k ? '/' + k : ''}"${k === tab ? ' aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'bestellungen' && open ? `<em>${open}</em>` : ''}</a>`).join('')}</nav>
+    ov.body.innerHTML = `<nav class="an-list">${navLinks(tab, open, 0)}</nav>
       <div class="an-foot"><a class="btn ghost block" href="#/">${ic('store')} Shop ansehen</a><button class="btn ghost block" data-a="logout">${ic('logout')} Abmelden (${esc((session() || {}).user || '')})</button></div>`;
   };
 

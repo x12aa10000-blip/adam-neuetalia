@@ -42,7 +42,22 @@
   };
   K.changeQty = function (id, d) { const c = ST.cart(); const it = c.find(i => i.id === id); if (!it) return; const q0 = it.qty; it.qty = Math.max(1, Math.min(50, it.qty + d)); if (it.pid === 'geschenkbox') c.filter(i => i.D && i.D.boxOf === id).forEach(i => { i.qty = Math.max(1, Math.round(i.qty / q0 * it.qty)); }); ST.saveCart(c); K.refresh(); };
   K.remove = function (id) { ST.saveCart(ST.cart().filter(i => i.id !== id && !(i.D && i.D.boxOf === id))); K.refresh(); C.toast(t('removed')); };
-  K.refresh = function () { SHOP.refreshHeader(); if ($('.ov .clines')) K.drawer(); else if (C.path().startsWith('/warenkorb')) K.page(); else if (C.path().startsWith('/kasse')) K.checkout(); };
+  // re-render the bag without moving anything: the open drawer is filled in place (no close/slide-in),
+  // and the page keeps its height and scroll position while previews redraw
+  K.refresh = function () {
+    SHOP.refreshHeader();
+    const lines = $('.ov .clines');
+    if (lines) {
+      const ov = lines.closest('.ov'); const y = $('.ov-body', ov).scrollTop; const orig = C.sheet;
+      C.sheet = () => { ov.body = $('.ov-body', ov); ov.foot = $('.ov-foot', ov); ov.panel = $('.ov-panel', ov); return ov; };
+      try { K.drawer(); } finally { C.sheet = orig; }
+      $('.ov-body', ov).scrollTop = y; return;
+    }
+    const path = C.path(); if (!path.startsWith('/warenkorb') && !path.startsWith('/kasse')) return;
+    const y = scrollY; const b = document.body; b.style.minHeight = document.documentElement.scrollHeight + 'px';
+    if (path.startsWith('/warenkorb')) K.page(); else K.checkout();
+    scrollTo(0, y); clearTimeout(K._rh); K._rh = setTimeout(() => { b.style.minHeight = ''; }, 900);
+  };
 
   /* ---------------- checkout ---------------- */
   let CO = null; // checkout state survives re-render

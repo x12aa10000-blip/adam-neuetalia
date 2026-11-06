@@ -51,6 +51,17 @@
     window.addEventListener('blur', mark, { once: true }); document.addEventListener('visibilitychange', mark, { once: true });
     setTimeout(() => { window.removeEventListener('blur', mark); if (!opened && !inp.files.length) { const h = $('#wvHint'); if (h) { h.innerHTML = ic('alert') + ' ' + esc(t('wv_hint')); h.hidden = false; } C.toast(t('wv_hint'), 'err'); } }, 1500);
   }, true);
+  // in-page anchors (e.g. "#reviews") must not reach the hash router, which would send the visitor to the home page
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]'); if (!a) return;
+    const h = a.getAttribute('href'); if (!h || h.length < 2 || h[1] === '/') return;
+    e.preventDefault();
+    let tgt = null; try { tgt = document.getElementById(decodeURIComponent(h.slice(1))); } catch (x) { }
+    if (!tgt) return;
+    if (tgt.tagName === 'DETAILS') tgt.open = true;
+    tgt.scrollIntoView({ block: 'start', behavior: C.reduced && C.reduced() ? 'auto' : 'smooth' });
+    const s = tgt.querySelector('summary'); if (s) setTimeout(() => s.focus({ preventScroll: true }), 400);
+  }, true);
   document.addEventListener('click', async e => {
     const el = e.target.closest('[data-dz],[data-a],[data-act],[data-lang],[data-hero],[data-sugg],[data-font],[data-color],[data-opt],[data-sym],[data-phfx],[data-view],[data-cow],[data-coaddr],[data-crop]');
     if (!el) return;

@@ -18,6 +18,7 @@
   const DICT = {
     'Neu': 'جديد', 'Freigabe': 'موافقة التصميم', 'In Produktion': 'قيد التحضير', 'Fertig': 'جاهز', 'Unterwegs': 'بالطريق', 'Erledigt': 'تم', 'Storniert': 'ملغي',
     'Abholung': 'استلام من المحل', 'Kurier Hamburg': 'توصيل هامبورغ', 'DHL EU': 'DHL أوروبا', 'Karte': 'بطاقة', 'Vorkasse': 'تحويل مسبق', 'Bar bei Abholung': 'كاش عند الاستلام',
+    'Tagesgeschäft': 'شغل اليوم', 'Sortiment': 'المنتجات والأسعار', 'Kunden & Kontakt': 'الزبائن والتواصل', 'Shop': 'المتجر',
     'Übersicht': 'نظرة عامة', 'Bestellungen': 'الطلبات', 'Produktion': 'التحضير', 'Versand': 'الشحن', 'Produkte': 'المنتجات', 'Kategorien': 'الأقسام', 'Kunden': 'الزبائن', 'Rabatte & Gutscheine': 'الخصومات وبطاقات الهدايا', 'Bewertungen & Fragen': 'التقييمات والأسئلة', 'E-Mails': 'الإيميلات', 'Einstellungen': 'الإعدادات', 'Aktivität': 'سجل النشاط', 'Website': 'تصميم الموقع',
     'Verwaltung': 'لوحة التحكم', 'Shop ansehen': 'عرض المتجر', 'Abmelden': 'تسجيل الخروج', 'Nur für Inhaber.': 'للمالك فقط.', 'Benutzer': 'المستخدم', 'PIN': 'الرمز (PIN)', 'Anmelden': 'دخول', 'Inhaber': 'المالك', 'Werkstatt': 'الورشة',
     'Demo: Inhaber-PIN': 'تجريبي: رمز المالك', ', Werkstatt-PIN': '، رمز الورشة', '. Der Werkstatt-Zugang sieht nur Bestellungen, Produktion und Versand.': '. حساب الورشة بيشوف الطلبات والتحضير والشحن بس.', '← Zurück zum Shop': '← رجوع للمتجر', 'Der Werkstatt-Zugang sieht nur Bestellungen, Produktion und Versand.': 'حساب الورشة بيشوف الطلبات والتحضير والشحن بس.',
