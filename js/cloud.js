@@ -117,7 +117,8 @@
   }
   /* the visitor's own orders survive a reload */
   const MY = 'an2:myOrders';
-  const loadMine = () => { try { return JSON.parse(localStorage.getItem(MY) || '[]'); } catch (e) { return []; } };
+  // guests: keep their own orders on this device for 48 h only (shared computers); accounts load them from the server
+  const loadMine = () => { try { const l = JSON.parse(localStorage.getItem(MY) || '[]'); const keep = custTok() ? l : l.filter(o => Date.now() - (o.created || 0) < 48 * 3600e3); if (keep.length !== l.length) localStorage.setItem(MY, JSON.stringify(keep)); return keep; } catch (e) { return []; } };
   const saveMine = list => { try { localStorage.setItem(MY, JSON.stringify(list.slice(0, 30))); } catch (e) { } };
   CL.keepOrder = function (o) {
     if (!o || !o.no) return;

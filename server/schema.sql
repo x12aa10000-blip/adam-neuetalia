@@ -179,6 +179,7 @@ create or replace function shop.send_mail(to_addr text, subj text, html text, ki
 declare key text; sender text; id text;
 begin
   id := 'm' || shop.ms(clock_timestamp())::text || encode(extensions.gen_random_bytes(3), 'hex');
+  subj := left(regexp_replace(coalesce(subj, ''), '[\r\n\t]+', ' ', 'g'), 200); -- no header injection
   select v into key from shop.secrets where k = 'resend_key';
   select v into sender from shop.secrets where k = 'mail_from';
   perform shop.item_put('email', id, jsonb_build_object('id', id, 'tpl', kind, 'to', to_addr, 'subject', subj, 'no', ref,
@@ -418,6 +419,8 @@ begin
     if octet_length(coalesce(it->'D', '{}'::jsonb)::text) > 60000 then perform shop.err('too_big'); end if;
     if coalesce(it->>'preview', '') <> '' and ((it->>'preview') !~ '^data:image/(jpeg|png);base64,[A-Za-z0-9+/=]+$' or length(it->>'preview') > 400000) then perform shop.err('preview'); end if;
     unit := shop.item_price(it, pr);
+    -- stock is checked on the server too (the shop also disables the button)
+    if it->>'pid' not in ('gutschein', 'geschenkbox') and coalesce((shop.kvget('prodOv', '{}'::jsonb)#>>array[it->>'pid', 'stock'])::int, 25) < (it->>'qty')::int then perform shop.err('product_unavailable'); end if;
     if abs(unit - coalesce((it->>'unit')::numeric, -1)) > 0.009 then mismatch := true; end if;
     prod := pr->(it->>'pid');
     nm := case it->>'pid' when 'gutschein' then coalesce(pr#>'{_names,gutschein}', '{"de":"Geschenkgutschein","en":"Gift card","ar":"بطاقة هدية"}'::jsonb)
@@ -515,6 +518,7 @@ create or replace function public.shop_order_get(p_no text, p_email text) return
 declare o jsonb;
 begin
   perform shop.limit_hits('track', 20, interval '10 minutes');
+  perform shop.limit_hits('track_no', 15, interval '1 hour', upper(trim(coalesce(p_no, ''))));
   select data into o from shop.items where kind = 'order' and id = upper(trim(p_no));
   if o is null or lower(o#>>'{cust,email}') <> lower(trim(coalesce(p_email, ''))) then return null; end if;
   return shop.order_public(o);
@@ -829,6 +833,8 @@ begin
   for k, v in select key, value from jsonb_each(coalesce(p_kv, '{}'::jsonb)) loop
     if not (k = any(allowed_kv)) then perform shop.err('forbidden'); end if;
     if s.role <> 'owner' then perform shop.err('forbidden'); end if;
+    if k = 'coupons' and (jsonb_typeof(v) <> 'array' or exists (select 1 from jsonb_array_elements(v) c where jsonb_typeof(c->'value') <> 'number'
+        or coalesce(c->>'code', '') !~ '^[A-Z0-9_-]{2,40}$' or coalesce(c->>'type', '') not in ('pct', 'eur'))) then perform shop.err('fields'); end if;
     perform shop.kvset(k, v - 'staff');
   end loop;
   for it in select * from jsonb_array_elements(coalesce(p_items, '[]'::jsonb)) loop
@@ -1009,3 +1015,14 @@ begin
   end loop;
 end $$;
 revoke all on all functions in schema shop from public;
+
+-- ---------------------------------------------------------------------
+-- Härtung: feste search_path für alle internen Funktionen (Supabase-Linter: function_search_path_mutable)
+-- ---------------------------------------------------------------------
+do $$
+declare f record;
+begin
+  for f in select p.oid::regprocedure as sig from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'shop' loop
+    execute format('alter function %s set search_path = %L', f.sig, '');
+  end loop;
+end $$;

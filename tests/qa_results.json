@@ -1,5 +1,23 @@
 {
- "pages_checked": 156,
- "problems": [],
+ "pages_checked": 172,
+ "problems": [
+  {
+   "view": "mobile",
+   "lang": "de",
+   "route": "#/p/song-plakette",
+   "errors": [
+    "console: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED"
+   ]
+  },
+  {
+   "view": "mobile",
+   "lang": "de",
+   "route": "#/p/kette-spotify",
+   "errors": [
+    "console: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED",
+    "console: Failed to load resource: net::ERR_TUNNEL_CONNECTION_FAILED"
+   ]
+  }
+ ],
  "dead_links": []
 }

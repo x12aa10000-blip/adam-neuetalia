@@ -258,18 +258,18 @@
         const lab = t(f.label); const val = Dz.f[f.id] != null ? Dz.f[f.id] : f.def;
         if (f.type === 'text' || f.type === 'textarea') {
           const fonts = !f.sf ? (f.fonts || []) : []; const cur = Dz.font[f.id] || fonts[0];
-          h += `<div class="fld" data-qf="${f.id}"><label class="lb" for="q_${f.id}">${lab}${f.optional ? `<small>${t('optional')}</small>` : ''}</label>${f.type === 'textarea' ? `<textarea class="in" rows="${f.lines || 2}" id="q_${f.id}" data-qfield="${f.id}" maxlength="${f.max || 80}">${esc(val)}</textarea>` : `<input class="in" id="q_${f.id}" data-qfield="${f.id}" maxlength="${f.max || 30}" value="${esc(val)}" autocomplete="off">`}
+          h += `<div class="fld" data-qf="${f.id}"><label class="lb" for="q_${f.id}">${esc(lab)}${f.optional ? `<small>${t('optional')}</small>` : ''}</label>${f.type === 'textarea' ? `<textarea class="in" rows="${f.lines || 2}" id="q_${f.id}" data-qfield="${f.id}" maxlength="${f.max || 80}">${esc(val)}</textarea>` : `<input class="in" id="q_${f.id}" data-qfield="${f.id}" maxlength="${f.max || 30}" value="${esc(val)}" autocomplete="off">`}
             ${fonts.length > 1 ? `<div class="fonts">${fonts.slice(0, 8).map(fid => `<button type="button" data-qfont="${f.id}" data-val="${fid}" aria-checked="${fid === cur}" style="font-family:'${ENG.fam(fid)}'">${esc(PDP.fontSample(f, val, fid))}</button>`).join('')}</div>` : ''}
             ${!f.sf && f.colors && f.colors.length > 1 ? `<div class="sws">${f.colors.map(c => `<button type="button" class="sw" data-qcol="${f.id}" data-val="${c.id}" role="radio" aria-checked="${(Dz.color[f.id] || f.colors[0].id) === c.id}" style="--c:${c.hex}" title="${esc(L(c.l))}"><span class="vh">${esc(L(c.l))}</span></button>`).join('')}</div>` : ''}</div>`;
         } else if (f.type === 'photo') {
           const ph = Dz.ph[f.id];
-          h += `<div class="fld" data-qf="${f.id}"><span class="lb">${lab}${f.optional ? `<small>${t('optional')}</small>` : ''}</span><label class="drop">${ic(ph ? 'check' : 'camera')}<b>${ph ? t('photo_replace') : t('photo_add')}</b><input type="file" accept="image/*" data-qphoto="${f.id}"></label></div>`;
+          h += `<div class="fld" data-qf="${f.id}"><span class="lb">${esc(lab)}${f.optional ? `<small>${t('optional')}</small>` : ''}</span><label class="drop">${ic(ph ? 'check' : 'camera')}<b>${ph ? t('photo_replace') : t('photo_add')}</b><input type="file" accept="image/*" data-qphoto="${f.id}"></label></div>`;
         } else if (f.type === 'spotify') {
-          h += `<div class="fld" data-qf="${f.id}"><label class="lb" for="q_${f.id}">${lab}</label><input class="in" id="q_${f.id}" data-qfield="${f.id}" inputmode="url" placeholder="https://open.spotify.com/track/…" value="${esc(val)}"></div>`;
+          h += `<div class="fld" data-qf="${f.id}"><label class="lb" for="q_${f.id}">${esc(lab)}</label><input class="in" id="q_${f.id}" data-qfield="${f.id}" inputmode="url" placeholder="https://open.spotify.com/track/…" value="${esc(val)}"></div>`;
         } else if (f.type === 'date') {
-          h += `<div class="fld"><label class="lb" for="q_${f.id}">${lab}</label><input class="in" type="date" id="q_${f.id}" data-qfield="${f.id}" value="${esc(val)}"></div>`;
+          h += `<div class="fld"><label class="lb" for="q_${f.id}">${esc(lab)}</label><input class="in" type="date" id="q_${f.id}" data-qfield="${f.id}" value="${esc(val)}"></div>`;
         } else if (f.type === 'stone') {
-          h += `<div class="fld"><label class="lb" for="q_${f.id}">${lab}</label><select class="in" id="q_${f.id}" data-qfield="${f.id}">${f.choices.map(x => `<option value="${x.id}"${x.id === val ? ' selected' : ''}>${esc(L(x.l))}</option>`).join('')}</select></div>`;
+          h += `<div class="fld"><label class="lb" for="q_${f.id}">${esc(lab)}</label><select class="in" id="q_${f.id}" data-qfield="${f.id}">${f.choices.map(x => `<option value="${x.id}"${x.id === val ? ' selected' : ''}>${esc(L(x.l))}</option>`).join('')}</select></div>`;
         }
       }
       return h;

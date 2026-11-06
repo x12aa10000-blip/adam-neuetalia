@@ -37,7 +37,7 @@
   const methodName = (m, lang) => t('m_' + m, null, lang);
   const trackUrl = code => 'https://www.dhl.de/de/privatkunden/dhl-sendungsverfolgung.html?piececode=' + encodeURIComponent(code || '');
   DOCS.trackUrl = trackUrl;
-  const btn = (href, label) => `<p style="margin:26px 0"><a href="${href}" style="display:inline-block;background:#333333;color:rgba(254,144,190,0.223);padding:14px 24px;text-decoration:none;font-weight:500">${esc(label)}</a></p>`;
+  const btn = (href, label) => `<p style="margin:26px 0"><a href="${esc(href)}" style="display:inline-block;background:#333333;color:#FFFFFF;padding:14px 24px;text-decoration:none;font-weight:500">${esc(label)}</a></p>`;
   function itemsTable(o, lang, hidePrices) {
     return `<table style="width:100%;border-collapse:collapse;margin:18px 0">${o.items.map(it => `<tr><td style="padding:10px 0;width:76px;vertical-align:top"><img src="${esc(it.preview || '')}" width="64" height="64" alt="" style="display:block;width:64px;height:64px;object-fit:cover;background:rgba(51,51,51,0.083)"></td>
       <td style="padding:10px 12px;vertical-align:top"><b>${esc(L(it.name, lang))}</b><br><span style="color:rgba(51,51,51,0.814);font-size:14px">${esc(DOCS.linesText(it, lang))}</span><br><span style="color:rgba(51,51,51,0.814);font-size:14px">${t('qty', null, lang)}: ${it.qty}</span></td>
@@ -57,7 +57,7 @@
     const o = m.no ? ST.order(m.no) : null; const lang = m.lang || 'de'; const s = ST.settings(); const x = m.extra || {};
     const name = o ? (o.cust.name || '').replace(/^Beispiel:\s*/, '').split(' ')[0] : '';
     const hi = name ? t('ml_hi', { n: esc(name) }, lang) : t('ml_hi0', null, lang);
-    const trackHref = o ? `#/verfolgen/${o.no}?e=${encodeURIComponent(o.cust.email)}` : '#/verfolgen';
+    const base = String((ST.settings().shop || {}).url || '').replace(/[#?].*$/, ''); const trackHref = (base || '') + (o ? `#/verfolgen/${encodeURIComponent(o.no)}?e=${encodeURIComponent(o.cust.email)}` : '#/verfolgen');
     let subject = '', body = '';
     switch (m.tpl) {
       case 'confirm':

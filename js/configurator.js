@@ -79,7 +79,7 @@
           <button class="ibtn wishbig${wished ? ' on' : ''}" data-act="wish" data-id="${esc(p.id)}" aria-pressed="${wished}" aria-label="${esc(t('wishlist'))}">${ic('heart')}</button>
         </div>
         <div class="minor"><button class="link" data-act="save-design">${ic('heart')} ${t('save_design')}</button><button class="link" data-act="share-design">${ic('share')} ${t('share_design')}</button></div>
-        ${(() => { const c = ST.coupons().find(c => c.on && c.type === 'pct' && (!c.until || new Date(c.until) > new Date())); return c ? `<p class="promo-bar">${ic('gift')} <span>${t('promo_code', { n: c.value })}</span> <b>${esc(c.code)}</b></p>` : ''; })()}
+        ${(() => { const c = ST.coupons().find(c => c.on && c.type === 'pct' && (!c.until || new Date(c.until) > new Date())); return c ? `<p class="promo-bar">${ic('gift')} <span>${t('promo_code', { n: esc(c.value) })}</span> <b>${esc(c.code)}</b></p>` : ''; })()}
         <ul class="trust"><li>${ic('store')} ${t('trust_made')}</li><li>${ic('eye')} ${t('trust_proof')}</li><li>${ic('gift')} ${t('trust_wrap', { p: eur(s.wrap) })}</li></ul>
       </div>
     </div>
@@ -140,7 +140,7 @@
         const master = !f.sf;
         const fonts = master ? (f.fonts || []) : [];
         const curFont = D.font[f.id] || fonts[0];
-        h += `<div class="fld" data-fid="${f.id}"><label class="lb" for="f_${f.id}">${lab}<small data-count="${f.id}">${String(val).length}/${f.max || 30}</small></label>
+        h += `<div class="fld" data-fid="${f.id}"><label class="lb" for="f_${f.id}">${esc(lab)}<small data-count="${f.id}">${String(val).length}/${f.max || 30}</small></label>
           ${f.type === 'textarea' ? `<textarea class="in" id="f_${f.id}" data-field="${f.id}" maxlength="${f.max || 80}" rows="${f.lines || 2}">${esc(val)}</textarea>` : `<input class="in" id="f_${f.id}" data-field="${f.id}" maxlength="${f.max || 30}" value="${esc(val)}" autocomplete="off">`}
           ${f.upper ? `<p class="hint">${t('upper_hint')}</p>` : ''}
           ${fonts.length > 1 ? `<div class="fonts" role="radiogroup" aria-label="${esc(t('font'))}">${fonts.map(id => `<button type="button" role="radio" data-font="${f.id}" data-val="${id}" aria-checked="${id === curFont}" style="font-family:'${ENG.fam(id)}'">${esc(P.fontSample(f, val, id))}</button>`).join('')}</div>` : ''}
@@ -150,20 +150,20 @@
         </div>`;
       } else if (f.type === 'spotify') {
         const u = ENG.spotifyUri(val);
-        h += `<div class="fld spf" data-fid="${f.id}"><label class="lb" for="f_${f.id}"><span class="sp-ico">${SPOTIFY_ICON}</span> ${lab}${f.optional ? `<small>${t('optional')}</small>` : ''}</label>
+        h += `<div class="fld spf" data-fid="${f.id}"><label class="lb" for="f_${f.id}"><span class="sp-ico">${SPOTIFY_ICON}</span> ${esc(lab)}${f.optional ? `<small>${t('optional')}</small>` : ''}</label>
           <input class="in" id="f_${f.id}" data-field="${f.id}" inputmode="url" autocomplete="off" placeholder="https://open.spotify.com/track/…" value="${esc(val)}">
           <p class="hint" data-sphint="${f.id}">${val && !u ? `<span class="warn">${t('sp_bad')}</span>` : u ? `${ic('check')} ${t('sp_ok')}` : t('sp_how')}</p>
           ${u ? `<div class="sp-real"><img src="${esc(ENG.spotifyCodeUrl(u))}" alt="Spotify Code" width="320" height="80" loading="lazy" referrerpolicy="no-referrer"><small>${t('sp_scan')}</small></div>` : ''}
         </div>`;
       } else if (f.type === 'date') {
-        h += `<div class="fld"><label class="lb" for="f_${f.id}">${lab}</label><input class="in" type="date" id="f_${f.id}" data-field="${f.id}" value="${esc(val)}"></div>`;
+        h += `<div class="fld"><label class="lb" for="f_${f.id}">${esc(lab)}</label><input class="in" type="date" id="f_${f.id}" data-field="${f.id}" value="${esc(val)}"></div>`;
       } else if (f.type === 'stone') {
         const c = f.choices.find(c => c.id === val) || f.choices[0];
-        h += `<div class="fld stone"><label class="lb" for="f_${f.id}">${lab}</label><div class="stonerow"><span class="gem" style="--c:${c.hex}"></span><select class="in" id="f_${f.id}" data-field="${f.id}">${f.choices.map(x => `<option value="${x.id}"${x.id === val ? ' selected' : ''}>${esc(L(x.l))}</option>`).join('')}</select></div></div>`;
+        h += `<div class="fld stone"><label class="lb" for="f_${f.id}">${esc(lab)}</label><div class="stonerow"><span class="gem" style="--c:${c.hex}"></span><select class="in" id="f_${f.id}" data-field="${f.id}">${f.choices.map(x => `<option value="${x.id}"${x.id === val ? ' selected' : ''}>${esc(L(x.l))}</option>`).join('')}</select></div></div>`;
       } else if (f.type === 'photo') {
         const ph = D.ph[f.id];
         const warn = ph && ph.low ? `<p class="warn small">${ic('alert')} ${t('photo_low')}</p>` : '';
-        h += `<div class="fld photo" data-fid="${f.id}"><span class="lb">${lab}${f.optional ? `<small>${t('optional')}</small>` : ''}</span>
+        h += `<div class="fld photo" data-fid="${f.id}"><span class="lb">${esc(lab)}${f.optional ? `<small>${t('optional')}</small>` : ''}</span>
           ${ph && ph.src ? `<div class="phrow"><img class="phthumb" data-thumb="${f.id}" alt="" width="64" height="64"><div class="phbtns"><button type="button" class="btn ghost sm" data-act="ph-edit" data-f="${f.id}">${ic('move')} ${t('photo_edit')}</button><label class="btn ghost sm upl">${ic('upload')} ${t('photo_replace')}<input type="file" accept="image/*" data-upload="${f.id}"></label><button type="button" class="ibtn" data-act="ph-del" data-f="${f.id}" aria-label="${esc(t('remove'))}">${ic('trash')}</button></div></div>${warn}
             ${(f.fx || []).length > 1 ? `<div class="seg sm">${f.fx.map(x => `<button type="button" data-phfx="${f.id}" data-val="${x}" aria-pressed="${(ph.fx || f.fx[0]) === x}">${t('fx_' + x)}</button>`).join('')}</div>` : ''}` :
             `<label class="drop">${ic('camera')}<b>${t('photo_add')}</b><small>${t('photo_hint')}</small><input type="file" accept="image/*" data-upload="${f.id}"></label>`}

@@ -82,11 +82,9 @@ check('Complaint on someone else\'s order fails', 'Medium', err(call('shop_order
 # --- admin area ---------------------------------------------------------------
 check('Admin data without token denied', 'Critical', err(call('shop_admin_pull', {'p_token': None, 'p_since': 0})) == 'auth')
 check('Admin data with random token denied', 'Critical', err(call('shop_admin_pull', {'p_token': 'f' * 64, 'p_since': 0})) == 'auth')
-check('Customer token cannot open admin', 'Critical', True)  # filled in below
 c = call('shop_cust_register', {'p_name': 'Kunde', 'p_email': f'k{random.randint(1,10**9)}@example.org', 'p_phone': '', 'p_pw': 'KundePass99', 'p_marketing': False})
 ctok = c[1]['token'] if c[0] == 200 else None
-R[-1] = ('Customer token cannot open admin', 'Critical', err(call('shop_admin_pull', {'p_token': ctok, 'p_since': 0})) == 'auth', '')
-print(('PASS ' if R[-1][2] else 'FAIL ') + '[Critical] Customer token cannot open admin (re-checked)')
+check('Customer token cannot open admin', 'Critical', ctok and err(call('shop_admin_pull', {'p_token': ctok, 'p_since': 0})) == 'auth')
 check('Customer cannot push admin data', 'Critical', err(call('shop_admin_push', {'p_token': ctok, 'p_kv': {'settings': {}}, 'p_items': []})) == 'auth')
 call('shop_admin_user_set', {'p_token': owner, 'p_user': 'Werkstatt', 'p_pw': 'Werkstatt-Pass-1', 'p_role': 'staff', 'p_delete': False})
 staff = call('shop_admin_login', {'p_user': 'Werkstatt', 'p_pw': 'Werkstatt-Pass-1'})[1]['token']
