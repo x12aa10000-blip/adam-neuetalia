@@ -60,6 +60,14 @@
   };
 
   /* ---------------- checkout ---------------- */
+  /* re-draw the form without losing scroll position, focus or caret */
+  K._keep = function () {
+    const y = scrollY, b = document.body, ae = document.activeElement, key = ae && ae.dataset && ae.dataset.co, pos = ae && ae.selectionStart;
+    b.style.minHeight = document.documentElement.scrollHeight + 'px'; document.documentElement.classList.add('n-still');
+    K.checkout(); scrollTo(0, y); requestAnimationFrame(() => scrollTo(0, y));
+    if (key) { const el = $(`[data-co="${key}"]`); if (el) { el.focus({ preventScroll: true }); try { if (pos != null) el.setSelectionRange(pos, pos); } catch (e) { } } }
+    clearTimeout(K._rh); K._rh = setTimeout(() => { b.style.minHeight = ''; document.documentElement.classList.remove('n-still'); }, 900);
+  };
   let CO = null; // checkout state survives re-render
   const blankCO = () => { const me = ST.me(); const s = ST.settings(); const a = me && me.addresses && me.addresses[0];
     return { name: me ? me.name : '', email: me ? me.email : '', phone: me ? me.phone || '' : '', method: 'dhl', addr: a ? Object.assign({}, a) : { name: '', street: '', zip: '', city: '', country: 'DE' }, sameBill: true, bill: { name: '', street: '', zip: '', city: '', country: 'DE' },
@@ -184,12 +192,12 @@
     if ((part === 'addr' || part === 'bill') && k.endsWith('.zip') && deAddr(part)) { const d = String(v).replace(/\D/g, '').slice(0, 5); if (d !== v) { v = d; el.value = d; } }
     setPath(CO, k, v);
     if ((part === 'addr' || part === 'bill') && (k.endsWith('.zip') || k.endsWith('.street')) && deAddr(part)) { clearTimeout(K._pt); K._pt = setTimeout(() => K._plz(part, el), 350); }
-    if (RERENDER.includes(k) || (k === 'addr.zip' && CO.method === 'local' && String(v).length >= 5)) { const y = scrollY; K.checkout(); scrollTo(0, y); }
+    if (RERENDER.includes(k) || (k === 'addr.zip' && CO.method === 'local' && String(v).length >= 5)) { K._keep(); }
     return true;
   };
   K.onClick = function (el) {
     if (el.dataset.cow) { CO.window = el.dataset.cow; $$('[data-cow]').forEach(b => b.setAttribute('aria-pressed', String(b === el))); return true; }
-    if (el.dataset.coaddr != null) { const me = ST.me(); CO.addr = Object.assign({}, me.addresses[+el.dataset.coaddr]); const y = scrollY; K.checkout(); scrollTo(0, y); return true; }
+    if (el.dataset.coaddr != null) { const me = ST.me(); CO.addr = Object.assign({}, me.addresses[+el.dataset.coaddr]); K._keep(); return true; }
     switch (el.dataset.act) {
       case 'cq': K.changeQty(el.dataset.id, +el.dataset.d); return true;
       case 'crm': K.remove(el.dataset.id); return true;
@@ -201,7 +209,7 @@
     }
     return false;
   };
-  const rr = () => { const y = scrollY; K.checkout(); scrollTo(0, y); };
+  const rr = () => { K._keep(); };
   function validate() {
     const bad = [];
     const em = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

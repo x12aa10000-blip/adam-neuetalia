@@ -252,7 +252,7 @@
     const links = [['#/anlass', 'gift', t('nav_occ')], ['#/gutschein', 'cards', t('nav_gift')], ['#/verfolgen', 'truck', t('track_title')], ['#/konto', 'user', t('account')], ['#/wunschliste', 'heart', t('wishlist')], ['#/hilfe', 'chat', t('nav_help')]];
     ov.body.innerHTML = `<button type="button" class="n-msearch" data-act="search">${ic('search')}<span>${esc(t('search_ph'))}</span></button>
       <h3 class="n-mh">${t('categories')}</h3>
-      <div class="n-mcats">${cats.map(c => `<a class="n-mcat" href="#/c/${c}"><span class="n-mimg"><img src="${esc(S.catImg(c))}" alt="" loading="lazy" width="240" height="240"></span><b>${t('cat_' + c)}</b></a>`).join('')}</div>
+      <div class="n-mcats">${cats.map(c => `<a class="n-mcat" href="#/c/${c}"><b>${t('cat_' + c)}</b>${ic('chev', 'chev')}</a>`).join('')}</div>
       <a class="n-btn n-dark n-mall" href="#/c/alle">${t('nav_shop')}${ic('chev')}</a>
       <nav class="n-mlinks">${links.map(([h, i, l]) => `<a href="${h}">${ic(i)}<span>${l}</span>${ic('chev', 'chev')}</a>`).join('')}</nav>
       <h3 class="n-mh">${t('language')}</h3>

@@ -330,3 +330,11 @@ html .ov.top.out .ov-panel { animation: ovRise .3s cubic-bezier(.4, 0, 1, 1) bot
   html .ov.modal.out .ov-panel { animation: ovDown .3s cubic-bezier(.4, 0, 1, 1) both; }
 }
 html .ov-head .ibtn { flex: none; min-width: 42px; }
+.n-still #main { animation: none !important; }
+
+/* category menu without pictures: calm two-column tiles */
+.n-mcats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.n-mcat { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 58px; padding: 10px 16px; border-radius: 20px; background: var(--n-rose); text-align: start; }
+.n-mcat:nth-child(4n+2), .n-mcat:nth-child(4n+3) { background: var(--n-mint); }
+.n-mcat b { font: 600 15px/1.25 "Adam UI", sans-serif; }
+.n-mcat .chev { width: 16px; height: 16px; flex: none; opacity: .45; fill: none; stroke: currentColor; } [dir=rtl] .n-mcat .chev { transform: scaleX(-1); }
