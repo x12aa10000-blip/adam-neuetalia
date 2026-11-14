@@ -72,19 +72,38 @@
       <p class="n-foot-z"><span>${esc(s.shop.name)} · ${esc(s.shop.street)} · ${esc(s.shop.zip)} ${esc(s.shop.city)}</span><span>${t('n_prices')}</span></p>
     </div></footer>`;
   };
+  const tabIdx = () => { const p = C.path(); return p === '/' ? 0 : p.startsWith('/wunschliste') ? 3 : -1; };
   S.tabbar = function () {
-    const n = ST.cartCount(), p = C.path();
-    const cur = k => (k === 'home' ? p === '/' : k === 'wish' ? p.startsWith('/wunschliste') : false) ? ' class="on"' : '';
-    return `<nav class="n-tabs" aria-label="${esc(t('menu'))}">
+    const n = ST.cartCount(), i = tabIdx(), prev = S._ti == null ? Math.max(i, 0) : S._ti;
+    const cur = k => (k === 'home' ? i === 0 : k === 'wish' ? i === 3 : false) ? ' class="on"' : '';
+    return `<nav class="n-tabs" aria-label="${esc(t('menu'))}" style="--i:${prev};--o:${S._ti == null ? (i < 0 ? 0 : 1) : 1}">
       <a href="#/"${cur('home')}>${ic('home')}<span>${t('tab_home')}</span></a>
       <button type="button" data-act="menu">${ic('grid')}<span>${t('tab_cats')}</span></button>
       <button type="button" data-act="search">${ic('search')}<span>${t('search')}</span></button>
       <a href="#/wunschliste"${cur('wish')}>${ic('heart')}<span>${t('wishlist')}</span></a>
       <button type="button" data-act="cart">${ic('bag')}<span>${t('cart')}</span>${n ? `<i class="n-cnt">${n}</i>` : ''}</button></nav>`;
   };
+  /* slide the pill from where it was to where the current page is */
+  S.tabsSync = function () {
+    const nav = $('nav.n-tabs'); if (!nav) return; const i = tabIdx();
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (i < 0) { nav.style.setProperty('--o', '0'); return; }
+      nav.style.setProperty('--o', '1'); nav.style.setProperty('--i', String(i)); S._ti = i;
+    }));
+  };
+  const after0 = S.after; S.after = function () { const r = after0.apply(this, arguments); S.tabsSync(); return r; };
+  /* a tap on a tab slides the pill there at once, then it returns to the current page */
+  document.addEventListener('pointerdown', e => {
+    const b = e.target.closest && e.target.closest('.n-tabs > a, .n-tabs > button'); if (!b) return;
+    const nav = b.parentNode, k = [...nav.children].indexOf(b); nav.style.setProperty('--o', '1'); nav.style.setProperty('--i', String(k));
+    if (b.tagName === 'BUTTON') setTimeout(() => { const n2 = $('nav.n-tabs'); if (n2) { const i = tabIdx(); n2.style.setProperty('--i', String(i < 0 ? (S._ti || 0) : i)); if (i < 0) n2.style.setProperty('--o', '0'); } }, 520);
+  }, { passive: true });
+  /* hide the floating assistant button while scrolling */
+  let sct = 0; window.addEventListener('scroll', () => { document.body.classList.add('n-scrolling'); clearTimeout(sct); sct = setTimeout(() => document.body.classList.remove('n-scrolling'), 650); }, { passive: true });
   S.refreshHeader = function () {
     const swap = (sel, html, pick) => { const el = $(sel); if (!el) return; const d = document.createElement('div'); d.innerHTML = html; const nw = d.querySelector(pick); if (nw) el.replaceWith(nw); };
-    swap('header.n-top', S.header(), 'header.n-top'); swap('nav.n-tabs', S.tabbar(), 'nav.n-tabs');
+    swap('header.n-top', S.header(), 'header.n-top');
+    { const nav = $('nav.n-tabs'); if (nav) { const d = document.createElement('div'); d.innerHTML = S.tabbar(); const nw = d.querySelector('nav.n-tabs'); if (nw) { const i = nav.style.getPropertyValue('--i'), o = nav.style.getPropertyValue('--o'); nav.innerHTML = nw.innerHTML; nav.style.setProperty('--i', i); nav.style.setProperty('--o', o); } } }
   };
 
   /* ---------------- product card ---------------- */

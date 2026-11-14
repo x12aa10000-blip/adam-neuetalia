@@ -145,7 +145,7 @@ body, .shop { font-family: "Adam UI", system-ui, sans-serif; color: var(--n-body
   .n-fav { width: 38px; height: 38px; inset-inline-end: 8px; top: 8px; } .n-badge { inset-inline-start: 8px; top: 8px; font-size: 12px; padding: 4px 11px; }
   .n-how, .n-occ-a, .n-occ-b, .n-news, .n-camp { border-radius: 30px; } .n-how { padding: 28px 18px; } .n-steps li { padding: 16px; gap: 16px; }
   .n-occ, .n-visit, .n-facts, .n-revs { grid-template-columns: minmax(0, 1fr); } .n-finder { grid-template-columns: 1fr; } .n-camp { flex-direction: column; align-items: flex-start; }
-  .n-pillform { flex-direction: column; border-radius: 28px; } .n-pillform input { height: 54px; } .n-pillform .n-btn { width: 100%; }
+  .n-pillform { flex-direction: column; border-radius: 28px; } .n-pillform input { flex: none; width: 100%; height: 54px; } .n-pillform .n-btn { flex: none; width: 100%; }
   .n-foot { border-radius: 30px 30px 0 0; } .n-foot-in { grid-template-columns: 1fr 1fr; } .n-foot-a { grid-column: 1 / -1; }
   .n-tabs { position: fixed; z-index: 40; inset-inline: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px; background: color-mix(in srgb, #fff 94%, transparent); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); border-radius: 28px; box-shadow: var(--n-shm), 0 0 0 1px var(--n-line); }
   .n-tabs a, .n-tabs button { position: relative; display: grid; justify-items: center; gap: 2px; padding: 9px 2px 7px; border: 0; background: none; border-radius: 22px; font: 600 12px "Adam UI", sans-serif; color: var(--n-soft); cursor: pointer; } .n-tabs .ic { width: 22px; height: 22px; } .n-tabs .on { background: var(--n-rose2); color: var(--n-ink); }
@@ -174,3 +174,75 @@ body, .shop { font-family: "Adam UI", system-ui, sans-serif; color: var(--n-body
 
 /* checkout is a focused flow: no tab bar on top of the form */
 @media (max-width: 760px) { body:has(.pg-checkout) .n-tabs { display: none; } }
+
+
+/* ===== v9.1: fixes from the phone review ===== */
+/* cards: the text column may never be wider than the card; price and button wrap instead of overflowing */
+.n-card { min-width: 0; }
+.n-card-b { grid-template-columns: minmax(0, 1fr); }
+.n-card-b > * { min-width: 0; }
+.n-card-f { flex-wrap: wrap; row-gap: 10px; }
+.n-card-f .price { white-space: nowrap; }
+.n-go { max-width: 100%; text-align: center; }
+@media (max-width: 760px) {
+  .n-card-f { flex-direction: column; align-items: stretch; gap: 10px; }
+  .n-card-f .n-go { width: 100%; min-height: 42px; }
+  .n-card-f .price { font-size: 18px; }
+}
+
+/* one focus ring only (the container's), never a second outline on the inner field */
+.shop .n-namer input:focus, .shop .n-namer input:focus-visible,
+.shop .n-pillform input:focus, .shop .n-pillform input:focus-visible,
+.shop .n-sel:focus:not(:focus-visible) { outline: 0 !important; box-shadow: none !important; border: 0 !important; background: none !important; }
+.shop .n-pillform:focus-within, .shop .n-namer:focus-within { box-shadow: 0 0 0 3px var(--n-tq), var(--n-shm); }
+
+/* touch feedback: no sticky hover on phones, a springy press instead */
+.n-btn, .n-go, .n-ico, .n-fav, .n-chips a, .n-lang, .n-more, .n-tabs a, .n-tabs button, .n-cat, .n-card-img, .n-links a { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.n-btn, .n-go, .n-ico, .n-fav, .n-chips a { transition: transform .38s cubic-bezier(.34, 1.56, .64, 1), box-shadow .25s, background .2s; will-change: transform; }
+.n-card-img, .n-cat-img { transition: transform .4s cubic-bezier(.34, 1.4, .64, 1), box-shadow .4s; }
+@media (hover: none) {
+  .n-btn:hover, .n-go:hover, .n-chips a:hover, .n-fav:hover, .n-cat:hover .n-cat-img, .n-card:hover .n-card-img img, .n-cat:hover img { transform: none; box-shadow: none; }
+  .n-btn.n-line:hover { background: #fff; } .n-ico:hover, .n-links a:hover { background: none; }
+}
+.n-btn:active, .n-go:active, .n-chips a:active { transform: scale(.95); box-shadow: none; transition-duration: .12s; }
+.n-ico:active, .n-fav:active { transform: scale(.86); transition-duration: .12s; background: var(--n-rose); }
+.n-card:active .n-card-img, .n-cat:active .n-cat-img { transform: scale(.972); transition-duration: .14s; }
+.n-lang { transition: background .25s, color .25s, box-shadow .25s; }
+
+/* soft page entrance (opacity only, so fixed bars are never shifted) */
+@keyframes nPage { from { opacity: 0; } to { opacity: 1; } }
+#main { animation: nPage .32s var(--n-ease) both; }
+
+/* glass header */
+.n-top { background: color-mix(in srgb, #fff 68%, transparent); -webkit-backdrop-filter: saturate(1.9) blur(22px); backdrop-filter: saturate(1.9) blur(22px); box-shadow: 0 1px 0 color-mix(in srgb, var(--n-ink) 6%, transparent); }
+
+/* assistant button: smaller, fades while scrolling so it never sits on content */
+.as-btn { transition: opacity .3s, scale .3s var(--n-ease), background .2s !important; }
+body.n-scrolling .as-btn { opacity: 0; scale: .7; pointer-events: none; }
+
+@media (max-width: 760px) {
+  /* iOS-style glass tab bar with a sliding pill */
+  .n-tabs { padding: 6px; border-radius: 30px; overflow: visible;
+    background: color-mix(in srgb, #fff 54%, transparent);
+    -webkit-backdrop-filter: blur(28px) saturate(2) brightness(1.05); backdrop-filter: blur(28px) saturate(2) brightness(1.05);
+    box-shadow: 0 14px 38px -12px rgba(51, 51, 51, .30), 0 0 0 1px color-mix(in srgb, #fff 62%, transparent), inset 0 1px 0 rgba(255, 255, 255, .85), inset 0 -1px 0 rgba(255, 255, 255, .25); }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .n-tabs { background: rgba(255, 255, 255, .94); } }
+  .n-tabs::before { content: ""; position: absolute; top: 6px; bottom: 6px; inset-inline-start: 6px; width: calc((100% - 12px) / 5); border-radius: 24px; pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .9), color-mix(in srgb, var(--n-pk) 42%, rgba(255, 255, 255, .72)));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 6px 16px -8px color-mix(in srgb, var(--n-pk) 80%, transparent);
+    transform: translateX(calc(var(--i, 0) * 100%)); opacity: var(--o, 1);
+    transition: transform .55s cubic-bezier(.34, 1.32, .5, 1), opacity .3s; }
+  [dir=rtl] .n-tabs::before { transform: translateX(calc(var(--i, 0) * -100%)); }
+  .n-tabs a, .n-tabs button { z-index: 1; color: color-mix(in srgb, var(--n-ink) 82%, transparent); transition: color .25s; }
+  .n-tabs .on { background: none; color: var(--n-ink); }
+  .n-tabs .ic { transition: transform .4s cubic-bezier(.34, 1.56, .64, 1); }
+  .n-tabs a:active .ic, .n-tabs button:active .ic { transform: scale(.78); transition-duration: .1s; }
+  .n-tabs .on .ic { transform: translateY(-1px) scale(1.06); }
+  .n-tabs a:active, .n-tabs button:active { color: var(--n-ink); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #main { animation: none; } .n-tabs::before, .n-btn, .n-go, .n-ico, .n-fav, .n-chips a, .n-tabs .ic { transition: none !important; }
+}
+
+/* font sample buttons: long text is cut with an ellipsis, never hard-clipped */
+.fonts button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
