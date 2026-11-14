@@ -31,13 +31,14 @@ async def main():
                     if await f.is_visible(): await f.fill('Pay')
                 await p.locator('[data-act=add]:visible').first.click(); await p.wait_for_timeout(1200)
                 await p.goto(WEB + '/index.html#/kasse'); await p.wait_for_timeout(1500)
-                await p.locator('[data-co=method][value=pickup]').first.check(force=True); await p.wait_for_timeout(300)
+                await p.locator('[data-co=method][value=pickup]').first.dispatch_event('click'); await p.wait_for_timeout(300)
                 email = f'paypal{random.randint(1, 10**8)}@example.org'
                 for k, v in {'name': 'Paula Pay', 'email': email, 'phone': '0151 7654321', 'bill.name': 'Paula Pay', 'bill.street': 'Weg 1', 'bill.zip': '20099', 'bill.city': 'Hamburg'}.items():
                     el = p.locator(f'[data-co="{k}"]').first
                     if await el.count() and await el.is_visible(): await el.fill(v)
-                await p.locator('[data-co=pay][value=paypal]').first.check(force=True)
-                await p.locator('[data-co=agb]').first.check(force=True); await p.wait_for_timeout(300)
+                await p.locator('[data-co=pay][value=paypal]').first.dispatch_event('click')
+                if not await p.locator('[data-co=agb]').first.is_checked(): await p.locator('[data-co=agb]').first.dispatch_event('click')
+                await p.wait_for_timeout(300)
                 await p.locator('[data-act=place]').first.click(); await p.wait_for_timeout(3000)
                 no = p.url.split('/danke/')[-1] if '/danke/' in p.url else None
                 ok(f'[{run}] order saved before payment (status unpaid)', no and api('shop_order_get', {'p_no': no, 'p_email': email})['pay']['status'] == 'offen', p.url)

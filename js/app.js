@@ -14,7 +14,6 @@
     const { parts, q } = parse(path);
     const [a, b, c] = parts;
     if (a !== 'p') PDP.clear();
-    if (a !== 'box' && window.BOX) BOX.leave();
     if (a !== 'admin') C.applyLang();
     switch (a) {
       case undefined: return SHOP.home();
@@ -25,7 +24,6 @@
       case 'wunschliste': return SHOP.list('w');
       case 'p': PDP.show(b, q); if (q.review) setTimeout(() => { const d = $('#reviews'); if (d) { d.open = true; d.scrollIntoView({ block: 'start', behavior: 'smooth' }); } }, 120); return;
       case 'gutschein': return SHOP.giftPage();
-      case 'box': return BOX.show(b, q);
       case 'hilfe': return SHOP.help(b);
       case 'rechtliches': return SHOP.legal(b);
       case 'warenkorb': return CHECKOUT.page();
@@ -73,7 +71,6 @@
     if (el.dataset.sugg) { const i = $('#sq'); if (i) { i.value = el.dataset.sugg; i.dispatchEvent(new Event('input')); i.focus(); } return; }
     if (onCO() && CHECKOUT.onClick(el)) return;
     if (onPDP() && PDP.onClick(el, e)) return;
-    if (C.path().startsWith('/box') && window.BOX && BOX.onClick(el, e)) return;
     const act = el.dataset.act; if (!act) return;
     switch (act) {
       case 'close': C.closeAll(); return;

@@ -35,13 +35,14 @@ async def main():
         await cp.goto(WEB + '/index.html#/kasse'); await cp.wait_for_timeout(1500)
         await cp.screenshot(path=OUT + '/t-checkout.png', full_page=True)
         # fill checkout: pickup + bank transfer
-        await cp.locator('[data-co=method][value=pickup]').first.check(force=True); await cp.wait_for_timeout(400)
+        await cp.locator('[data-co=method][value=pickup]').first.dispatch_event('click'); await cp.wait_for_timeout(400)
         for k, v in [('name','Test Kundin'),('email','kundin@example.org'),('phone','0151 2345678'),('bill.name','Test Kundin'),('bill.street','Teststr. 1'),('bill.zip','20099'),('bill.city','Hamburg')]:
             el = cp.locator(f'[data-co="{k}"]').first
             if await el.count(): await el.fill(v)
         pv = cp.locator('[data-co=pay][value=vorkasse]').first
-        if await pv.count(): await pv.check(force=True)
-        await cp.locator('[data-co=agb]').first.check(force=True)
+        if await pv.count(): await pv.dispatch_event('click')
+        if not await cp.locator('[data-co=agb]').first.is_checked(): await cp.locator('[data-co=agb]').first.dispatch_event('click')
+        
         await cp.wait_for_timeout(300)
         await cp.locator('[data-act=place]').first.click(); await cp.wait_for_timeout(4000)
         res['thanks_url'] = cp.url

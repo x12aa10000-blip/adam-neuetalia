@@ -2,7 +2,7 @@
 import asyncio, json, os
 from playwright.async_api import async_playwright
 WEB = os.environ.get('WEB', 'http://localhost:8780')
-ROUTES = ['#/', '#/c/alle', '#/p/rosenbox-herz', '#/box', '#/gutschein', '#/warenkorb', '#/kasse', '#/konto', '#/verfolgen', '#/filialen', '#/hilfe', '#/rechtliches/impressum']
+ROUTES = ['#/', '#/c/alle', '#/p/rosenbox-herz', '#/gutschein', '#/warenkorb', '#/kasse', '#/konto', '#/verfolgen', '#/filialen', '#/hilfe', '#/rechtliches/impressum']
 JS = """() => {
   const P = s => { let m = /rgba?\\(([\\d.]+),\\s*([\\d.]+),\\s*([\\d.]+)(?:,\\s*([\\d.]+))?/.exec(s); if (m) return [+m[1], +m[2], +m[3], m[4] === undefined ? 1 : +m[4]];
     m = /color\\(srgb ([\\d.e-]+) ([\\d.e-]+) ([\\d.e-]+)(?: \\/ ([\\d.e-]+))?\\)/.exec(s); return m ? [m[1] * 255, m[2] * 255, m[3] * 255, m[4] === undefined ? 1 : +m[4]] : null; };

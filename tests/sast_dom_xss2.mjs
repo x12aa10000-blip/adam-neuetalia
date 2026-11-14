@@ -29,7 +29,7 @@ function leaves(n, sf, acc) {
   if (ts.isArrayLiteralExpression(n)) { n.elements.forEach(e => leaves(e, sf, acc)); return acc; }
   acc.push(n); return acc;
 }
-for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.js') && !['catalog.js', 'catalog2.js', 'catalog3.js', 'masks.js'].includes(f))) {
+for (const f of fs.readdirSync(dir).filter(f => f.endsWith('.js') && !['catalog.js', 'catalog2.js', 'catalog3.js'].includes(f))) {
   const sf = ts.createSourceFile(path.join(dir, f), fs.readFileSync(path.join(dir, f), 'utf8'), ts.ScriptTarget.Latest, true);
   const visit = n => {
     if (ts.isTemplateExpression(n) && (n.head.text + n.templateSpans.map(s => s.literal.text).join('')).includes('<') && !(ts.isTemplateExpression(n.parent) || ts.isTemplateSpan(n.parent))) {

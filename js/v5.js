@@ -18,10 +18,6 @@
   K('v5_add', 'In den Korb', 'Add', 'أضف');
   K('v5_quick', 'Schnell bestellen', 'Quick order', 'طلب سريع');
   K('v5_more_opts', 'Alle Optionen auf der Produktseite', 'All options on the product page', 'كل خيارات التخصيص بصفحة المنتج');
-  K('v5_add_box', 'In die Geschenkbox legen', 'Put into the gift box', 'أضف للبوكس');
-  K('v5_box_added', 'In deiner Geschenkbox ({n}) – weiter zur Box?', 'In your gift box ({n}) – go to the box?', 'انضاف للبوكس ({n}) – بدك تكمل تصميم البوكس؟');
-  K('v5_box_go', 'Zur Box', 'Open box', 'روح للبوكس');
-  K('v5_box_full', 'Die größte Box ist voll (8 Geschenke).', 'The largest box is full (8 gifts).', 'أكبر بوكس صار مليان (8 هدايا).');
   K('v5_vat_all', 'Alle Preise inkl. MwSt., zzgl. Versand.', 'All prices incl. VAT, plus shipping.', 'كل الأسعار شاملة الضريبة، الشحن منفصل.');
   K('v5_reviews_h', 'Das sagen unsere Kunden', 'What our customers say', 'آراء زبائننا');
   K('v5_reviews_n', 'aus {n} Bewertungen', 'from {n} reviews', 'من {n} تقييم');
@@ -61,7 +57,7 @@
 
   /* ---------------- website settings ---------------- */
   /* home page sections (new premium layout first; older blocks can be switched on in the admin) */
-  const SECTIONS = ['hero', 'usp', 'occ', 'best', 'promos', 'cats', 'finder', 'new', 'gift', 'reviews', 'locs', 'faq', 'news', 'quick', 'wall', 'about', 'mosaic', 'feats', 'carousel', 'camp'];
+  const SECTIONS = ['hero', 'usp', 'occ', 'best', 'cats', 'finder', 'new', 'gift', 'reviews', 'locs', 'faq', 'news', 'quick', 'wall', 'about', 'mosaic', 'feats', 'carousel', 'camp'];
   const SEC_OFF = ['quick', 'wall', 'about', 'mosaic', 'feats', 'carousel', 'camp'];
   V.SECTIONS = SECTIONS;
   const L3 = (de, en, ar) => ({ de: de || '', en: en || '', ar: ar || '' });
@@ -74,7 +70,7 @@
     texts: {},
     locations: [{ id: 'l1', name: 'Adam', street: 'Steindamm 62', zip: '20099', city: 'Hamburg', phone: '+49 177 6449312', hours: L3('Mo–Sa 09:00–22:00 · So 09:00–16:00', 'Mon–Sat 09:00–22:00 · Sun 09:00–16:00', 'الإثنين–السبت 09:00–22:00 · الأحد 09:00–16:00') }],
     social: { ig: '', tt: '', fb: '' }, // the owner enters Adam's own accounts in the admin (Website → Social Media)
-    boxes: {}, extras: {}, paypal: { clientId: '' }
+    paypal: { clientId: '' }
   });
   const isObj = x => x && typeof x === 'object' && !Array.isArray(x);
   const merge = (a, b) => { if (!isObj(b)) return a; for (const k in b) { if (isObj(b[k]) && isObj(a[k])) merge(a[k], b[k]); else if (b[k] !== undefined) a[k] = b[k]; } return a; };
@@ -157,7 +153,6 @@
         <div class="ni cats"><button type="button" data-v5="nav" aria-expanded="false">${ic('grid')} ${t('categories')} ${V.ic('down', 'dn')}</button>
           <div class="mm cats">${CATS().map(c => `<a href="#/c/${c}"><img src="${esc(SHOP.catImg(c))}" alt="" loading="lazy" width="56" height="56"><span>${t('cat_' + c)}<small>${t('n_products', { n: cnt(c) })}</small></span></a>`).join('')}<a class="all" href="#/c/alle">${t('nav_shop')} ${ic('chev', 'flip')}</a></div></div>
         <div class="ni"><a href="#/c/alle"${on('/c/')}>${t('nav_ready')}</a></div>
-        <div class="ni"><a href="#/box"${on('/box')}>${ic('box')} ${t('nav_box')}</a></div>
         <div class="ni"><button type="button" data-v5="nav" aria-expanded="false">${t('nav_occ')} ${V.ic('down', 'dn')}</button>
           <div class="mm list">${occs.map(o => `<a href="#/o/${o}">${t('occ_' + o)}<small>${ST.products().filter(p => (p.occ || []).includes(o)).length}</small></a>`).join('')}<a href="#/anlass"><b>${t('see_all')}</b></a></div></div>
         <div class="ni"><a href="#/gutschein"${on('/gutschein')}>${t('nav_gift')}</a></div>
@@ -276,7 +271,7 @@
     };
     const paint = () => {
       ov.body.innerHTML = `<div class="qa"><div class="qa-pv"><canvas id="qaCv"></canvas></div><div class="qa-f"><h3>${esc(L(p.name))}</h3><p class="price-l" id="qaPrice">${SHOP.priceHTML(p, Dz)}</p>${fieldsHTML()}<a class="link qa-more" href="#/p/${esc(p.id)}?d=${PDP.encode(Dz)}">${ic('wand')} ${t('v5_more_opts')}</a></div></div>`;
-      ov.foot.innerHTML = `<button class="btn ghost" data-qa="box">${ic('box')} ${t('v5_add_box')}</button><button class="btn" data-qa="add">${ic('bag')} ${t('add_cart')}</button>`;
+      ov.foot.innerHTML = `<button class="btn" data-qa="add">${ic('bag')} ${t('add_cart')}</button>`;
       draw();
     };
     const draw = C.debounce(async () => { const cv = $('#qaCv', ov); if (!cv) return; const w = Math.min(900, Math.round((cv.parentElement.clientWidth || 400) * Math.min(2, devicePixelRatio || 1))); await ENG.render(cv, p, ENG.viewFor(p, Dz, vi), Dz, { maxW: w, force: !ENG.isDefault(p, Dz) }); }, 90);
@@ -306,37 +301,19 @@
       if (bad) { const el = $(`[data-qf="${bad.f.id}"]`, ov); if (el) { el.classList.add('bad'); if (!el.querySelector('.ferr')) el.insertAdjacentHTML('beforeend', `<small class="ferr">${ic('alert')} ${esc(bad.msg)}</small>`); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } C.toast(bad.msg, 'err'); return; }
       b.disabled = true;
       if (b.dataset.qa === 'add') { await V.addToCart(p, Dz, 1); return; }
-      if (b.dataset.qa === 'box') { C.closeAll(); V.toBox(p, Dz, 1); }
     });
   };
   document.addEventListener('click', e => {
-    const b = e.target.closest('[data-act=qadd],[data-act=addbox],[data-v5]'); if (!b) return;
+    const b = e.target.closest('[data-act=qadd],[data-v5]'); if (!b) return;
     if (b.dataset.act === 'qadd') { e.preventDefault(); V.quickAdd(b.dataset.id); return; }
-    if (b.dataset.act === 'addbox') { e.preventDefault(); const cur = PDP.current(); if (!cur) return; const bad = invalid(cur.p, cur.D); if (bad) { C.toast(bad.msg, 'err'); const el = $(`[data-fid="${bad.f.id}"]`) || $('#cfg'); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1200); return; } V.toBox(cur.p, cur.D, cur.qty); return; }
     const k = b.dataset.v5;
     if (k === 'nav') { const ni = b.closest('.ni'); const open = !ni.classList.contains('open'); $$('.hd-nav .ni.open').forEach(x => x.classList.remove('open')); ni.classList.toggle('open', open); b.setAttribute('aria-expanded', String(open)); return; }
     if (k === 'hsugg') { const i = $('#hq'); if (i) { i.value = b.dataset.v; i.focus(); drawSearch(); } return; }
     if (k === 'loc') { if (e.target.closest('a')) return; V.showLoc(b); return; }
-    if (k === 'boxgo') { C.go('#/box'); return; }
   });
   document.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.dataset && e.target.dataset.v5 === 'loc') { e.preventDefault(); V.showLoc(e.target); } });
 
-  /* ---------------- put a (personalised) product into the gift box ---------------- */
-  V.toBox = function (p, Dz, qty) {
-    const st = ST.get('boxDraft', null) || { step: 2, box: 'zebra', size: 'm', fill: 'shred', ribbon: 'rosa', items: [], extras: {}, card: { on: true, design: 'roses', text: '', from: '', font: 'greatvibes' }, editId: null };
-    const n = (st.items || []).reduce((a, i) => a + i.qty, 0) + (qty || 1);
-    const caps = { s: 3, m: 5, l: 8 };
-    if (n > 8) { C.toast(t('v5_box_full'), 'err'); return; }
-    if (n > caps[st.size || 'm']) st.size = n > 5 ? 'l' : 'm';
-    const design = JSON.parse(JSON.stringify(Dz)); delete design._touched;
-    st.items = (st.items || []).concat([{ uid: ST.uid('b'), pid: p.id, D: design, qty: qty || 1 }]);
-    if (window.BOX && BOX.useState) BOX.useState(st); else ST.set('boxDraft', st);
-    const ov = C.sheet({ title: t('box_added'), kind: 'modal' });
-    ov.body.innerHTML = `<p>${esc(t('v5_box_added', { n }))}</p>`;
-    ov.foot.innerHTML = `<button class="btn ghost" data-act="close">${t('continue_shopping')}</button><button class="btn" data-v5="boxgo">${ic('box')} ${t('v5_box_go')}</button>`;
-  };
-
-  /* ---------------- product page extras: add to box, review summary ---------------- */
+  /* ---------------- product page extras: review summary ---------------- */
   V.revSummary = function (list) {
     if (!list.length) return '';
     const a = list.reduce((s, r) => s + r.stars, 0) / list.length;
@@ -345,7 +322,6 @@
   const _show = PDP.show; PDP.show = function (id, q) {
     _show.apply(this, arguments);
     const cur = PDP.current(); if (!cur) return;
-    const br = $('.buyrow'); if (br && cur.p.id !== 'gutschein') br.insertAdjacentHTML('afterend', `<button type="button" class="btn ghost block box-add" data-act="addbox">${ic('box')} ${t('v5_add_box')}</button>`);
     const rv = $('#reviews'); if (rv) { const list = ST.reviews(cur.p.id).filter(r => r.ok); const sm = rv.querySelector('summary'); if (sm && list.length) sm.insertAdjacentHTML('afterend', V.revSummary(list)); }
   };
 
@@ -363,7 +339,7 @@
   V.locPage = function () {
     SHOP.page(`<div class="wrap lhead"><h1>${t('v5_branches_h')}</h1><p class="lead">${t('v5_branches_p')}</p></div><div class="wrap">${V.locsHTML()}</div>`, 'locs');
   };
-  C.route(/^\/filialen\/?$/, () => { C.applyLang(); if (window.BOX) BOX.leave(); PDP.clear(); V.locPage(); });
+  C.route(/^\/filialen\/?$/, () => { C.applyLang(); PDP.clear(); V.locPage(); });
 
   /* ---------------- footer: logo, all shops, real social icons, calm payment chips ---------------- */
   SHOP.footer = function () {
@@ -375,7 +351,7 @@
       <div class="wrap ft-main">
         <div class="ft-brand">${V.logo()}<p>${esc(SITE.tx('ft_about'))}</p><div class="ft-soc" style="margin-top:14px">${soc.map(([k, u, l]) => `<a href="${esc(u)}" target="_blank" rel="noopener" aria-label="${l}" style="background:#fff;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)">${V.ic(k)}</a>`).join('')}</div></div>
         <div><h3>${t('ft_links')}</h3><div class="ft-links">
-          <a href="#/c/alle">${t('nav_ready')}</a><a href="#/box">${t('nav_box')}</a><a href="#/anlass">${t('nav_occ')}</a><a href="#/gutschein">${t('nav_gift')}</a>
+          <a href="#/c/alle">${t('nav_ready')}</a><a href="#/anlass">${t('nav_occ')}</a><a href="#/gutschein">${t('nav_gift')}</a>
           <a href="#/verfolgen">${t('track_title')}</a><a href="#/hilfe">${t('nav_help')}</a><a href="#/hilfe/rueckgabe">${t('ft_returns')}</a><a href="#/hilfe/versand">${t('help_ship')}</a>
           <a href="#/konto">${t('account')}</a><a href="#/filialen">${t('v5_branches')}</a></div>
           <h3 style="margin-top:22px">${t('ft_paydeliv')}</h3><div class="ft-logos">${logos.map(x => `<span>${esc(x)}</span>`).join('')}</div></div>
@@ -389,7 +365,7 @@
 
   /* ---------------- home page, built from the website settings ---------------- */
   const HOME_IMG = { her: 'rosenbox-herz', him: 'np-tasse-fussball', promo: 'geschenkbox-liebe', kids: 'np-tasse-emoji', all: 'np-kissen-satin' };
-  const TILE_DEF = { her: ['who_her', '#/o/fuersie'], him: ['who_him', '#/o/fuerihn'], kids: ['who_kids', '#/o/kinder'], all: ['who_all', '#/c/alle'], promo: ['tile_gifts', '#/c/alle'], custom: ['tile_custom', '#/box'] };
+  const TILE_DEF = { her: ['who_her', '#/o/fuersie'], him: ['who_him', '#/o/fuerihn'], kids: ['who_kids', '#/o/kinder'], all: ['who_all', '#/c/alle'], promo: ['tile_gifts', '#/c/alle'] };
   const tl = (o, key) => (o && (o[C.lang()] || o.de)) || t(key);
   V.homeBlocks = function () {
     const S = SHOP; const cfg = SITE.get(); const s = ST.settings();
@@ -400,7 +376,7 @@
     const occs = ['liebe', 'muttertag', 'hochzeit', 'geburtstag', 'familie', 'ramadan'];
     const used = new Set(); const occImg = o => { const list = all.filter(p => (p.occ || []).includes(o)).sort((a, b) => (b.best ? 1 : 0) - (a.best ? 1 : 0)); const p = list.find(p => !used.has(p.views[0].img)) || list[0]; if (!p) return ''; used.add(p.views[0].img); return p.views[0].thumb || p.views[0].img; };
     const pimg = id => { const p = ST.product(id); return p ? (p.views[0].thumb || p.views[0].img) : ''; };
-    const tile = k => { const x = cfg.tiles[k] || {}; return x.img ? V.src(x.img) : `src="${esc(k === 'custom' ? 'img/o/box-hero.jpg' : pimg(HOME_IMG[k]))}"`; };
+    const tile = k => { const x = cfg.tiles[k] || {}; return x.img ? V.src(x.img) : `src="${esc(pimg(HOME_IMG[k]))}"`; };
     const wall = ['rosenbox-herz', 'flasche', 'hoodie-name', 'rosen-acrylbox'].map(id => ST.product(id)).filter(p => p && p.active);
     const revs = ST.reviews().filter(r => r.ok && r.text);
     const car = ['np-kissen-herz', 'rosenbox-herz', 'np-songtasse', 'geschenkbox-liebe', 'np-kette-herz', 'rose-glas', 'np-uhr-herz', 'collage-box'].map(id => ST.product(id)).filter(Boolean);
@@ -416,14 +392,12 @@
           <button class="btn">${ic('search')} ${t('finder_go')}</button>
           <p class="finder-pop">${t('finder_pop')}</p>
           <nav class="chips finder-chips">${['geburtstag', 'liebe', 'hochzeit', 'muttertag', 'ramadan', 'kinder'].map(o => `<a href="#/o/${o}">${t('occ_' + o)}</a>`).join('')}</nav>
-          <a class="finder-box" href="#/box"><img src="img/o/box-hero.jpg" alt="" loading="lazy" width="120" height="103"><span><b>${t('nav_box')}</b><small>${t('tile_custom_p')}</small></span>${ic('chev', 'flip')}</a>
         </form>
         <a class="tile t-her rv" data-i="1" href="${esc(tp.her.link || TILE_DEF.her[1])}"><img ${tile('her')} alt="" loading="eager"><b>${esc(tl(tp.her.t, 'who_her'))}</b></a>
         <a class="tile t-him rv" data-i="2" href="${esc(tp.him.link || TILE_DEF.him[1])}"><img ${tile('him')} alt="" loading="eager"><b>${esc(tl(tp.him.t, 'who_him'))}</b></a>
         <a class="tile promo rv" href="${esc(tp.promo.link || TILE_DEF.promo[1])}"><img ${tile('promo')} alt=""><span class="tx"><small>${esc(tl(tp.promo.e, 'v5_popular'))}</small><strong>${esc(tl(tp.promo.t, 'tile_gifts'))}</strong><p>${esc(tl(tp.promo.p, 'tile_gifts_p'))}</p><span class="btn sm">${t('shop_now')}</span></span></a>
         <a class="tile t-kids rv" data-i="1" href="${esc(tp.kids.link || TILE_DEF.kids[1])}"><img ${tile('kids')} alt="" loading="lazy"><b>${esc(tl(tp.kids.t, 'who_kids'))}</b></a>
         <a class="tile t-all rv" data-i="2" href="${esc(tp.all.link || TILE_DEF.all[1])}"><img ${tile('all')} alt="" loading="lazy"><b>${esc(tl(tp.all.t, 'who_all'))}</b></a>
-        <a class="tile custom rv" href="${esc(tp.custom.link || TILE_DEF.custom[1])}"><img ${tile('custom')} alt="" loading="lazy"><span class="tx"><strong>${esc(tl(tp.custom.t, 'tile_custom'))}</strong><span class="muted small">${esc(tl(tp.custom.p, 'tile_custom_p'))}</span><span class="btn sm">${ic('box')} ${t('nav_box')}</span></span></a>
       </div></section>`,
       cats: () => `<section class="sec cats-sec"><div class="wrap">
         <div class="sh rv"><h2 class="ttl">${esc(SITE.tx('cats_h'))}</h2><a class="more hide-s" href="#/c/alle">${t('see_all')}</a></div>
@@ -445,7 +419,7 @@
       gift: () => `<section class="split dark" style="margin-top:14px"><div class="sp-img"><div class="gc-card"><img src="${S.giftcardImg()}" alt="" loading="lazy"></div></div><div class="sp-txt rv"><span class="eyb">${t('nav_gift')}</span><h2>${esc(SITE.tx('gc_h'))}</h2><p class="lead">${esc(SITE.tx('gc_p'))}</p><div><a class="btn" href="#/gutschein">${t('gc_cta')}</a></div></div></section>`,
       locs: () => V.locs().length ? `<section class="sec"><div class="wrap"><div class="sh rv"><h2 class="ttl">${t('v5_branches_h')}</h2><a class="more" href="#/filialen">${t('v5_branches')}</a></div>${V.locsHTML()}</div></section>` : '',
       faq: () => `<section class="sec faq-sec"><div class="wrap narrow"><div class="sh rv"><h2 class="ttl">${t('faq_h')}</h2><a class="more" href="#/hilfe">${t('faq_more')}</a></div>
-        <div class="faq">${['ship', 'pickup', 'spotify', 'box', 'proof', 'arabic', 'photo', 'pay', 'returns', 'custom'].map(q => `<details><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div></div></section>`,
+        <div class="faq">${['ship', 'pickup', 'spotify', 'proof', 'arabic', 'photo', 'pay', 'returns', 'custom'].map(q => `<details><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div></div></section>`,
       news: () => `<section class="sec"><div class="wrap"><div class="news rv"><h2>${esc(SITE.tx('news_h'))}</h2><p>${esc(SITE.tx('news_p'))}</p><form data-form="news"><input class="in" type="email" name="email" required placeholder="${esc(t('email'))}" aria-label="${esc(t('email'))}"><button class="btn">${t('news_btn')}</button></form></div></div></section>`
     };
     B.mosaic = B.hero; delete B.hero;

@@ -78,7 +78,7 @@
       <button class="ibtn only-s" data-act="menu" aria-label="${esc(t('menu'))}">${ic('menu')}</button>
       ${LOGO()}
       <button class="hd-search" data-act="search">${ic('search')}<span>${esc(t('search_ph'))}</span></button>
-      <nav class="nav hide-s" aria-label="${esc(t('menu'))}"><a href="#/c/alle"${on('#/c/')}>${t('nav_ready')}</a><a href="#/box"${on('#/box')}>${t('nav_box')}</a><a href="#/anlass"${on('#/anlass')}>${t('nav_occ')}</a><a href="#/gutschein"${on('#/gutschein')}>${t('nav_gift')}</a></nav>
+      <nav class="nav hide-s" aria-label="${esc(t('menu'))}"><a href="#/c/alle"${on('#/c/')}>${t('nav_ready')}</a><a href="#/anlass"${on('#/anlass')}>${t('nav_occ')}</a><a href="#/gutschein"${on('#/gutschein')}>${t('nav_gift')}</a></nav>
       <div class="hd-tools">
         <button class="ibtn only-s" data-act="search" aria-label="${esc(t('search'))}">${ic('search')}</button>
         <a class="hd-act hide-s" href="#/konto">${ic('user')}<span>${me ? esc(me.name.split(' ')[0]) : t('login')}<small>${me ? t('account') : t('register')}</small></span></a>
@@ -93,7 +93,7 @@
       <div class="wrap ft-main">
         <div class="ft-brand">${LOGO()}<p>${t('ft_about')}</p></div>
         <div><h3>${t('ft_links')}</h3><div class="ft-links">
-          <a href="#/c/alle">${t('nav_ready')}</a><a href="#/box">${t('nav_box')}</a><a href="#/anlass">${t('nav_occ')}</a><a href="#/gutschein">${t('nav_gift')}</a>
+          <a href="#/c/alle">${t('nav_ready')}</a><a href="#/anlass">${t('nav_occ')}</a><a href="#/gutschein">${t('nav_gift')}</a>
           <a href="#/verfolgen">${t('track_title')}</a><a href="#/hilfe">${t('nav_help')}</a><a href="#/hilfe/rueckgabe">${t('ft_returns')}</a><a href="#/hilfe/versand">${t('help_ship')}</a>
           <a href="#/konto">${t('account')}</a><a href="#/wunschliste">${t('wishlist')}</a></div>
           <h3 style="margin-top:22px">${t('ft_paydeliv')}</h3><div class="ft-logos">${logos.map(([c, x]) => `<span class="${c}">${esc(x)}</span>`).join('')}</div></div>
@@ -255,14 +255,12 @@
         <button class="btn">${ic('search')} ${t('finder_go')}</button>
         <p class="finder-pop">${t('finder_pop')}</p>
         <nav class="chips finder-chips">${['geburtstag', 'liebe', 'hochzeit', 'muttertag', 'ramadan', 'kinder'].map(o => `<a href="#/o/${o}">${t('occ_' + o)}</a>`).join('')}</nav>
-        <a class="finder-box" href="#/box"><img src="img/o/box-hero.jpg" alt="" loading="lazy" width="120" height="103"><span><b>${t('nav_box')}</b><small>${t('tile_custom_p')}</small></span>${ic('chev', 'flip')}</a>
       </form>
       <a class="tile t-her rv" data-i="1" href="#/o/fuersie"><img src="${esc(img('rosenbox-herz'))}" alt="" loading="eager"><b>${t('who_her')}</b></a>
       <a class="tile t-him rv" data-i="2" href="#/o/fuerihn"><img src="${esc(img('np-tasse-fussball'))}" alt="" loading="eager"><b>${t('who_him')}</b></a>
       <a class="tile promo rv" href="#/c/alle"><img src="${esc(img('geschenkbox-liebe'))}" alt=""><span class="tx"><small>Special gift</small><strong>${t('tile_gifts')}</strong><p>${t('tile_gifts_p')}</p><span class="btn sm">${t('shop_now')}</span></span></a>
       <a class="tile t-kids rv" data-i="1" href="#/o/kinder"><img src="${esc(img('np-tasse-emoji'))}" alt="" loading="lazy"><b>${t('who_kids')}</b></a>
       <a class="tile t-all rv" data-i="2" href="#/c/alle"><img src="${esc(img('np-kissen-satin'))}" alt="" loading="lazy"><b>${t('who_all')}</b></a>
-      <a class="tile custom rv" href="#/box"><img src="img/o/box-hero.jpg" alt="" loading="lazy"><span class="tx"><strong>${t('tile_custom')}</strong><span class="muted small">${t('tile_custom_p')}</span><span class="btn purple sm">${ic('box')} ${t('nav_box')}</span></span></a>
     </div></section>
 
     <section class="sec cats-sec"><div class="wrap">
@@ -316,7 +314,7 @@
 
     <section class="sec faq-sec"><div class="wrap narrow">
       <div class="sh rv"><h2 class="ttl">${t('faq_h')}</h2><a class="more" href="#/hilfe">${t('faq_more')}</a></div>
-      <div class="faq">${['ship', 'pickup', 'spotify', 'box', 'proof', 'arabic', 'photo', 'pay', 'returns', 'custom'].map(q => `<details><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div>
+      <div class="faq">${['ship', 'pickup', 'spotify', 'proof', 'arabic', 'photo', 'pay', 'returns', 'custom'].map(q => `<details><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div>
     </div></section>
 
     <section class="sec"><div class="wrap"><div class="news rv"><h2>${t('news_h')}</h2><p>${t('news_p')}</p><form data-form="news"><input class="in" type="email" name="email" required placeholder="${esc(t('email'))}" aria-label="${esc(t('email'))}"><button class="btn">${t('news_btn')}</button></form></div></div></section>
@@ -460,7 +458,7 @@
   /* ---------------- HELP & LEGAL ---------------- */
   S.help = function (topic) {
     const s = ST.settings();
-    const qs = ['ship', 'pickup', 'local', 'prod', 'proof', 'spotify', 'box', 'arabic', 'change', 'returns', 'photo', 'pay', 'gift', 'custom'];
+    const qs = ['ship', 'pickup', 'local', 'prod', 'proof', 'spotify', 'arabic', 'change', 'returns', 'photo', 'pay', 'gift', 'custom'];
     S.page(`<div class="wrap narrow help">
       <h1>${t('nav_help')}</h1><p class="lead">${t('help_lead')}</p>
       <div class="faq">${qs.map(q => `<details id="q-${q}"${(topic === 'versand' && q === 'ship') || (topic === 'rueckgabe' && q === 'returns') ? ' open' : ''}><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div>

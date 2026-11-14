@@ -8,8 +8,6 @@
   DOCS.lines = function (it, lang) {
     const p = ST.product(it.pid); if (!p) return [];
     const D = it.D || {}; const out = [];
-    if (p.id === 'geschenkbox' && window.BOX) return BOX.lines(it, lang);
-    if (D.boxOf) out.push([t('box_in', null, lang), '✓']);
     if (p.id === 'gutschein') {
       if (D.f.to) out.push([t('gc_to', null, lang), D.f.to]);
       if (D.f.toEmail) out.push([t('email', null, lang), D.f.toEmail]);

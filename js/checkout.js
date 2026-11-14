@@ -8,11 +8,11 @@
   const lineHTML = (it, compact) => {
     const p = ST.product(it.pid); const lines = DOCS.lines(it, C.lang());
     return `<div class="cline" data-line="${esc(it.id)}">
-      <a class="cthumb" href="${p && p.id === 'geschenkbox' ? '#/box?edit=' + esc(it.id) : p && p.id !== 'gutschein' ? '#/p/' + esc(it.pid) + '?edit=' + esc(it.id) : '#/gutschein'}"><img src="${esc(it.preview || (p && p.views[0] && p.views[0].thumb) || '')}" alt="" width="96" height="96"></a>
+      <a class="cthumb" href="${p && p.id !== 'gutschein' ? '#/p/' + esc(it.pid) + '?edit=' + esc(it.id) : '#/gutschein'}"><img src="${esc(it.preview || (p && p.views[0] && p.views[0].thumb) || '')}" alt="" width="96" height="96"></a>
       <div class="cinfo"><b>${esc(L(it.name))}</b>
         <ul class="clist">${lines.slice(0, compact ? 3 : 20).map(([a, b]) => `<li><span>${esc(a)}</span> ${esc(b)}</li>`).join('')}</ul>
         <div class="crow"><div class="qty sm" role="group" aria-label="${esc(t('qty'))}"><button type="button" data-act="cq" data-d="-1" data-id="${esc(it.id)}" aria-label="−">${ic('minus')}</button><output>${it.qty}</output><button type="button" data-act="cq" data-d="1" data-id="${esc(it.id)}" aria-label="+">${ic('plus')}</button></div>
-          ${p && p.id === 'geschenkbox' ? `<a class="link" href="#/box?edit=${esc(it.id)}">${t('edit')}</a>` : p && p.id !== 'gutschein' ? `<a class="link" href="#/p/${esc(it.pid)}?edit=${esc(it.id)}">${t('edit')}</a>` : ''}<button class="link" data-act="crm" data-id="${esc(it.id)}">${t('remove')}</button></div>
+          ${p && p.id !== 'gutschein' ? `<a class="link" href="#/p/${esc(it.pid)}?edit=${esc(it.id)}">${t('edit')}</a>` : ''}<button class="link" data-act="crm" data-id="${esc(it.id)}">${t('remove')}</button></div>
       </div>
       <span class="cprice">${eur(it.unit * it.qty)}</span></div>`;
   };
@@ -40,8 +40,8 @@
       <aside class="sumbox"><h2>${t('summary')}</h2><div class="sumline"><span>${t('subtotal')}</span><b>${eur(T.sub)}</b></div><p class="muted small">${t('ship_calc_next')}</p><a class="btn block" href="#/kasse">${t('to_checkout')}</a>
       <ul class="trust"><li>${ic('store')} ${t('trust_made')}</li><li>${ic('eye')} ${t('trust_proof')}</li></ul></aside></div>`, 'cart');
   };
-  K.changeQty = function (id, d) { const c = ST.cart(); const it = c.find(i => i.id === id); if (!it) return; const q0 = it.qty; it.qty = Math.max(1, Math.min(50, it.qty + d)); if (it.pid === 'geschenkbox') c.filter(i => i.D && i.D.boxOf === id).forEach(i => { i.qty = Math.max(1, Math.round(i.qty / q0 * it.qty)); }); ST.saveCart(c); K.refresh(); };
-  K.remove = function (id) { ST.saveCart(ST.cart().filter(i => i.id !== id && !(i.D && i.D.boxOf === id))); K.refresh(); C.toast(t('removed')); };
+  K.changeQty = function (id, d) { const c = ST.cart(); const it = c.find(i => i.id === id); if (!it) return; const q0 = it.qty; it.qty = Math.max(1, Math.min(50, it.qty + d)); ST.saveCart(c); K.refresh(); };
+  K.remove = function (id) { ST.saveCart(ST.cart().filter(i => i.id !== id)); K.refresh(); C.toast(t('removed')); };
   // re-render the bag without moving anything: the open drawer is filled in place (no close/slide-in),
   // and the page keeps its height and scroll position while previews redraw
   K.refresh = function () {
@@ -160,7 +160,7 @@
   const deAddr = k => k === 'addr' ? CO.method !== 'eu' : (CO.bill.country || 'DE') === 'DE';
   const fillList = (id, names) => { const dl = document.getElementById(id); if (dl) dl.innerHTML = [...new Set(names)].slice(0, 12).map(n => `<option value="${esc(n)}"></option>`).join(''); };
   K._plz = async function (k, el) {
-    const a = CO[k]; const zip = String(a.zip || '');
+    if (!CO) return; const a = CO[k]; if (!a) return; /* the order was already sent, form is gone */ const zip = String(a.zip || '');
     if (el.dataset.co === k + '.zip' && !/^\d{5}$/.test(zip)) { const h = el.closest('.fld') && el.closest('.fld').querySelector('.plz-hint'); if (h) h.remove(); }
     if (el.dataset.co === k + '.zip' && /^\d{5}$/.test(zip)) {
       const list = await plzGet('Localities?postalCode=' + zip + '&pageSize=20'); const names = (Array.isArray(list) ? list : []).map(x => x.name).filter(Boolean);

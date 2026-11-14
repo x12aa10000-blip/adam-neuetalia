@@ -261,12 +261,10 @@
   CL.repriceCart = function () {
     const cart = ST.cart(); if (!cart.length) return false;
     let changed = false; const keep = [];
-    const tb = window.BOX && BOX._tables ? BOX._tables() : null;
     for (const i of cart) {
       let u = i.unit;
       if (i.pid === 'gutschein') { keep.push(i); continue; }
-      if (i.pid === 'geschenkbox') { const b = (i.D && i.D.box) || {}; if (tb && tb.boxes[b.box] != null) u = ST.round2(tb.boxes[b.box] + (tb.sizes[b.size] || 0) + (tb.fills[b.fill] || 0) + Object.entries(b.extras || {}).reduce((a, [k, n]) => a + (tb.extras[k] || 0) * n, 0)); }
-      else { const p = ST.product(i.pid); if (!p || p.active === false || p.deleted) { changed = true; continue; } u = ST.unitPrice(p, i.D); }
+      { const p = ST.product(i.pid); if (!p || p.active === false || p.deleted) { changed = true; continue; } u = ST.unitPrice(p, i.D); }
       if (Math.abs(u - i.unit) > 0.004) { changed = true; i.unit = u; }
       keep.push(i);
     }
@@ -412,12 +410,11 @@
   CL.priceTable = function () {
     const out = { _names: {} };
     for (const p of ST.products(true)) {
-      if (['gutschein', 'geschenkbox'].includes(p.id)) { out._names[p.id] = p.name; continue; }
+      if (p.id === 'gutschein') { out._names[p.id] = p.name; continue; }
       const opts = {};
       for (const o of (p.opts || [])) { const c = {}; for (const ch of (o.choices || [])) c[ch.id] = ST.round2(ch.price || 0); opts[o.id] = { _def: o.def, c }; }
       out[p.id] = { base: ST.basePrice(p), active: p.active !== false && !p.deleted, tax: p.tax || 19, name: p.name, opts, digital: !!p.digital };
     }
-    if (window.BOX && BOX.priceTables) out._box = BOX.priceTables();
     return out;
   };
   function pushPrices() {
@@ -543,8 +540,6 @@
   /* ---------------- hooks into the existing modules (after they are loaded) ---------------- */
   CL.install = function () {
     texts();
-    /* gift box price list for the server */
-    if (window.BOX && !BOX.priceTables) BOX.priceTables = function () { return BOX._tables ? BOX._tables() : {}; };
 
     /* customer: cancel, approval, complaint, tracking, account – always via the server */
     if (window.CHECKOUT) {

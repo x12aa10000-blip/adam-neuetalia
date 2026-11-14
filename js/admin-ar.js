@@ -207,10 +207,10 @@
   };
 
   /* ---------------- Website editor ---------------- */
-  const SEC_L = { hero: ['Live-Studio oben (Name auf Produkten, Text = Folie 1)', 'الاستوديو فوق (الاسم على المنتجات، النص من الشريحة 1)'], quick: ['Leiste „Beliebt“', 'شريط „الأكثر طلباً“'], usp: ['Versprechen (4 Punkte)', 'شريط المميزات (٤ نقاط)'], promos: ['Box-Baukasten (rosa Fläche)', 'صمّم بوكسك (المساحة الزهرية)'], finder: ['Geschenkfinder', 'مكتشف الهدايا'], mosaic: ['Alter Kopfbereich (Bilder-Mosaik)', 'الشكل القديم (مربعات الصور)'], cats: ['Kategorien', 'الأقسام'], best: ['Bestseller', 'الأكثر مبيعاً'], wall: ['Namen live ausprobieren', 'جرّب اسمك على المنتجات'], new: ['Neue Produkte', 'منتجات جديدة'], feats: ['Vorteile (4 Kästchen)', 'المميزات (٤ مربعات)'], occ: ['Anlässe', 'المناسبات'], about: ['Über uns', 'من نحن'], carousel: ['Bilder-Karussell', 'شريط الصور'], reviews: ['Bewertungen', 'التقييمات'], camp: ['Saison-Aktion', 'عرض الموسم'], gift: ['Gutscheine (lila Fläche)', 'بطاقات الهدايا (المساحة البنفسجية)'], locs: ['Läden & Karte', 'الفروع والخريطة'], faq: ['Häufige Fragen', 'الأسئلة الشائعة'], news: ['Newsletter', 'النشرة البريدية'] };
-  const TILE_L = { her: ['Bild „Für sie“', 'صورة „لها“'], him: ['Bild „Für ihn“', 'صورة „له“'], promo: ['Großes Bild „Geschenke“', 'الصورة الكبيرة „هدايا“'], kids: ['Bild „Für Kinder“', 'صورة „للأطفال“'], all: ['Bild „Für alle“', 'صورة „للآخرين“'], custom: ['Bild „Box gestalten“', 'صورة „صمم بوكسك“'] };
+  const SEC_L = { hero: ['Live-Studio oben (Name auf Produkten, Text = Folie 1)', 'الاستوديو فوق (الاسم على المنتجات، النص من الشريحة 1)'], quick: ['Leiste „Beliebt“', 'شريط „الأكثر طلباً“'], usp: ['Versprechen (4 Punkte)', 'شريط المميزات (٤ نقاط)'], finder: ['Geschenkfinder', 'مكتشف الهدايا'], mosaic: ['Alter Kopfbereich (Bilder-Mosaik)', 'الشكل القديم (مربعات الصور)'], cats: ['Kategorien', 'الأقسام'], best: ['Bestseller', 'الأكثر مبيعاً'], wall: ['Namen live ausprobieren', 'جرّب اسمك على المنتجات'], new: ['Neue Produkte', 'منتجات جديدة'], feats: ['Vorteile (4 Kästchen)', 'المميزات (٤ مربعات)'], occ: ['Anlässe', 'المناسبات'], about: ['Über uns', 'من نحن'], carousel: ['Bilder-Karussell', 'شريط الصور'], reviews: ['Bewertungen', 'التقييمات'], camp: ['Saison-Aktion', 'عرض الموسم'], gift: ['Gutscheine (lila Fläche)', 'بطاقات الهدايا (المساحة البنفسجية)'], locs: ['Läden & Karte', 'الفروع والخريطة'], faq: ['Häufige Fragen', 'الأسئلة الشائعة'], news: ['Newsletter', 'النشرة البريدية'] };
+  const TILE_L = { her: ['Bild „Für sie“', 'صورة „لها“'], him: ['Bild „Für ihn“', 'صورة „له“'], promo: ['Großes Bild „Geschenke“', 'الصورة الكبيرة „هدايا“'], kids: ['Bild „Für Kinder“', 'صورة „للأطفال“'], all: ['Bild „Für alle“', 'صورة „للآخرين“'] };
   const TXT = [
-    ['Startseite: Leisten & Banner', 'الصفحة الرئيسية: الشرائط والبانرات', ['h_u1', 'h_u1d', 'h_u2', 'h_u2d', 'h_u3', 'h_u3d', 'h_u4', 'h_u4d', 'h_occ_h', 'h_box_e', 'h_box_t', 'h_box_p', 'h_box_b', 'h_gc_e', 'h_gc_t', 'h_gc_p', 'h_gc_b', 'h_cats_h', 'h_fd_h', 'h_fd_p']],
+    ['Startseite: Leisten & Banner', 'الصفحة الرئيسية: الشرائط والبانرات', ['h_u1', 'h_u1d', 'h_u2', 'h_u2d', 'h_u3', 'h_u3d', 'h_u4', 'h_u4d', 'h_occ_h', 'h_gc_e', 'h_gc_t', 'h_gc_p', 'h_gc_b', 'h_cats_h', 'h_fd_h', 'h_fd_p']],
     ['Oben im Shop', 'أعلى المتجر', ['top_welcome', 'finder_h']],
     ['Überschriften', 'العناوين', ['cats_h', 'best_h', 'new_h', 'occ_h', 'wall_h', 'wall_p']],
     ['Vorteile', 'المميزات', ['feat1', 'feat1d', 'feat2', 'feat2d', 'feat3', 'feat3d', 'feat4', 'feat4d']],
@@ -218,7 +218,7 @@
     ['Gutschein, Newsletter, Fußzeile', 'بطاقة الهدايا، النشرة، أسفل الموقع', ['gc_h', 'gc_p', 'news_h', 'news_p', 'ft_about']]
   ];
   const PRESETS = ['#fe90be', '#f066a0', '#c2608b', '#b0517a', '#d27ba1', '#a3708f', '#c77b5d', '#b88a4e', '#3aa7a3', '#3f7f95', '#5b6bb0', '#2d2930'];
-  const LINKS = () => [['#/c/alle', W('Alle Geschenke', 'كل الهدايا')], ['#/box', W('Box gestalten', 'صمم بوكسك')], ['#/gutschein', W('Gutscheine', 'بطاقات الهدايا')], ['#/filialen', W('Unsere Läden', 'فروعنا')], ...CAT_EXTRA.cats.map(c => ['#/c/' + c, t('cat_' + c, null, AR() ? 'ar' : 'de')]), ...CAT_EXTRA.occ.map(o => ['#/o/' + o, t('occ_' + o, null, AR() ? 'ar' : 'de')]), ['#/o/kinder', t('occ_kinder', null, AR() ? 'ar' : 'de')]];
+  const LINKS = () => [['#/c/alle', W('Alle Geschenke', 'كل الهدايا')], ['#/gutschein', W('Gutscheine', 'بطاقات الهدايا')], ['#/filialen', W('Unsere Läden', 'فروعنا')], ...CAT_EXTRA.cats.map(c => ['#/c/' + c, t('cat_' + c, null, AR() ? 'ar' : 'de')]), ...CAT_EXTRA.occ.map(o => ['#/o/' + o, t('occ_' + o, null, AR() ? 'ar' : 'de')]), ['#/o/kinder', t('occ_kinder', null, AR() ? 'ar' : 'de')]];
   let WC = null; let wsTab = 'look';
   const saveSoon = C.debounce(() => { SITE.save(WC); const s = $('#wsSaved'); if (s) { s.textContent = W('Gespeichert ✓', 'تم الحفظ ✓'); s.style.opacity = 1; setTimeout(() => { s.style.opacity = .5; }, 1200); } }, 350);
   const tri = (path, val, ph, rows) => `<div class="grid3">${['de', 'en', 'ar'].map(l => rows ? `<label class="fld"><span>${l.toUpperCase()}</span><textarea class="in" rows="${rows}" data-ws="${path}.${l}" placeholder="${esc((ph || {})[l] || '')}"${l === 'ar' ? ' dir="rtl"' : ''}>${esc((val || {})[l] || '')}</textarea></label>` : `<label class="fld"><span>${l.toUpperCase()}</span><input class="in" data-ws="${path}.${l}" value="${esc((val || {})[l] || '')}" placeholder="${esc((ph || {})[l] || '')}"${l === 'ar' ? ' dir="rtl"' : ''}></label>`).join('')}</div>`;
@@ -226,7 +226,7 @@
   const upl = (key, label, accept) => `<label class="btn ghost sm up-btn">${ic('upload')} ${label}<input type="file" accept="${accept || 'image/*'}" data-wsimg="${key}"></label>`;
   A.website = function () {
     if (!WC) WC = SITE.get();
-    const c = WC; const tabs = [['look', W('Logo & Farben', 'الشعار والألوان')], ['home', W('Startseite', 'الصفحة الرئيسية')], ['texts', W('Texte', 'النصوص')], ['shops', W('Läden & Karte', 'الفروع والخريطة')], ['box', W('Geschenkbox', 'بوكس الهدايا')]];
+    const c = WC; const tabs = [['look', W('Logo & Farben', 'الشعار والألوان')], ['home', W('Startseite', 'الصفحة الرئيسية')], ['texts', W('Texte', 'النصوص')], ['shops', W('Läden & Karte', 'الفروع والخريطة')]];
     let body = '';
     if (wsTab === 'look') body = `<section class="a-card"><h2>${W('Logo', 'الشعار (اللوجو)')}</h2><p class="hint">${W('Am besten als PNG mit durchsichtigem Hintergrund.', 'الأفضل ملف PNG بخلفية شفافة.')}</p>
         <div class="ws-img">${c.logo ? `<img class="logo-pv" ${V5.src(c.logo)} alt="">` : `<span class="muted">${W('Noch kein Logo – der Shop zeigt den Schriftzug.', 'لسا ما في لوجو – المتجر بيعرض الاسم مكتوب.')}</span>`}${upl('logo', W('Logo hochladen', 'رفع اللوجو'), 'image/png,image/svg+xml,image/jpeg,image/webp')}${c.logo ? `<button class="btn ghost sm danger" data-wsa="logo-x">${ic('trash')}</button>` : ''}</div>
@@ -240,7 +240,7 @@
           <span class="lb">${W('Überschrift', 'العنوان')}</span>${tri('slides.0.t', (c.slides[0] || {}).t, tdef('s_h1'))}
           <span class="lb">${W('Text', 'النص')}</span>${tri('slides.0.p', (c.slides[0] || {}).p, tdef('s_p'), 2)}</section>
       <section class="a-card"><h2>${W('Bilder im alten Kopfbereich (nur wenn „Alter Kopfbereich“ eingeschaltet ist)', 'صور الشكل القديم (بس إذا شغّلت „الشكل القديم“)')}</h2><div class="ws-tiles">${Object.keys(TILE_L).map(k => { const x = c.tiles[k] || {}; const def = { her: 'who_her', him: 'who_him', kids: 'who_kids', all: 'who_all', promo: 'tile_gifts', custom: 'tile_custom' }[k]; return `<div class="ws-tile"><b>${esc(W(...TILE_L[k]))}</b>${x.img ? `<img ${V5.src(x.img)} alt="">` : `<span class="muted small">${W('Standardbild', 'الصورة الأصلية')}</span>`}<div class="vbtns">${upl('tile.' + k, W('Bild wählen', 'اختار صورة'))}${x.img ? `<button class="btn ghost sm" data-wsa="tile-x" data-k="${k}">${ic('rotateL')}</button>` : ''}</div>
-          <span class="lb">${W('Titel', 'العنوان')}</span>${tri('tiles.' + k + '.t', x.t, tdef(def))}${k === 'promo' || k === 'custom' ? `<span class="lb">${W('Kleiner Text', 'نص صغير')}</span>${tri('tiles.' + k + '.p', x.p, tdef(k === 'promo' ? 'tile_gifts_p' : 'tile_custom_p'))}` : ''}
+          <span class="lb">${W('Titel', 'العنوان')}</span>${tri('tiles.' + k + '.t', x.t, tdef(def))}${k === 'promo' ? `<span class="lb">${W('Kleiner Text', 'نص صغير')}</span>${tri('tiles.' + k + '.p', x.p, tdef('tile_gifts_p'))}` : ''}
           <label class="fld"><span>${W('Link', 'الرابط')}</span><select class="in" data-ws="tiles.${k}.link"><option value="">${W('Standard', 'الأصلي')}</option>${LINKS().map(([h, l]) => `<option value="${h}"${x.link === h ? ' selected' : ''}>${esc(l)}</option>`).join('')}</select></label></div>`; }).join('')}</div></section>`;
     if (wsTab === 'texts') body = TXT.map(([de, ar, keys]) => `<section class="a-card"><h2>${esc(W(de, ar))}</h2><p class="hint">${W('Leer lassen = Standardtext (grau).', 'خليه فاضي = النص الأصلي (الرمادي).')}</p>${keys.map(k => `<span class="lb" style="margin-top:8px">${esc(t(k, null, AR() ? 'ar' : 'de').slice(0, 60))}</span>${tri('texts.' + k, c.texts[k], tdef(k), /_p\d|feat\dd|wall_p|gc_p|news_p|ft_about/.test(k) ? 2 : 0)}`).join('')}</section>`).join('');
     if (wsTab === 'shops') body = `<section class="a-card"><h2>${W('Läden (mit Karte im Shop)', 'الفروع (مع خريطة بالمتجر)')}</h2><p class="hint">${W('Jeder Laden erscheint auf der Startseite, unter „Unsere Läden“, in der Fußzeile und als Abholort an der Kasse.', 'كل فرع بيظهر بالصفحة الرئيسية، بصفحة „فروعنا“، أسفل الموقع، وكمكان استلام بصفحة الدفع.')}</p>
@@ -249,20 +249,6 @@
           <span class="lb">${W('Öffnungszeiten', 'ساعات الدوام')}</span>${tri('locations.' + i + '.hours', l.hours)}</div>`).join('')}
         <button class="btn ghost sm" data-wsa="loc-add">${ic('plus')} ${W('Laden hinzufügen', 'إضافة فرع')}</button></section>
       <section class="a-card"><h2>${W('Social Media', 'مواقع التواصل')}</h2><div class="grid3">${[['ig', 'Instagram'], ['tt', 'TikTok'], ['fb', 'Facebook']].map(([k, l]) => `<label class="fld"><span>${l}</span><input class="in" dir="ltr" data-ws="social.${k}" value="${esc(c.social[k] || '')}" placeholder="https://"></label>`).join('')}</div></section>`;
-    if (wsTab === 'box') {
-      BOX.applySite(); const { BOXES, EXTRAS } = BOX.opts;
-      body = `<section class="a-card"><h2>${W('Boxen', 'البوكسات')}</h2><p class="hint">${W('Lade für jede Box ein echtes Foto als PNG hoch (von oben, offen, Hintergrund durchsichtig). Dann sieht der Kunde seine Geschenke in eurer echten Box. Ohne Foto wird die Box gezeichnet.', 'ارفع لكل بوكس صورة حقيقية PNG (من فوق، مفتوح، والخلفية شفافة). هيك الزبون بيشوف هداياه جوا البوكس الحقيقي تبعكم. بدون صورة البوكس بينرسم.')}</p>
-        <div class="ws-tiles">${BOXES.map(b => { const o = c.boxes[b.id] || {}; const inn = o.inner || [.17, .3, .66, .52]; return `<div class="ws-tile"><div class="row" style="justify-content:space-between"><b>${esc(L(b.l, AR() ? 'ar' : 'de'))}</b><label class="tog"><input type="checkbox" data-wsbox="${b.id}" data-k="on"${o.off ? '' : ' checked'}><span>${W('sichtbar', 'ظاهر')}</span></label></div>
-          ${o.img ? `<img ${V5.src(o.img)} alt="" style="object-fit:contain;background:#fff">` : `<i class="bx-sw" style="--a:${b.c};--b:${b.c2};width:100%;height:80px"></i>`}
-          <div class="vbtns">${upl('box.' + b.id, W('PNG-Foto', 'صورة PNG'), 'image/png,image/webp,image/*')}${o.img ? `<button class="btn ghost sm" data-wsa="box-x" data-k="${b.id}">${ic('trash')}</button>` : ''}</div>
-          <span class="lb">${W('Name', 'الاسم')}</span>${tri('boxes.' + b.id + '.l', o.l, b.l)}
-          <label class="fld"><span>${W('Preis €', 'السعر €')}</span><input class="in" type="number" step="0.1" min="0" data-ws="boxes.${b.id}.price" data-num="1" value="${o.price != null && o.price !== '' ? o.price : b.price}"></label>
-          ${o.img ? `<span class="lb">${W('Innenfläche (wo die Geschenke liegen), in %', 'المساحة الداخلية (وين بتنحط الهدايا) بالنسبة %')}</span><div class="grid4">${[W('links', 'من الجنب'), W('oben', 'من فوق'), W('Breite', 'العرض'), W('Höhe', 'الارتفاع')].map((l, k) => `<label class="fld"><span>${l}</span><input class="in" type="number" min="0" max="100" data-wsinner="${b.id}" data-k="${k}" value="${Math.round(inn[k] * 100)}"></label>`).join('')}</div>` : ''}</div>`; }).join('')}</div>
-        <button class="btn ghost sm" data-wsa="box-add" style="margin-top:10px">${ic('plus')} ${W('Neue Box', 'بوكس جديد')}</button></section>
-      <section class="a-card"><h2>${W('Extras in der Box', 'الإضافات جوا البوكس')}</h2><div class="ws-tiles">${EXTRAS.map(e => { const o = c.extras[e.id] || {}; return `<div class="ws-tile"><div class="row" style="justify-content:space-between"><b>${esc(L(e.l, AR() ? 'ar' : 'de'))}</b><label class="tog"><input type="checkbox" data-wsex="${e.id}"${o.off ? '' : ' checked'}><span>${W('sichtbar', 'ظاهر')}</span></label></div>
-          ${o.img ? `<img ${V5.src(o.img)} alt="" style="object-fit:contain;background:#fff;aspect-ratio:2/1">` : `<span style="font-size:40px;text-align:center">${e.e}</span>`}<div class="vbtns">${upl('extra.' + e.id, W('PNG-Foto', 'صورة PNG'), 'image/png,image/webp,image/*')}${o.img ? `<button class="btn ghost sm" data-wsa="ex-x" data-k="${e.id}">${ic('trash')}</button>` : ''}</div>
-          <label class="fld"><span>${W('Preis €', 'السعر €')}</span><input class="in" type="number" step="0.1" min="0" data-ws="extras.${e.id}.price" data-num="1" value="${o.price != null && o.price !== '' ? o.price : e.price}"></label></div>`; }).join('')}</div></section>`;
-    }
     A.shell('website', `<div class="a-head"><h1>${ic('image')} ${W('Website gestalten', 'تصميم الموقع')}</h1><div class="vbtns"><span id="wsSaved" class="muted small" style="opacity:.5;transition:opacity .3s">${W('Änderungen werden sofort gespeichert', 'التعديلات بتنحفظ تلقائياً')}</span><a class="btn ghost sm" href="index.html#/" target="_blank" rel="noopener">${ic('eye')} ${W('Shop ansehen', 'شوف المتجر')}</a><button class="btn sm" data-wsa="editmode">${ic('edit')} ${W('Alles direkt im Shop ändern', 'عدّل أي شي مباشرة بالمتجر')}</button></div></div>
       <div class="callout" style="margin-bottom:14px"><b>${ic('edit')} ${W('Jeden Text und jedes Bild ändern', 'تعديل أي نص وأي صورة')}</b><p>${W('Drück auf „Alles direkt im Shop ändern“. Der Shop öffnet sich im Bearbeiten-Modus: tippe auf irgendeinen Text, um ihn zu ändern oder auszublenden, oder auf ein Bild, um es zu ersetzen. Unten rechts „Fertig“ drücken.', 'اكبس على „عدّل أي شي مباشرة بالمتجر“. المتجر بيفتح بوضع التعديل: اكبس على أي نص لتغيّره أو تخفيه، أو على أي صورة لتبدلها. وبس تخلص اكبس „خلصت“ تحت.')}</p></div>
       <nav class="chips" style="margin:0 0 16px">${tabs.map(([k, l]) => `<button data-wstab="${k}" aria-pressed="${wsTab === k}">${esc(l)}</button>`).join('')}</nav>${body}`);
@@ -276,19 +262,16 @@
     m.oninput = e => {
       const el = e.target;
       if (el.dataset.ws) { let v = el.value; if (el.dataset.num) v = el.value === '' ? '' : +el.value; setP(WC, el.dataset.ws, v); if (el.dataset.ws === 'logoH') el.nextElementSibling.textContent = v + 'px'; if (['brand', 'accent', 'alert', 'text', 'logoH'].includes(el.dataset.ws)) SITE.save(WC); saveSoon(); }
-      if (el.dataset.wsinner) { const b = el.dataset.wsinner; WC.boxes[b] = WC.boxes[b] || {}; const inn = (WC.boxes[b].inner || [.17, .3, .66, .52]).slice(); inn[+el.dataset.k] = Math.max(0, Math.min(1, (+el.value || 0) / 100)); WC.boxes[b].inner = inn; saveSoon(); }
     };
     m.onchange = async e => {
       const el = e.target;
       if (el.dataset.ws && el.tagName === 'SELECT') { setP(WC, el.dataset.ws, el.value); saveSoon(); return; }
       if (el.dataset.wssec != null) { WC.sections[+el.dataset.wssec].on = el.checked; saveSoon(); return; }
-      if (el.dataset.wsbox) { WC.boxes[el.dataset.wsbox] = WC.boxes[el.dataset.wsbox] || {}; WC.boxes[el.dataset.wsbox].off = !el.checked; saveSoon(); return; }
-      if (el.dataset.wsex) { WC.extras[el.dataset.wsex] = WC.extras[el.dataset.wsex] || {}; WC.extras[el.dataset.wsex].off = !el.checked; saveSoon(); return; }
       if (el.dataset.wsimg) {
         const file = el.files && el.files[0]; el.value = ''; if (!file) return;
         const key = el.dataset.wsimg; C.toast(W('Bild wird geladen …', 'عم تنحمل الصورة …'));
         try {
-          const alpha = key === 'logo' || key.startsWith('box.') || key.startsWith('extra.');
+          const alpha = key === 'logo';
           const r = await ST.readImage(file, key === 'logo' ? 700 : 1400, alpha);
           let ref;
           if (key === 'logo') ref = await new Promise(res => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.readAsDataURL(r.blob); });
@@ -296,8 +279,6 @@
           if (key === 'logo') WC.logo = ref;
           else if (key.startsWith('tile.')) setP(WC, 'tiles.' + key.slice(5) + '.img', ref);
           else if (key.startsWith('slide.')) setP(WC, 'slides.' + key.slice(6) + '.img', ref);
-          else if (key.startsWith('box.')) { const b = key.slice(4); WC.boxes[b] = WC.boxes[b] || {}; WC.boxes[b].img = ref; }
-          else if (key.startsWith('extra.')) { const x = key.slice(6); WC.extras[x] = WC.extras[x] || {}; WC.extras[x].img = ref; }
           SITE.save(WC); C.toast(W('Gespeichert ✓', 'تم الحفظ ✓')); A.website();
         } catch (er) { C.toast(W('Bild konnte nicht geladen werden', 'ما قدرنا نحمل الصورة'), 'err'); }
       }
@@ -316,9 +297,6 @@
       if (a === 'slide-x') WC.slides[i].img = '';
       if (a === 'loc-add') WC.locations.push({ id: 'l' + ST.uid(''), name: 'Adam', street: '', zip: '', city: 'Hamburg', phone: '', hours: { de: '', en: '', ar: '' } });
       if (a === 'loc-x') WC.locations.splice(i, 1);
-      if (a === 'box-x') { WC.boxes[b.dataset.k].img = ''; }
-      if (a === 'ex-x') { WC.extras[b.dataset.k].img = ''; }
-      if (a === 'box-add') { const id = 'box' + ST.uid(''); WC.boxes[id] = { l: { de: 'Neue Box', en: 'New box', ar: 'بوكس جديد' }, price: 9.9 }; }
       SITE.save(WC); A.website();
     };
   }

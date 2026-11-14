@@ -60,12 +60,12 @@
   "result": "PASS"
  },
  {
-  "test": "Gift box with fake extra rejected",
+  "test": "Removed gift-box builder: forged items refused (fake extra)",
   "severity": "High",
   "result": "PASS"
  },
  {
-  "test": "Gift box with negative extras rejected",
+  "test": "Removed gift-box builder: forged items refused (negative extra)",
   "severity": "High",
   "result": "PASS"
  },

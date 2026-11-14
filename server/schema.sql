@@ -235,23 +235,12 @@ end $$;
 -- Preisprüfung: der Server rechnet jede Position und die Summe neu.
 -- Die Preisliste ("prices") schreibt der Inhaber-Bereich bei jeder Änderung.
 -- ---------------------------------------------------------------------
-create or replace function shop.item_price(it jsonb, pr jsonb) returns numeric language plpgsql stable as $$
-declare pid text := it->>'pid'; p jsonb; base numeric; o record; ch text; cp numeric; bx jsonb; tb jsonb; n numeric; k text;
+create or replace function shop.item_price(it jsonb, pr jsonb) returns numeric language plpgsql stable set search_path = '' as $$
+declare pid text := it->>'pid'; p jsonb; base numeric; o record; ch text; cp numeric; 
 begin
   if pid = 'gutschein' then
     base := (it->>'unit')::numeric;
     if base is null or base < 5 or base > 500 then perform shop.err('price'); end if;
-    return round(base, 2);
-  end if;
-  if pid = 'geschenkbox' then
-    tb := pr->'_box'; bx := it#>'{D,box}';
-    if tb is null or bx is null then perform shop.err('price'); end if;
-    base := (tb->'boxes'->>(bx->>'box'))::numeric + (tb->'sizes'->>(bx->>'size'))::numeric + (tb->'fills'->>(bx->>'fill'))::numeric;
-    if base is null then perform shop.err('price'); end if;
-    for k, n in select key, value::numeric from jsonb_each_text(coalesce(bx->'extras', '{}'::jsonb)) loop
-      if n < 0 or n > 999 or n <> trunc(n) or (tb->'extras'->>k) is null then perform shop.err('price'); end if;
-      base := base + n * (tb->'extras'->>k)::numeric;
-    end loop;
     return round(base, 2);
   end if;
   p := pr->pid;
@@ -421,6 +410,7 @@ begin
     if coalesce(it->>'preview', '') <> '' and ((it->>'preview') !~ '^data:image/(jpeg|png);base64,[A-Za-z0-9+/=]+$' or length(it->>'preview') > 400000) then perform shop.err('preview'); end if;
     unit := shop.item_price(it, pr);
     -- stock is checked on the server too (the shop also disables the button)
+    -- ('geschenkbox' below only keeps old orders readable and cancellable; new orders with it fail in shop.item_price)
     if it->>'pid' not in ('gutschein', 'geschenkbox') and coalesce((shop.kvget('prodOv', '{}'::jsonb)#>>array[it->>'pid', 'stock'])::int, 25) < (it->>'qty')::int then perform shop.err('product_unavailable'); end if;
     if abs(unit - coalesce((it->>'unit')::numeric, -1)) > 0.009 then mismatch := true; end if;
     prod := pr->(it->>'pid');

@@ -26,14 +26,15 @@ async def admin_login(b):
     await a.wait_for_selector('.a-top', timeout=8000); await a.wait_for_timeout(1500); return a
 async def fill_checkout(p, email, method='pickup', pay='vorkasse'):
     await p.goto(WEB + '/index.html#/kasse'); await p.wait_for_timeout(1500)
-    await p.locator(f'[data-co=method][value={method}]').first.check(force=True); await p.wait_for_timeout(400)
+    await p.locator(f'[data-co=method][value={method}]').first.dispatch_event('click'); await p.wait_for_timeout(400)
     vals = {'name': 'Erika Muster', 'email': email, 'phone': '0151 2345678', 'bill.name': 'Erika Muster', 'bill.street': 'Teststr. 1', 'bill.zip': '20099', 'bill.city': 'Hamburg',
             'addr.name': 'Erika Muster', 'addr.street': 'Lange Reihe 5', 'addr.zip': '20099', 'addr.city': 'Hamburg'}
     for k, v in vals.items():
         el = p.locator(f'[data-co="{k}"]').first
         if await el.count() and await el.is_visible() and not await el.input_value(): await el.fill(v)
-    await p.locator(f'[data-co=pay][value={pay}]').first.check(force=True)
-    await p.locator('[data-co=agb]').first.check(force=True); await p.wait_for_timeout(300)
+    await p.locator(f'[data-co=pay][value={pay}]').first.dispatch_event('click')
+    if not await p.locator('[data-co=agb]').first.is_checked(): await p.locator('[data-co=agb]').first.dispatch_event('click')
+    await p.wait_for_timeout(300)
 async def place(p):
     await p.locator('[data-act=place]').first.click(); await p.wait_for_timeout(3500)
     return p.url.split('/danke/')[-1] if '/danke/' in p.url else None
@@ -75,7 +76,7 @@ async def main():
         await p2.goto(WEB + f'/index.html#/p/{pid}'); await p2.wait_for_timeout(2000)
         img = base64.b64decode('/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=')
         fin = p2.locator('input[type=file][data-upload], input[type=file]').first
-        await fin.set_input_files({'name': 'foto.jpg', 'mimeType': 'image/jpeg', 'buffer': open('/home/claude/adam-neuetalia/img/p/p01.jpg', 'rb').read()})
+        await fin.set_input_files({'name': 'foto.jpg', 'mimeType': 'image/jpeg', 'buffer': open('/home/claude/adam-neu/app/img/p/p01.jpg', 'rb').read()})
         await p2.wait_for_timeout(2500)
         crop = p2.locator('[data-crop=done], .crop-sheet .btn:last-child, [data-crop="ok"]')
         if await crop.count(): await crop.first.click(); await p2.wait_for_timeout(800)

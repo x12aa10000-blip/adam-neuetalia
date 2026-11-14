@@ -5,7 +5,7 @@ from playwright.async_api import async_playwright
 WEB = os.environ.get('WEB', 'http://localhost:8780')
 SHOTS = os.environ.get('SHOTS', '/home/claude/shots/qa')
 os.makedirs(SHOTS, exist_ok=True)
-ROUTES = ['#/', '#/c/alle', '#/anlass', '#/box', '#/gutschein', '#/warenkorb', '#/kasse', '#/konto', '#/konto/registrieren', '#/konto/passwort',
+ROUTES = ['#/', '#/c/alle', '#/anlass', '#/gutschein', '#/warenkorb', '#/kasse', '#/konto', '#/konto/registrieren', '#/konto/passwort',
           '#/verfolgen', '#/filialen', '#/hilfe', '#/wunschliste', '#/suche/rose', '#/rechtliches/impressum', '#/rechtliches/datenschutz',
           '#/rechtliches/agb', '#/rechtliches/widerruf', '#/rechtliches/versand']
 VIEWS = {'mobile': (390, 844), 'tablet': (820, 1180), 'desktop': (1366, 900)}
@@ -43,7 +43,7 @@ async def main():
                     links.update(res['links'])
                     issue = {k: v for k, v in {'errors': errs[:3], 'overflow': res['overflow'] if res['overflow'] > 2 else 0, 'wide': res['wide'], 'brokenImg': res['brokenImg'], 'keys': res['keys'], 'undef': res['undef'], 'noH1': not res['h1'].strip() and r != '#/'}.items() if v}
                     if issue: problems.append({'view': vname, 'lang': lang, 'route': r, **issue})
-                    if r in ['#/', '#/c/alle', '#/p/rosenbox-herz', '#/kasse', '#/box'] and lang != 'en':
+                    if r in ['#/', '#/c/alle', '#/p/rosenbox-herz', '#/kasse'] and lang != 'en':
                         await p.screenshot(path=f'{SHOTS}/{vname}-{lang}-{r.strip("#/").replace("/", "_") or "home"}.png')
                 await c.close()
         # dead internal links

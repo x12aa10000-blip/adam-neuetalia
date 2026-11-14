@@ -143,7 +143,7 @@
         <div class="od-items">${o.items.map((it, i) => `<section class="a-card od-item"><div class="od-pv"><canvas data-opv="${i}"></canvas></div><div class="od-info"><h3>${it.qty} × ${esc(L(it.name, AL()))}</h3>
           <dl class="kv">${DOCS.lines(it, AL()).map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
           ${it.approval ? `<p class="appr-st ${it.approval.status}">${ic('eye')} Freigabe: <b>${{ offen: 'wartet auf Kunde', ok: 'freigegeben', change: 'Änderung gewünscht' }[it.approval.status]}</b></p>${it.approval.comments.map(c => `<p class="cmt ${c.by}"><b>${c.by === 'shop' ? 'Shop' : 'Kunde'}:</b> ${esc(c.text)}</p>`).join('')}` : ''}
-          ${it.pid === 'geschenkbox' ? `<div class="vbtns"><button class="btn sm" data-a="boxcard" data-no="${o.no}" data-i="${i}">${ic('card')} Grußkarte drucken (PNG)</button></div>` : `<div class="vbtns"><button class="btn sm" data-a="files" data-no="${o.no}" data-i="${i}">${ic('print')} Drucken / Dateien</button><button class="btn ghost sm" data-a="edit-item" data-no="${o.no}" data-i="${i}">${ic('edit')} Text korrigieren</button><button class="btn ghost sm" data-a="big" data-no="${o.no}" data-i="${i}">${ic('zoomIn')} Groß ansehen</button></div>`}</div></section>`).join('')}</div>
+          ${`<div class="vbtns"><button class="btn sm" data-a="files" data-no="${o.no}" data-i="${i}">${ic('print')} Drucken / Dateien</button><button class="btn ghost sm" data-a="edit-item" data-no="${o.no}" data-i="${i}">${ic('edit')} Text korrigieren</button><button class="btn ghost sm" data-a="big" data-no="${o.no}" data-i="${i}">${ic('zoomIn')} Groß ansehen</button></div>`}</div></section>`).join('')}</div>
         <aside class="od-side">
           <section class="a-card"><h3>Dokumente</h3><div class="docbtns">
             <button class="btn ghost sm" data-a="pdf" data-k="sheet" data-no="${o.no}">${ic('print')} Produktionsblatt</button>
@@ -166,7 +166,7 @@
           <section class="a-card"><h3>E-Mails an Kunde</h3>${mails.length ? `<ul class="mlist">${mails.map(m => `<li><a href="#/admin/emails/${m.id}">${esc(DOCS.mail(m).subject)}</a><small>${C.ago(m.at, AL())} · ${esc(m.to)}</small></li>`).join('')}</ul>` : '<p class="muted">Keine.</p>'}</section>
           ${o.status !== 'storniert' && o.status !== 'zugestellt' ? `<button class="btn ghost sm danger" data-a="cancel" data-no="${o.no}">${ic('trash')} Bestellung stornieren</button>` : ''}
         </aside></div>`);
-    for (const c of $$('[data-opv]')) { const it = o.items[+c.dataset.opv]; const p = ST.product(it.pid); if (it.pid === 'geschenkbox' && it.D.box && window.BOX) { await BOX.drawBox(c, Object.assign({ items: o.items.filter(x => x.D && x.D.boxOf === it.id).map(x => ({ pid: x.pid, D: x.D, qty: x.qty })) }, it.D.box), 700); continue; } if (p && p.views.length) await ENG.render(c, p, 0, it.D, { maxW: 700, force: true }); }
+    for (const c of $$('[data-opv]')) { const it = o.items[+c.dataset.opv]; const p = ST.product(it.pid); if (p && p.views.length) await ENG.render(c, p, 0, it.D, { maxW: 700, force: true }); }
   };
 
   /* ---------------- production ---------------- */
@@ -488,7 +488,6 @@
       case 'fdl': { const fmt = el.dataset.f; const i = +el.dataset.i; el.disabled = true; const old = el.innerHTML; el.innerHTML = '<span class="spin"></span>'; try { const fs = await DOCS.makeFiles(o, i, fmt); if (!fs.length) { C.toast('Für dieses Produkt nicht nötig'); } else if (fs.length === 1) await C.save(fs[0].name, fs[0].blob); else { const JSZip = await C.zip(); const z = new JSZip(); fs.forEach(f => z.file(f.name, f.blob)); await C.save(`${o.no}_${i + 1}_${fmt}.zip`, await z.generateAsync({ type: 'blob' })); } ST.log('datei', `${o.no}: ${fmt.toUpperCase()} heruntergeladen`, (session() || {}).user); } catch (e) { console.error(e); C.toast('Fehler beim Erstellen', 'err'); } el.disabled = false; el.innerHTML = old; return; }
       case 'fall': { const i = +el.dataset.i; const JSZip = await C.zip(); const z = new JSZip(); for (const f of DOCS.formatsFor(DOCS.zonesOf(o.items[i]))) for (const x of await DOCS.makeFiles(o, i, f.id)) z.file(x.name, x.blob); return dl(`${o.no}_${i + 1}_alle-Dateien.zip`, z.generateAsync({ type: 'blob' })); }
       case 'anav': return A.navSheet();
-      case 'boxcard': return dl(`${o.no}_Grusskarte.png`, BOX.cardBlob(o.items[+el.dataset.i]));
       case 'zip': return dl(`${no}.zip`, DOCS.orderZip(o));
       case 'pdf': { const k = el.dataset.k; const m = { sheet: [`${no}_Produktion.pdf`, () => DOCS.sheet([o])], invoice: [`${o.invoice}.pdf`, () => DOCS.invoice(o)], note: [`${no}_Lieferschein.pdf`, () => DOCS.deliveryNote(o)], label: [`${no}_Etikett.pdf`, () => DOCS.label(o)] }[k]; return dl(m[0], m[1]()); }
       case 'dayzip': { const os = ST.orders().filter(x => x.status === 'produktion'); if (!os.length) { C.toast('Keine Aufträge in Produktion'); return; } return dl(`Druckdateien_${today()}.zip`, DOCS.dayZip(os, today())); }

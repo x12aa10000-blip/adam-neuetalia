@@ -3,7 +3,7 @@ Product photos, canvases and product colour swatches (real product colours chose
 import asyncio, json, os, sys
 from playwright.async_api import async_playwright
 WEB = os.environ.get('WEB', 'http://localhost:8780')
-ROUTES = ['#/', '#/c/alle', '#/anlass', '#/p/rosenbox-herz', '#/p/kette-spotify', '#/box', '#/gutschein', '#/warenkorb', '#/kasse', '#/konto', '#/konto/registrieren',
+ROUTES = ['#/', '#/c/alle', '#/anlass', '#/p/rosenbox-herz', '#/p/kette-spotify', '#/gutschein', '#/warenkorb', '#/kasse', '#/konto', '#/konto/registrieren',
           '#/verfolgen', '#/filialen', '#/hilfe', '#/wunschliste', '#/rechtliches/impressum', '#/rechtliches/widerruf']
 JS = """() => {
   const OK = ['254,144,190', '100,37,254', '1,202,201', '51,51,51', '255,255,255', '0,0,0'];

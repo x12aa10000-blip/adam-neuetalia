@@ -26,14 +26,15 @@ async def admin_login(b):
     await a.wait_for_selector('.a-top', timeout=8000); await a.wait_for_timeout(1500); return a
 async def fill_checkout(p, email, method='pickup', pay='vorkasse'):
     await p.goto(WEB + '/index.html#/kasse'); await p.wait_for_timeout(1500)
-    await p.locator(f'[data-co=method][value={method}]').first.check(force=True); await p.wait_for_timeout(400)
+    await p.locator(f'[data-co=method][value={method}]').first.dispatch_event('click'); await p.wait_for_timeout(400)
     vals = {'name': 'Erika Muster', 'email': email, 'phone': '0151 2345678', 'bill.name': 'Erika Muster', 'bill.street': 'Teststr. 1', 'bill.zip': '20099', 'bill.city': 'Hamburg',
             'addr.name': 'Erika Muster', 'addr.street': 'Lange Reihe 5', 'addr.zip': '20099', 'addr.city': 'Hamburg'}
     for k, v in vals.items():
         el = p.locator(f'[data-co="{k}"]').first
         if await el.count() and await el.is_visible() and not await el.input_value(): await el.fill(v)
-    await p.locator(f'[data-co=pay][value={pay}]').first.check(force=True)
-    await p.locator('[data-co=agb]').first.check(force=True); await p.wait_for_timeout(300)
+    await p.locator(f'[data-co=pay][value={pay}]').first.dispatch_event('click')
+    if not await p.locator('[data-co=agb]').first.is_checked(): await p.locator('[data-co=agb]').first.dispatch_event('click')
+    await p.wait_for_timeout(300)
 async def place(p):
     await p.locator('[data-act=place]').first.click(); await p.wait_for_timeout(3500)
     return p.url.split('/danke/')[-1] if '/danke/' in p.url else None
@@ -83,7 +84,7 @@ async def main():
         for el in await p.locator('input[data-field]:visible').all(): await el.fill('Lina')
         await p.locator('[data-act=add]:visible').first.click(); await p.wait_for_timeout(1500); await p.evaluate("()=>C.closeAll()")
         await p.goto(WEB + '/index.html#/kasse'); await p.wait_for_timeout(1500)
-        await p.locator('[data-co=method][value=dhl]').first.check(force=True); await p.wait_for_timeout(500)
+        await p.locator('[data-co=method][value=dhl]').first.dispatch_event('click'); await p.wait_for_timeout(500)
         z = p.locator('[data-co="addr.zip"]')
         await z.fill(''); await z.type('20099abc77', delay=20); await p.wait_for_timeout(1200)
         ok('zip keeps only 5 digits', await z.input_value() == '20099', await z.input_value())
@@ -114,8 +115,9 @@ async def main():
         for k, v in vals.items():
             el = q.locator(f'[data-co="{k}"]').first
             if await el.count() and await el.is_visible(): await el.fill(v)
-        await q.locator('[data-co=pay][value=vorkasse]').first.check(force=True)
-        await q.locator('[data-co=agb]').first.check(force=True); await q.wait_for_timeout(300)
+        await q.locator('[data-co=pay][value=vorkasse]').first.dispatch_event('click')
+        if not await q.locator('[data-co=agb]').first.is_checked(): await q.locator('[data-co=agb]').first.dispatch_event('click')
+        await q.wait_for_timeout(300)
         no = await place(q)
         ok('digital order placed', bool(no), q.url)
         if no:
