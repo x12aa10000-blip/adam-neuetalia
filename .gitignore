@@ -1,0 +1,7 @@
+# never commit secrets
+.env
+*.env
+!*.env.example
+supabase/.temp/
+supabase/functions/.env
+dist/

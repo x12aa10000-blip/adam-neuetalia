@@ -61,6 +61,7 @@
 
   /* ---------- owner warning while a demo PIN is active ---------- */
   function pinWarn() {
+    if (window.CLOUD && CLOUD.on) return; // real passwords on the server, no demo PINs
     if (!document.querySelector('#app.adm') || document.querySelector('.sec-warn')) return;
     const a = ST.get('adminSession', null); if (!a || a.role !== 'owner') return;
     const staff = (ST.settings().staff && ST.settings().staff.length) ? ST.settings().staff : [{ pin: '1234' }, { pin: '0000' }];

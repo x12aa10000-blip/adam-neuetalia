@@ -9,19 +9,22 @@
 
   /* ---------------- virtual gift card product ---------------- */
   S.giftcardImg = function () {
-    if (S._gci) return S._gci;
+    const lg = C.lang(); if (S._gci && S._gciL === lg) return S._gci;
     const W = 1000, H = 640, c = ENG.canvas(W, H), x = c.getContext('2d');
-    x.fillStyle = '#151112'; x.fillRect(0, 0, W, H);
-    const g = x.createLinearGradient(0, 0, W, H); g.addColorStop(0, '#b8924f'); g.addColorStop(.5, '#f1dcaa'); g.addColorStop(1, '#a8824a');
-    x.strokeStyle = g; x.lineWidth = 2; x.strokeRect(34, 34, W - 68, H - 68); x.lineWidth = 1; x.strokeRect(46, 46, W - 92, H - 92);
-    x.fillStyle = g; x.textAlign = 'center';
-    x.font = '500 78px "ui-serif", Georgia, serif'; x.fillText('Adam & Neuetalia', W / 2, 270);
-    x.font = '400 22px "ui-sans", sans-serif'; if ('letterSpacing' in x) x.letterSpacing = '9px'; x.fillText('GESCHENKGUTSCHEIN', W / 2, 340); if ('letterSpacing' in x) x.letterSpacing = '0px';
-    x.font = '500 46px "ui-serif-i", Georgia, serif'; x.fillText('für ein Lächeln', W / 2, 440);
-    x.font = '400 18px "ui-sans", sans-serif'; x.fillStyle = '#9e938c'; x.fillText('Steindamm 62 · Hamburg', W / 2, 560);
+    // Figma palette only: pink card, ink lettering, turquoise and purple accents
+    x.fillStyle = '#FE90BE'; x.fillRect(0, 0, W, H);
+    x.fillStyle = '#FFFFFF'; x.globalAlpha = .18; x.beginPath(); x.arc(W - 120, 110, 260, 0, Math.PI * 2); x.fill(); x.globalAlpha = 1;
+    x.fillStyle = '#01CAC9'; x.beginPath(); x.arc(110, H - 90, 46, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#6425FE'; x.beginPath(); x.arc(186, H - 90, 18, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#333333'; x.textAlign = 'start';
+    x.font = '700 120px "ui-pop", "ui-sans", sans-serif'; if ('letterSpacing' in x) x.letterSpacing = '-4px'; x.fillText('Adam', 80, 220); if ('letterSpacing' in x) x.letterSpacing = '0px';
+    x.fillStyle = '#FFFFFF'; x.beginPath(); x.arc(80 + x.measureText('Adam').width + 14, 214, 13, 0, Math.PI * 2); x.fill();
+    x.fillStyle = '#333333'; x.font = '600 26px "ui-pop", "ui-ar2", "ui-sans", sans-serif'; if ('letterSpacing' in x) x.letterSpacing = lg === 'ar' ? '0px' : '6px'; x.fillText(lg === 'ar' ? t('gc_title') : t('gc_title').toUpperCase(), 84, 290); if ('letterSpacing' in x) x.letterSpacing = '0px';
+    x.font = '500 40px "ui-pop", "ui-ar2", "ui-sans", sans-serif'; x.fillText({ de: 'für ein Lächeln', en: 'for a smile', ar: 'من أجل ابتسامة' }[lg] || 'für ein Lächeln', 84, 380);
+    const sh = (ST.settings() || {}).shop || {}; x.textAlign = 'end'; x.font = '400 20px "ui-pop", "ui-sans", sans-serif'; x.fillText([sh.street || 'Steindamm 62', sh.city || 'Hamburg'].join(' · '), W - 70, H - 80);
     const url = c.toDataURL('image/jpeg', .92);
     if (document.fonts && document.fonts.status !== 'loaded') { document.fonts.ready.then(() => { S._gci = null; }); return url; }
-    S._gci = url; return S._gci;
+    S._gci = url; S._gciL = lg; return S._gci;
   };
   const GIFT = { id: 'gutschein', virtual: 1, hidden: 1, cat: 'gutschein', occ: [], price: 25, tax: 0, prod: 0, sd: 1, stock: 9999, active: true,
     name: { de: 'Geschenkgutschein', en: 'Gift card', ar: 'بطاقة هدية' }, desc: { de: '', en: '', ar: '' }, fields: [], views: [] };
@@ -63,7 +66,7 @@
   S.catImg = function (cat) { const p = ST.products().find(p => p.cat === cat && p.best) || ST.products().find(p => p.cat === cat || (p.also || []).includes(cat)); return p ? p.views[0].thumb : ''; };
 
   /* ---------------- shell ---------------- */
-  const LOGO = () => `<a class="logo" href="#/" aria-label="Adam &amp; Neuetalia"><small>Adam &amp;</small><b><i>N</i>EUETALI<em>A</em></b></a>`;
+  const LOGO = () => `<a class="logo" href="#/" aria-label="Adam"><b>Adam</b><span class="lg-dot" aria-hidden="true"></span></a>`;
   S.header = function () {
     const n = ST.cartCount(); const me = ST.me(); const s = ST.settings();
     const mins = ST.minutesToCutoff();
@@ -75,7 +78,7 @@
       <button class="ibtn only-s" data-act="menu" aria-label="${esc(t('menu'))}">${ic('menu')}</button>
       ${LOGO()}
       <button class="hd-search" data-act="search">${ic('search')}<span>${esc(t('search_ph'))}</span></button>
-      <nav class="nav hide-s" aria-label="${esc(t('menu'))}"><a href="#/c/alle"${on('#/c/')}>${t('nav_ready')}</a><a href="#/box"${on('#/box')}>${t('nav_box')}</a><a href="#/anlass"${on('#/anlass')}>${t('nav_occ')}</a><a href="#/gutschein"${on('#/gutschein')}>${t('nav_gift')}</a></nav>
+      <nav class="nav hide-s" aria-label="${esc(t('menu'))}"><a href="#/c/alle"${on('#/c/')}>${t('nav_ready')}</a><a href="#/anlass"${on('#/anlass')}>${t('nav_occ')}</a><a href="#/gutschein"${on('#/gutschein')}>${t('nav_gift')}</a></nav>
       <div class="hd-tools">
         <button class="ibtn only-s" data-act="search" aria-label="${esc(t('search'))}">${ic('search')}</button>
         <a class="hd-act hide-s" href="#/konto">${ic('user')}<span>${me ? esc(me.name.split(' ')[0]) : t('login')}<small>${me ? t('account') : t('register')}</small></span></a>
@@ -90,7 +93,7 @@
       <div class="wrap ft-main">
         <div class="ft-brand">${LOGO()}<p>${t('ft_about')}</p></div>
         <div><h3>${t('ft_links')}</h3><div class="ft-links">
-          <a href="#/c/alle">${t('nav_ready')}</a><a href="#/box">${t('nav_box')}</a><a href="#/anlass">${t('nav_occ')}</a><a href="#/gutschein">${t('nav_gift')}</a>
+          <a href="#/c/alle">${t('nav_ready')}</a><a href="#/anlass">${t('nav_occ')}</a><a href="#/gutschein">${t('nav_gift')}</a>
           <a href="#/verfolgen">${t('track_title')}</a><a href="#/hilfe">${t('nav_help')}</a><a href="#/hilfe/rueckgabe">${t('ft_returns')}</a><a href="#/hilfe/versand">${t('help_ship')}</a>
           <a href="#/konto">${t('account')}</a><a href="#/wunschliste">${t('wishlist')}</a></div>
           <h3 style="margin-top:22px">${t('ft_paydeliv')}</h3><div class="ft-logos">${logos.map(([c, x]) => `<span class="${c}">${esc(x)}</span>`).join('')}</div></div>
@@ -98,7 +101,7 @@
           <div class="vbtns" style="margin-top:12px"><a class="btn teal sm" target="_blank" rel="noopener" href="https://wa.me/${esc(s.shop.wa)}">${ic('chat')} WhatsApp</a><a class="btn ghost sm" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.shop.name + ', ' + s.shop.street + ', ' + s.shop.city)}">${ic('route')} ${t('route')}</a></div></div>
       </div>
       <div class="ft-bar"><div class="wrap"><span>${esc(s.shop.name)} · ${esc(s.shop.street)} · ${esc(s.shop.zip)} ${esc(s.shop.city)}</span><span class="ft-soc"><a href="https://www.instagram.com/neuetalia" target="_blank" rel="noopener" aria-label="Instagram">IG</a><a href="https://www.tiktok.com/@neuetalia" target="_blank" rel="noopener" aria-label="TikTok">TT</a><a href="https://www.facebook.com/neuetalia" target="_blank" rel="noopener" aria-label="Facebook">f</a><a href="https://wa.me/${esc(s.shop.wa)}" target="_blank" rel="noopener" aria-label="WhatsApp">WA</a></span><span>${ic('mail')} ${esc(s.shop.email)}</span></div></div>
-      <div class="wrap ft-legal"><a href="#/rechtliches/impressum">${t('imprint')}</a><a href="#/rechtliches/datenschutz">${t('privacy')}</a><a href="#/rechtliches/agb">${t('terms')}</a><a href="#/rechtliches/widerruf">${t('withdrawal')}</a><a href="#/rechtliches/versand">${t('ship_pay')}</a><button data-act="cookies">${t('cookie_settings')}</button><a href="#/admin">${t('admin_area')}</a><span style="margin-inline-start:auto">© 2026 ${esc(s.shop.name)} · ${t('demo_note')}</span></div>
+      <div class="wrap ft-legal"><a href="#/rechtliches/impressum">${t('imprint')}</a><a href="#/rechtliches/datenschutz">${t('privacy')}</a><a href="#/rechtliches/agb">${t('terms')}</a><a href="#/rechtliches/widerruf">${t('withdrawal')}</a><a href="#/rechtliches/versand">${t('ship_pay')}</a><button data-act="cookies">${t('cookie_settings')}</button><a href="#/admin">${t('admin_area')}</a><span style="margin-inline-start:auto">© 2026 ${esc(s.shop.name)}</span></div>
     </footer>`;
   };
   S.tabbar = function () {
@@ -145,7 +148,7 @@
     const ov = C.sheet({ title: t('menu'), start: true, foot: false, kind: 'side menu', noFocus: true });
     const s = ST.settings();
     const links = [['#/anlass', 'gift', t('nav_occ')], ['#/gutschein', 'cards', t('nav_gift')], ['#/verfolgen', 'truck', t('track_title')], ['#/konto', 'user', t('account')], ['#/wunschliste', 'heart', t('wishlist')], ['#/hilfe', 'chat', t('nav_help')]];
-    ov.panel.insertAdjacentHTML('afterbegin', `<a class="m-logo" href="#/">Adam <i>&amp;</i> Neuetalia</a>`);
+    ov.panel.insertAdjacentHTML('afterbegin', `<a class="m-logo" href="#/">Adam<span class="lg-dot" aria-hidden="true"></span></a>`);
     ov.body.innerHTML = `<button class="m-search" data-act="search">${ic('search')} ${esc(t('search_ph'))}</button>
       <p class="m-h">${t('categories')}</p>
       <div class="m-cats">${CATS().map(c => `<a class="m-cat" href="#/c/${c}"><img src="${esc(S.catImg(c))}" alt="" loading="lazy"><span>${t('cat_' + c)}</span></a>`).join('')}<a class="m-cat all" href="#/c/alle"><span>${t('nav_shop')} →</span></a></div>
@@ -156,28 +159,60 @@
         <div class="vbtns"><a class="btn gold" target="_blank" rel="noopener" href="https://wa.me/${esc(s.shop.wa)}">${ic('chat')} WhatsApp</a><a class="btn line-l" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.shop.name + ', ' + s.shop.street + ', ' + s.shop.city)}">${ic('route')} ${t('route')}</a></div></div>`;
   };
   S.searchIndex = null;
+  // everyday words people type for a category (DE / EN / Levantine + standard Arabic) – a match here ranks first
+  const SYN = {
+    schmuck: 'schmuck kette ketten halskette halsketten collier medaillon armband armbander ring ringe jewellery jewelry necklace chain bracelet pendant locket ring مجوهرات سلسله سلاسل سنسال سنسله طوق قلاده قلائد عقد اسواره اسوار خاتم ذهب',
+    anhaenger: 'schlusselanhanger keyring keychain مفاتيح ميداليه',
+    tassen: 'tasse tassen becher glas mug cup كوب كاسه فنجان مج',
+    kissen: 'kissen polster pillow cushion مخده وساده',
+    rosen: 'rose rosen rosenbox blumen box flowers ورد وردة ورود علبه بوكس',
+    gravur: 'holz gravur graviert wood engraving engraved خشب حفر',
+    textil: 'bestickt stickerei hoodie pullover embroidered تطريز هودي',
+    foto: 'foto bild photo picture صوره صور',
+    spotify: 'spotify song lied musik music اغنيه سبوتيفاي',
+    sets: 'set geschenkset gift set طقم اطقم',
+    deko: 'deko lampe licht decoration lamp ديكور لمبه ضو',
+    accessoires: 'accessoires zubehor accessories اكسسوارات'
+  };
+  // a term never matches inside these words (false friends of German compound search)
+  const NOT = { kette: ['plakette', 'etikette'], ketten: ['plaketten'] };
+  // words that mean the same thing as a word used in the German product names
+  const SAME = {}; [['kette', 'halskette necklace chain سلسله سنسال سنسله قلاده طوق عقد'], ['armband', 'bracelet اسواره اسوار'], ['ring', 'خاتم'],
+    ['tasse', 'mug cup كوب مج'], ['kissen', 'pillow cushion مخده وساده'], ['rose', 'roses ورد ورده ورود'], ['foto', 'photo picture صوره']]
+    .forEach(([k, v]) => v.split(' ').forEach(w => { SAME[C.norm(w)] = k; }));
   function index() {
     if (S.searchIndex) return S.searchIndex;
     S.searchIndex = ST.products().map(p => {
       const hay = ['de', 'en', 'ar'].map(l => [L(p.name, l), t('cat_' + p.cat, null, l), ...(p.occ || []).map(o => t('occ_' + o, null, l)), L(p.mat, l)].join(' ')).join(' ');
-      return { p, words: C.norm(hay).split(/[^\p{L}\p{N}]+/u).filter(w => w.length > 1), hay: C.norm(hay) };
+      const words = C.norm(hay).split(/[^\p{L}\p{N}]+/u).filter(w => w.length > 1);
+      const tags = C.norm((SYN[p.cat] || '') + ' ' + ['de', 'en', 'ar'].map(l => t('cat_' + p.cat, null, l)).join(' ')).split(/[^\p{L}\p{N}]+/u).filter(w => w.length > 1);
+      return { p, words, tags, hay: C.norm(hay) };
     });
     return S.searchIndex;
+  }
+  // 7 = category word that is also in the name, 5 = category word, 4 = word / word start, 3 = end of a compound (Herz-kette), 1 = typo
+  function hit(e, tm) {
+    const bad = NOT[tm] || [];
+    const ws = e.words.filter(w => !bad.includes(w));
+    const word = ws.some(w => w === tm || w.startsWith(tm)) ? 4 : tm.length > 3 && ws.some(w => w.endsWith(tm) || w.endsWith(tm + 'n')) ? 3 : 0;
+    const tag = e.tags.includes(tm) || e.tags.some(w => tm.length > 3 && w.startsWith(tm));
+    if (tag) return word ? 7 : 5; // the product's own name says it too → first
+    if (word) return word;
+    const tol = tm.length > 6 ? 2 : tm.length > 3 ? 1 : 0;
+    if (tol && Math.min(99, ...ws.map(w => C.lev(tm, w.slice(0, tm.length + 1)))) <= tol) return 1;
+    return 0;
   }
   S.search = function (q) {
     q = C.norm(q).trim(); if (!q) return [];
     const terms = q.split(/\s+/).filter(Boolean);
-    const out = [];
+    let out = [];
     for (const e of index()) {
-      let score = 0, ok = true;
-      for (const tm of terms) {
-        if (e.hay.includes(tm)) { score += 3; continue; }
-        const tol = tm.length > 6 ? 2 : tm.length > 3 ? 1 : 0;
-        const best = Math.min(99, ...e.words.map(w => C.lev(tm, w.slice(0, tm.length + 1))));
-        if (best <= tol) score += 1; else { ok = false; break; }
-      }
-      if (ok) out.push([score + (e.p.best ? .5 : 0), e.p]);
+      let score = 0, min = 9;
+      for (const tm of terms) { const h = Math.max(hit(e, tm), SAME[tm] ? hit(e, SAME[tm]) : 0); if (!h) { min = 0; break; } score += h; min = Math.min(min, h); }
+      if (min) out.push([score + (e.p.best ? .5 : 0), e.p, min]);
     }
+    // typo matches only when nothing real was found
+    if (out.some(x => x[2] > 1)) out = out.filter(x => x[2] > 1);
     return out.sort((a, b) => b[0] - a[0]).map(x => x[1]);
   };
   S.searchSheet = function () {
@@ -220,14 +255,12 @@
         <button class="btn">${ic('search')} ${t('finder_go')}</button>
         <p class="finder-pop">${t('finder_pop')}</p>
         <nav class="chips finder-chips">${['geburtstag', 'liebe', 'hochzeit', 'muttertag', 'ramadan', 'kinder'].map(o => `<a href="#/o/${o}">${t('occ_' + o)}</a>`).join('')}</nav>
-        <a class="finder-box" href="#/box"><img src="img/o/box-hero.jpg" alt="" loading="lazy" width="120" height="103"><span><b>${t('nav_box')}</b><small>${t('tile_custom_p')}</small></span>${ic('chev', 'flip')}</a>
       </form>
       <a class="tile t-her rv" data-i="1" href="#/o/fuersie"><img src="${esc(img('rosenbox-herz'))}" alt="" loading="eager"><b>${t('who_her')}</b></a>
       <a class="tile t-him rv" data-i="2" href="#/o/fuerihn"><img src="${esc(img('np-tasse-fussball'))}" alt="" loading="eager"><b>${t('who_him')}</b></a>
       <a class="tile promo rv" href="#/c/alle"><img src="${esc(img('geschenkbox-liebe'))}" alt=""><span class="tx"><small>Special gift</small><strong>${t('tile_gifts')}</strong><p>${t('tile_gifts_p')}</p><span class="btn sm">${t('shop_now')}</span></span></a>
       <a class="tile t-kids rv" data-i="1" href="#/o/kinder"><img src="${esc(img('np-tasse-emoji'))}" alt="" loading="lazy"><b>${t('who_kids')}</b></a>
       <a class="tile t-all rv" data-i="2" href="#/c/alle"><img src="${esc(img('np-kissen-satin'))}" alt="" loading="lazy"><b>${t('who_all')}</b></a>
-      <a class="tile custom rv" href="#/box"><img src="img/o/box-hero.jpg" alt="" loading="lazy"><span class="tx"><strong>${t('tile_custom')}</strong><span class="muted small">${t('tile_custom_p')}</span><span class="btn purple sm">${ic('box')} ${t('nav_box')}</span></span></a>
     </div></section>
 
     <section class="sec cats-sec"><div class="wrap">
@@ -277,11 +310,11 @@
 
     ${camp ? `<section class="split blush rev" style="margin-top:clamp(52px,7vw,96px)"><div class="sp-img"><img src="${esc(occImg('liebe'))}" alt="" loading="lazy"></div><div class="sp-txt rv"><span class="eyb">${t('camp_eyb')}</span><h2>${esc(camp.title)}</h2><p class="lead">${esc(camp.text)}</p><div><a class="btn" href="${camp.href}">${esc(camp.cta)}</a></div></div></section>` : ''}
 
-    <section class="split dark" style="margin-top:14px"><div class="sp-img"><div class="gc-card"><img src="${S.giftcardImg()}" alt="" loading="lazy"></div></div><div class="sp-txt rv"><span class="eyb" style="color:#ffd1e5">${t('nav_gift')}</span><h2>${t('gc_h')}</h2><p class="lead">${t('gc_p')}</p><div><a class="btn" href="#/gutschein">${t('gc_cta')}</a></div></div></section>
+    <section class="split dark" style="margin-top:14px"><div class="sp-img"><div class="gc-card"><img src="${S.giftcardImg()}" alt="" loading="lazy"></div></div><div class="sp-txt rv"><span class="eyb" style="color:#FE90BE">${t('nav_gift')}</span><h2>${t('gc_h')}</h2><p class="lead">${t('gc_p')}</p><div><a class="btn" href="#/gutschein">${t('gc_cta')}</a></div></div></section>
 
     <section class="sec faq-sec"><div class="wrap narrow">
       <div class="sh rv"><h2 class="ttl">${t('faq_h')}</h2><a class="more" href="#/hilfe">${t('faq_more')}</a></div>
-      <div class="faq">${['ship', 'pickup', 'spotify', 'box', 'proof', 'arabic', 'photo', 'pay', 'returns', 'custom'].map(q => `<details><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div>
+      <div class="faq">${['ship', 'pickup', 'spotify', 'proof', 'arabic', 'photo', 'pay', 'returns', 'custom'].map(q => `<details><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div>
     </div></section>
 
     <section class="sec"><div class="wrap"><div class="news rv"><h2>${t('news_h')}</h2><p>${t('news_p')}</p><form data-form="news"><input class="in" type="email" name="email" required placeholder="${esc(t('email'))}" aria-label="${esc(t('email'))}"><button class="btn">${t('news_btn')}</button></form></div></div></section>
@@ -425,7 +458,7 @@
   /* ---------------- HELP & LEGAL ---------------- */
   S.help = function (topic) {
     const s = ST.settings();
-    const qs = ['ship', 'pickup', 'local', 'prod', 'proof', 'spotify', 'box', 'arabic', 'change', 'returns', 'photo', 'pay', 'gift', 'custom'];
+    const qs = ['ship', 'pickup', 'local', 'prod', 'proof', 'spotify', 'arabic', 'change', 'returns', 'photo', 'pay', 'gift', 'custom'];
     S.page(`<div class="wrap narrow help">
       <h1>${t('nav_help')}</h1><p class="lead">${t('help_lead')}</p>
       <div class="faq">${qs.map(q => `<details id="q-${q}"${(topic === 'versand' && q === 'ship') || (topic === 'rueckgabe' && q === 'returns') ? ' open' : ''}><summary>${t('faq_' + q)}</summary><p>${t('faqa_' + q, { cut: s.cutoff, free: eur(s.freeFrom), local: eur(s.shipping.local.price), dhl: eur(s.shipping.dhl.price), eu: eur(s.shipping.eu.price), min: s.cancelMinutes })}</p></details>`).join('')}</div>

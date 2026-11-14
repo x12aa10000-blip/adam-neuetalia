@@ -103,6 +103,9 @@
   K('m_pickup', 'Abholung im Laden', 'Pick-up in store', 'الاستلام من المحل');
   K('m_local', 'Kurier in Hamburg', 'Courier in Hamburg', 'توصيل داخل هامبورغ');
   K('m_dhl', 'DHL Deutschland', 'DHL Germany', 'شحن DHL داخل ألمانيا');
+  K('m_digital', 'Digital per E-Mail', 'Digital by e-mail', 'رقمي عبر الإيميل');
+  K('m_digital_d', 'Kein Versand nötig – du bekommst alles per E-Mail.', 'No shipping needed – you get everything by e-mail.', 'ما في شحن – بيوصلك كل شي على الإيميل.');
+  K('plz_unknown', 'Diese Postleitzahl finden wir nicht – bitte kurz prüfen. Den Ort kannst du auch selbst eintragen.', 'We can\'t find this postcode – please check it. You can also type the town yourself.', 'ما لقينا هالرمز البريدي – تأكد منه لو سمحت. فيك تكتب اسم المدينة بنفسك كمان.');
   K('m_eu', 'DHL Europa', 'DHL Europe', 'شحن DHL لأوروبا');
   K('m_pickup_d', 'Steindamm 62, mit Wunschtermin', 'Steindamm 62, at a time you choose', 'شتايندام 62، بالموعد اللي بتختاره');
   K('m_local_d', 'Am selben Tag, im Zeitfenster deiner Wahl', 'Same day, in a time window you choose', 'بنفس اليوم وبالوقت اللي بتختاره');
@@ -250,7 +253,7 @@
   K('zip', 'PLZ', 'Postcode', 'الرمز البريدي');
   K('city', 'Ort', 'City', 'المدينة');
   K('country', 'Land', 'Country', 'البلد');
-  for (const [c, de, en, ar] of [['AT', 'Österreich', 'Austria', 'النمسا'], ['NL', 'Niederlande', 'Netherlands', 'هولندا'], ['BE', 'Belgien', 'Belgium', 'بلجيكا'], ['FR', 'Frankreich', 'France', 'فرنسا'], ['DK', 'Dänemark', 'Denmark', 'الدنمارك'], ['PL', 'Polen', 'Poland', 'بولندا'], ['CH', 'Schweiz', 'Switzerland', 'سويسرا'], ['IT', 'Italien', 'Italy', 'إيطاليا'], ['ES', 'Spanien', 'Spain', 'إسبانيا'], ['SE', 'Schweden', 'Sweden', 'السويد']]) K('cty_' + c, de, en, ar);
+  for (const [c, de, en, ar] of [['DE', 'Deutschland', 'Germany', 'ألمانيا'], ['AT', 'Österreich', 'Austria', 'النمسا'], ['NL', 'Niederlande', 'Netherlands', 'هولندا'], ['BE', 'Belgien', 'Belgium', 'بلجيكا'], ['FR', 'Frankreich', 'France', 'فرنسا'], ['DK', 'Dänemark', 'Denmark', 'الدنمارك'], ['PL', 'Polen', 'Poland', 'بولندا'], ['CH', 'Schweiz', 'Switzerland', 'سويسرا'], ['IT', 'Italien', 'Italy', 'إيطاليا'], ['ES', 'Spanien', 'Spain', 'إسبانيا'], ['SE', 'Schweden', 'Sweden', 'السويد']]) K('cty_' + c, de, en, ar);
   K('mo_pickup', 'Abholbereit ab {d} · Steindamm 62', 'Ready from {d} · Steindamm 62', 'جاهز من {d} · شتايندام 62');
   K('mo_local', 'Lieferung ab {d}, im Zeitfenster', 'Delivered from {d}, in a time window', 'توصيل من {d} بالوقت اللي بتختاره');
   K('mo_ship', 'Voraussichtlich am {d}', 'Expected on {d}', 'متوقع يوم {d}');
@@ -273,7 +276,7 @@
   for (const [k, de, en, ar, dde, den, dar] of [['paypal', 'PayPal', 'PayPal', 'PayPal', 'Schnell mit deinem PayPal-Konto', 'Fast with your PayPal account', 'بسرعة من حساب PayPal'], ['card', 'Kreditkarte', 'Credit card', 'بطاقة ائتمان', 'Visa, Mastercard, Amex', 'Visa, Mastercard, Amex', 'فيزا، ماستركارد، أمكس'], ['klarna', 'Klarna', 'Klarna', 'Klarna', 'Später bezahlen', 'Pay later', 'ادفع لاحقاً'], ['applepay', 'Apple Pay', 'Apple Pay', 'Apple Pay', 'Mit Face ID oder Touch ID', 'With Face ID or Touch ID', 'ببصمة الوجه أو الإصبع'], ['vorkasse', 'Vorkasse', 'Bank transfer', 'تحويل بنكي', 'Überweisung, Start nach Zahlungseingang', 'Transfer, we start once paid', 'تحويل، منبلش بعد وصول المبلغ'], ['cash', 'Bar bei Abholung', 'Cash on pick-up', 'كاش عند الاستلام', 'Im Laden bezahlen', 'Pay in the shop', 'ادفع بالمحل']]) { K('pay_' + k, de, en, ar); K('payd_' + k, dde, den, dar); }
   K('order_note', 'Hinweis zur Bestellung', 'Note about your order', 'ملاحظة للطلب');
   K('create_acc', 'Kundenkonto anlegen (Bestellungen verfolgen, schneller bestellen)', 'Create an account (track orders, faster checkout)', 'أنشئ حساباً (تتبع الطلبات وطلب أسرع)');
-  K('password', 'Passwort (mind. 6 Zeichen)', 'Password (min. 6 characters)', 'كلمة السر (6 أحرف على الأقل)');
+  K('password', 'Passwort (mind. 8 Zeichen)', 'Password (min. 8 characters)', 'كلمة السر (8 أحرف على الأقل)');
   K('marketing_opt', 'Ja, ich möchte Angebote und Erinnerungen an Anlässe per E-Mail (jederzeit abbestellbar).', 'Yes, email me offers and occasion reminders (unsubscribe any time).', 'نعم، بدي عروض وتذكير بالمناسبات بالإيميل (بقدر ألغي بأي وقت).');
   K('coupon', 'Rabattcode', 'Discount code', 'كود الخصم');
   K('giftcard_code', 'Gutscheincode', 'Gift card code', 'كود بطاقة الهدية');
@@ -388,7 +391,7 @@
   K('logout', 'Abmelden', 'Sign out', 'تسجيل الخروج');
   K('logged_out', 'Abgemeldet', 'Signed out', 'تم تسجيل الخروج');
   K('login_wrong', 'E-Mail oder Passwort stimmt nicht.', 'Email or password is wrong.', 'الإيميل أو كلمة السر غلط.');
-  K('pw_short', 'Das Passwort braucht mindestens 6 Zeichen.', 'The password needs at least 6 characters.', 'كلمة السر لازم تكون 6 أحرف على الأقل.');
+  K('pw_short', 'Das Passwort braucht mindestens 8 Zeichen.', 'The password needs at least 8 characters.', 'كلمة السر لازم تكون 8 أحرف على الأقل.');
   K('demo_acc_note', 'Demo: Konten werden nur in diesem Browser gespeichert.', 'Demo: accounts are stored in this browser only.', 'تجريبي: الحسابات محفوظة بهذا المتصفح فقط.');
   K('acc_b1', 'Bestellungen jederzeit verfolgen', 'Track orders any time', 'تتبّع طلباتك بأي وقت');
   K('acc_b2', 'Designs und Merkliste speichern', 'Save designs and your wishlist', 'احفظ التصاميم والمفضلة');
@@ -447,7 +450,7 @@
   K('privacy_p1', 'Wir verarbeiten deine Daten nur, um deine Bestellung auszuführen (Art. 6 Abs. 1 lit. b DSGVO).', 'We process your data only to fulfil your order (Art. 6(1)(b) GDPR).', 'نعالج بياناتك فقط لتنفيذ طلبك (المادة 6 من اللائحة الأوروبية لحماية البيانات).');
   K('privacy_p2', 'Fotos, die du hochlädst, nutzen wir ausschließlich für die Fertigung und löschen sie 30 Tage nach Zustellung.', 'Photos you upload are used only for production and deleted 30 days after delivery.', 'الصور اللي بترفعها منستخدمها للتصنيع فقط ومنحذفها بعد 30 يوم من التسليم.');
   K('privacy_p3', 'Du hast das Recht auf Auskunft, Berichtigung und Löschung. Schreib uns dafür eine E-Mail.', 'You have the right to access, correction and deletion. Just email us.', 'إلك الحق تعرف بياناتك وتصححها وتحذفها. راسلنا بالإيميل.');
-  K('terms_p1', 'Verträge kommen mit Adam & Neuetalia, Steindamm 62, 20099 Hamburg zustande.', 'Contracts are concluded with Adam & Neuetalia, Steindamm 62, 20099 Hamburg.', 'العقد بيكون مع Adam & Neuetalia، شتايندام 62، 20099 هامبورغ.');
+  K('terms_p1', 'Verträge kommen mit Adam, Steindamm 62, 20099 Hamburg zustande.', 'Contracts are concluded with Adam, Steindamm 62, 20099 Hamburg.', 'العقد بيكون مع Adam، شتايندام 62، 20099 هامبورغ.');
   K('terms_p2', 'Mit dem Klick auf „Zahlungspflichtig bestellen“ gibst du ein verbindliches Angebot ab. Die Bestätigung per E-Mail ist die Annahme.', 'By clicking “Place order and pay” you make a binding offer. The email confirmation is our acceptance.', 'لما تضغط «اطلب وادفع» بتكون قدمت طلب ملزم، وإيميل التأكيد هو قبولنا.');
   K('terms_p3', 'Alle Preise inkl. gesetzlicher MwSt. Personalisierte Artikel werden nach deinen Angaben gefertigt.', 'All prices include VAT. Personalised items are made to your specifications.', 'كل الأسعار شاملة الضريبة. المنتجات المخصصة بتنصنع حسب طلبك.');
   K('withdraw_p1', 'Du hast grundsätzlich ein 14-tägiges Widerrufsrecht.', 'You generally have a 14-day right of withdrawal.', 'عندك بشكل عام حق الإلغاء خلال 14 يوماً.');
@@ -470,6 +473,10 @@
   K('ml_appr_p', 'so sieht dein Geschenk aus. Bitte prüfe Schreibweise, Datum und Fotos.', 'this is how your gift will look. Please check spelling, date and photos.', 'هيك رح تكون هديتك. تأكد من الكتابة والتاريخ والصور.');
   K('ml_appr_btn', 'Vorschau prüfen und freigeben', 'Check and approve the proof', 'شوف المعاينة ووافق');
   K('ml_appr_note', 'Wir fangen erst an, wenn du zugestimmt hast.', 'We only start once you have approved.', 'ما منبلش إلا بعد موافقتك.');
+  K('ml_paid_s', 'Zahlung erhalten – deine Rechnung zu {no}', 'Payment received – your invoice for {no}', 'وصل الدفع – فاتورتك للطلب {no}');
+  K('ml_paid_p', 'vielen Dank, deine Zahlung ist bei uns eingegangen. Deine Rechnung hat die Nummer {inv}.', 'thank you, we have received your payment. Your invoice number is {inv}.', 'شكراً إلك، وصلنا الدفع. رقم فاتورتك {inv}.');
+  K('ml_paid_inv', 'Die Rechnung kannst du jederzeit über den Knopf unten als PDF herunterladen.', 'You can download the invoice as a PDF any time with the button below.', 'فيك تنزّل الفاتورة PDF بأي وقت من الزر تحت.');
+  K('ml_paid_btn', 'Bestellung & Rechnung ansehen', 'View order & invoice', 'شوف الطلب والفاتورة');
   K('ml_prod_s', 'Wir fertigen jetzt deine Bestellung {no}', 'We are now making your order {no}', 'عم نصنع طلبك {no} هلأ');
   K('ml_prod_p', 'dein Geschenk ist in unserer Werkstatt und wird gerade gefertigt.', 'your gift is in our workshop and being made right now.', 'هديتك بالورشة وعم تنصنع هلأ.');
   K('ml_rp_s', 'Abholbereit: {no}', 'Ready for pick-up: {no}', 'جاهز للاستلام: {no}');
@@ -491,7 +498,7 @@
   K('ml_cx_p', 'deine Bestellung wurde storniert.', 'your order has been cancelled.', 'تم إلغاء طلبك.');
   K('ml_cx_refund', '{total} werden dir in den nächsten Tagen erstattet.', '{total} will be refunded in the next few days.', 'رح نرجعلك {total} خلال الأيام الجاية.');
   K('ml_gc_s', 'Ein Geschenk für dich von {from}', 'A gift for you from {from}', 'هدية إلك من {from}');
-  K('ml_gc_p', '{from} schenkt dir einen Gutschein über {amount} bei Adam & Neuetalia.', '{from} is giving you a gift card worth {amount} at Adam & Neuetalia.', '{from} أهداك بطاقة بقيمة {amount} من Adam & Neuetalia.');
+  K('ml_gc_p', '{from} schenkt dir einen Gutschein über {amount} bei Adam.', '{from} is giving you a gift card worth {amount} at Adam.', '{from} أهداك بطاقة بقيمة {amount} من Adam.');
   K('ml_gc_use', 'Einlösbar online an der Kasse oder im Laden am Steindamm 62.', 'Redeem online at checkout or in our shop on Steindamm 62.', 'استخدمها أونلاين عند الدفع أو بالمحل بشتايندام 62.');
   K('ml_gc_btn', 'Geschenk aussuchen', 'Choose a gift', 'اختار هديتك');
   K('ml_ans_s', 'Antwort auf deine Frage', 'Answer to your question', 'الرد على سؤالك');

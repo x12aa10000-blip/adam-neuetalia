@@ -1,0 +1,192 @@
+[
+ {
+  "test": "anon: may execute only public.shop_* API functions (33)",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "anon: no direct table privileges in shop/public",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "anon: no access to order number sequence",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "anon: no USAGE on private schema shop",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "authenticated: may execute only public.shop_* API functions (33)",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "authenticated: no direct table privileges in shop/public",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "authenticated: no access to order number sequence",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "authenticated: no USAGE on private schema shop",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Row Level Security enabled on every shop table (defense in depth)",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Every SECURITY DEFINER function has a fixed search_path",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Internal functions have a fixed search_path (linter function_search_path_mutable)",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Secrets table not readable by API role",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "Forgot-password answer identical for existing and unknown e-mail (no enumeration)",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Reset with a wrong token fails",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Reset refuses a short password",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Reset with the valid token works",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Reset token is single-use",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "All old sessions end after a reset",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Old password no longer works",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "New password works",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Expired reset token is refused",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Reset token cannot be used as a login session",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer session cannot reset a password",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Tokens are stored only as SHA-256 hashes",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Forgot-password requests are rate limited",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer A sees own orders",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Customer A does not see B's orders",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "A cannot read B's order with A's e-mail",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "A cannot cancel B's order",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "A's profile update cannot target B",
+  "severity": "Critical",
+  "result": "PASS"
+ },
+ {
+  "test": "A cannot place an order into B's account (customer id comes only from the session token)",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Guest order with B's e-mail does not show up in the order list of a third person",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Tracking per order number is limited (no IP rotation bypass)",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "E-mail subject has no line breaks (no header injection)",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Resend key never returned to the browser (not even to the owner)",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Mail setup only for the owner (staff refused)",
+  "severity": "High",
+  "result": "PASS"
+ },
+ {
+  "test": "Owner-pushed coupons must have numeric values (stored XSS hardening)",
+  "severity": "Medium",
+  "result": "PASS"
+ },
+ {
+  "test": "Ordering more than the stock is refused by the server",
+  "severity": "Medium",
+  "result": "PASS"
+ }
+]

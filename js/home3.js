@@ -18,12 +18,6 @@
   K('s_all', 'Alle Geschenke ansehen', 'See all gifts', 'كل الهدايا');
   K('o_h', 'Für jeden Anlass', 'For every occasion', 'لكل مناسبة');
   K('b_h', 'Lieblinge unserer Kunden', 'Our customers’ favourites', 'المفضلة عند زبائننا');
-  K('bx_h', 'Packt eure eigene Geschenkbox', 'Pack your own gift box', 'جهّز بوكس هداياك بنفسك');
-  K('bx_p', 'Box, Füllung und Schleife wählen, mehrere Geschenke mit Namen hineinlegen, Grußkarte schreiben – und alles live sehen.', 'Choose the box, filling and ribbon, add several named gifts, write a card – and watch it all come together live.', 'اختر البوكس والحشوة والشريطة، وضع عدة هدايا بالأسماء، واكتب بطاقة – وشاهد كل شيء مباشرة.');
-  K('bx_b', 'Box gestalten', 'Design your box', 'صمّم بوكسك');
-  K('bx_l1', 'Bis zu 8 Geschenke', 'Up to 8 gifts', 'حتى 8 هدايا');
-  K('bx_l2', 'Grußkarte gratis', 'Free greeting card', 'بطاقة تهنئة مجاناً');
-  K('bx_l3', 'Live-Vorschau', 'Live preview', 'معاينة مباشرة');
   K('c_h', 'Stöbern nach Kategorie', 'Browse by category', 'تصفح حسب القسم');
   K('gc2_h', 'Lass sie selbst wählen', 'Let them choose', 'دعهم يختارون بأنفسهم');
   K('gc2_p', 'Der Geschenkgutschein kommt sofort per E-Mail, mit deiner Nachricht – gültig 3 Jahre, online und im Laden.', 'The gift card arrives instantly by email with your message – valid for 3 years, online and in store.', 'تصل بطاقة الهدية فوراً بالبريد الإلكتروني مع رسالتك – صالحة 3 سنوات في المتجر الإلكتروني والمحل.');
@@ -68,15 +62,10 @@
       usp: () => `<section class="s8-usp"><div class="wrap"><ul>${[['wand', 1], ['store', 2], ['truck', 3], ['gift', 4]].map(([i, n]) => `<li>${ic(i)}<span><b>${esc(SITE.tx('h_u' + n))}</b> ${esc(SITE.tx('h_u' + n + 'd'))}</span></li>`).join('')}</ul></div></section>`,
       occ: () => { const os = ['liebe', 'geburtstag', 'hochzeit', 'muttertag', 'familie']; return `<section class="s8-sec"><div class="wrap">${head(SITE.tx('o_h'), '#/anlass', t('h_occ_all'))}<div class="s8-occ">${os.map((o, i) => `<a class="rv${i === 0 ? ' big' : ''}" href="#/o/${o}"><img ${tile(o)} alt="" loading="lazy" width="800" height="1000"><span><b>${t('occ_' + o)}</b><small>${t('n_products', { n: cnt(o) })}</small></span></a>`).join('')}</div></div></section>`; },
       best: () => `<section class="s8-sec"><div class="wrap">${head(SITE.tx('b_h'), '#/c/alle')}${rail('rBest', best)}</div></section>`,
-      promos: () => `<section class="s8-band s8-pink"><div class="wrap s8-band-in">
-        <div class="s8-band-t rv"><h2>${esc(SITE.tx('bx_h'))}</h2><p>${esc(SITE.tx('bx_p'))}</p>
-          <ul class="s8-ticks">${['bx_l1', 'bx_l2', 'bx_l3'].map(k => `<li>${ic('check')} ${esc(t(k))}</li>`).join('')}</ul>
-          <a class="btn big" href="#/box">${ic('box')} ${esc(SITE.tx('bx_b'))}</a></div>
-        <a class="s8-band-i rv" href="#/box" tabindex="-1" aria-hidden="true"><img src="img/o/box-hero.jpg" alt="" loading="lazy" width="900" height="774"></a>
-      </div></section>`,
+      promos: () => '',
       cats: () => `<section class="s8-sec"><div class="wrap">${head(SITE.tx('c_h'), '#/c/alle')}<div class="s8-cats">${CAT_EXTRA.cats.map(c => `<a class="rv" href="#/c/${c}"><span><img src="${esc(SHOP.catImg(c))}" alt="" loading="lazy" width="400" height="400"></span><b>${t('cat_' + c)}</b></a>`).join('')}<a class="rv" href="#/gutschein"><span class="gc"><img src="${SHOP.giftcardImg()}" alt="" loading="lazy"></span><b>${t('nav_gift')}</b></a></div></div></section>`,
       new: () => fresh.length ? `<section class="s8-sec"><div class="wrap">${head(SITE.tx('n_h2'), '#/c/alle')}${rail('rNew', fresh)}</div></section>` : '',
-      quick: () => { const items = [['#/o/geburtstag', 'occ_geburtstag', 'kette-datum'], ['#/o/liebe', 'occ_liebe', 'rosenbox-herz'], ['#/c/rosen', 'cat_rosen', 'rosenbox-rund'], ['#/box', 'nav_box', 'geschenkbox-liebe'], ['#/o/muttertag', 'occ_muttertag', 'rose-glas'], ['#/c/schmuck', 'cat_schmuck', 'np-kette-herz'], ['#/o/hochzeit', 'occ_hochzeit', 'rosenbox-xxl'], ['#/gutschein', 'nav_gift', '']]; return `<section class="qk"><div class="wrap"><span class="qk-h">${t('h_quick')}</span><nav class="qk-row">${items.map(([h, k, pid]) => { const p = pid && ST.product(pid); return `<a href="${h}">${p ? `<img src="${esc(p.views[0].thumb || p.views[0].img)}" alt="" width="34" height="34" loading="lazy">` : `<i>${ic('cards')}</i>`}<span>${t(k)}</span></a>`; }).join('')}</nav></div></section>`; },
+      quick: () => { const items = [['#/o/geburtstag', 'occ_geburtstag', 'kette-datum'], ['#/o/liebe', 'occ_liebe', 'rosenbox-herz'], ['#/c/rosen', 'cat_rosen', 'rosenbox-rund'], ['#/o/muttertag', 'occ_muttertag', 'rose-glas'], ['#/c/schmuck', 'cat_schmuck', 'np-kette-herz'], ['#/o/hochzeit', 'occ_hochzeit', 'rosenbox-xxl'], ['#/gutschein', 'nav_gift', '']]; return `<section class="qk"><div class="wrap"><span class="qk-h">${t('h_quick')}</span><nav class="qk-row">${items.map(([h, k, pid]) => { const p = pid && ST.product(pid); return `<a href="${h}">${p ? `<img src="${esc(p.views[0].thumb || p.views[0].img)}" alt="" width="34" height="34" loading="lazy">` : `<i>${ic('cards')}</i>`}<span>${t(k)}</span></a>`; }).join('')}</nav></div></section>`; },
       finder: () => { const occOpts = CAT_EXTRA.occ.filter(o => !['fuersie', 'fuerihn', 'kinder'].includes(o)); return `<section class="s8-sec"><div class="wrap"><form class="s8-finder rv" data-form="finder"><div class="s8-finder-t"><h2>${esc(SITE.tx('h_fd_h'))}</h2><p>${esc(SITE.tx('h_fd_p'))}</p></div>
         <div class="s8-finder-f"><label><span>${t('finder_occ')}</span><select class="in" name="occ"><option value="">${t('all')}</option>${occOpts.map(o => `<option value="${o}">${t('occ_' + o)}</option>`).join('')}</select></label>
         <label><span>${t('finder_who')}</span><select class="in" name="who"><option value="">${t('who_all')}</option><option value="fuersie">${t('who_her')}</option><option value="fuerihn">${t('who_him')}</option><option value="kinder">${t('who_kids')}</option></select></label>

@@ -1,0 +1,8 @@
+# Netlify: builds only the website files into dist/site (tests, SQL and docs are not published).
+# Set SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY under Site settings → Environment variables.
+[build]
+  command = "node tools/build-site.mjs"
+  publish = "dist/site"
+
+[build.environment]
+  NODE_VERSION = "20"

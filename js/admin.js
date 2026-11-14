@@ -13,7 +13,7 @@
   const AL = () => (ST.get('adminLang', 'ar') === 'ar' ? 'ar' : 'de'); // admin language (Arabic by default)
   const T = (k, v) => t(k, v, 'de'); // admin stays German
   const ST_L = { neu: 'Neu', freigabe: 'Freigabe', produktion: 'In Produktion', bereit: 'Fertig', unterwegs: 'Unterwegs', zugestellt: 'Erledigt', storniert: 'Storniert' };
-  const M_L = { pickup: 'Abholung', local: 'Kurier Hamburg', dhl: 'DHL', eu: 'DHL EU' };
+  const M_L = { pickup: 'Abholung', local: 'Kurier Hamburg', dhl: 'DHL', eu: 'DHL EU', digital: 'Digital (E-Mail)' };
   const PAY_L = { paypal: 'PayPal', card: 'Karte', klarna: 'Klarna', applepay: 'Apple Pay', vorkasse: 'Vorkasse', cash: 'Bar bei Abholung' };
   const today = () => ST.iso(new Date());
   const dshort = d => C.date(d, { weekday: 'short', day: '2-digit', month: '2-digit' }, AL());
@@ -22,17 +22,21 @@
 
   const TABS = [
     ['', 'home', 'Übersicht'], ['bestellungen', 'inbox', 'Bestellungen'], ['produktion', 'layers', 'Produktion'], ['versand', 'truck', 'Versand'],
-    ['produkte', 'tag', 'Produkte', 1], ['kategorien', 'grid', 'Kategorien', 1], ['kunden', 'users', 'Kunden', 1], ['rabatte', 'gift', 'Rabatte & Gutscheine', 1], ['bewertungen', 'star', 'Bewertungen & Fragen'],
+    ['produkte', 'tag', 'Produkte', 1], ['kategorien', 'grid', 'Kategorien', 1], ['rabatte', 'gift', 'Rabatte & Gutscheine', 1], ['kunden', 'users', 'Kunden', 1], ['bewertungen', 'star', 'Bewertungen & Fragen'],
     ['emails', 'mail', 'E-Mails'], ['website', 'image', 'Website', 1], ['einstellungen', 'settings', 'Einstellungen', 1], ['aktivitaet', 'clock', 'Aktivität', 1]
   ];
+  const GROUP = { '': 'Tagesgeschäft', produkte: 'Sortiment', kunden: 'Kunden & Kontakt', website: 'Shop' };
+  const navLinks = (tab, open, qs) => { let g = null; return TABS.filter(x => !x[3] || isOwner()).map(([k, i, l]) => {
+    const grp = Object.prototype.hasOwnProperty.call(GROUP, k) ? GROUP[k] : g; const head = grp !== g ? `<p class="a-ng">${grp}</p>` : ''; g = grp;
+    return `${head}<a href="#/admin${k ? '/' + k : ''}"${k === tab ? ' aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'bestellungen' && open ? `<em>${open}</em>` : ''}${k === 'bewertungen' && qs ? `<em>${qs}</em>` : ''}</a>`; }).join(''); };
   function shell(tab, html) {
     C.applyLang(); document.documentElement.lang = 'de'; document.documentElement.dir = 'ltr';
     const s = session(); const open = ST.orders().filter(o => o.status === 'neu').length;
     const qs = ST.questions().filter(q => !q.answer).length + ST.reviews().filter(r => !r.ok && !r.hidden).length;
     app().className = 'adm';
-    app().innerHTML = `<header class="a-top"><a class="a-logo" href="#/admin">Adam <i>&amp;</i> Neuetalia</a><span class="a-sub">Verwaltung</span>
+    app().innerHTML = `<header class="a-top"><a class="a-logo" href="#/admin">Adam<span class="lg-dot" aria-hidden="true"></span></a><span class="a-sub">Verwaltung</span>
       <span class="sp"></span><a class="btn ghost sm" href="#/" target="_self">${ic('store')}<span class="lbl"> Shop ansehen</span></a><span class="a-user">${ic('user')} ${esc(s.user)}</span><button class="ibtn a-out" data-a="logout" aria-label="Abmelden">${ic('logout')}</button><button class="ibtn a-dots" data-a="anav" aria-label="Menü"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="19" r="1.6" fill="currentColor"/></svg></button></header>
-      <div class="a-body"><nav class="a-nav" aria-label="Verwaltung">${TABS.filter(x => !x[3] || isOwner()).map(([k, i, l]) => `<a href="#/admin${k ? '/' + k : ''}"${k === tab ? ' aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'bestellungen' && open ? `<em>${open}</em>` : ''}${k === 'bewertungen' && qs ? `<em>${qs}</em>` : ''}</a>`).join('')}</nav>
+      <div class="a-body"><nav class="a-nav" aria-label="Verwaltung">${navLinks(tab, open, qs)}</nav>
       <main class="a-main" id="amain">${html}</main></div>`;
   }
   A.show = function (parts) {
@@ -61,7 +65,7 @@
   A.login = function () {
     app().className = 'adm login';
     document.documentElement.lang = 'de'; document.documentElement.dir = 'ltr';
-    app().innerHTML = `<div class="a-login"><a class="a-logo" href="#/">Adam <i>&amp;</i> Neuetalia</a><h1>Verwaltung</h1>
+    app().innerHTML = `<div class="a-login"><a class="a-logo" href="#/">Adam</a><h1>Verwaltung</h1>
       <form data-aform="login"><label class="fld"><span>Benutzer</span><select class="in" name="user">${staff().map(s => `<option value="${esc(s.user)}">${esc(s.user)}</option>`).join('')}</select></label>
       <label class="fld"><span>PIN</span><input class="in big" name="pin" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="8" required></label><button class="btn block">Anmelden</button></form>
       <p class="muted small">Der Werkstatt-Zugang sieht nur Bestellungen, Produktion und Versand.</p><a class="link" href="#/">← Zurück zum Shop</a></div>`;
@@ -128,8 +132,8 @@
     let next = '';
     if (o.status === 'neu') next = o.approval && apprItems.length ? `<button class="btn" data-a="send-proof" data-no="${o.no}">${ic('eye')} Korrekturabzug an Kunden senden</button><button class="btn ghost" data-a="st" data-no="${o.no}" data-st="produktion">Ohne Freigabe in Produktion</button>` : `<button class="btn" data-a="st" data-no="${o.no}" data-st="produktion">${ic('layers')} Produktion starten</button>`;
     if (o.status === 'freigabe') next = allOk ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="produktion">${ic('layers')} Freigegeben – Produktion starten</button>` : `<button class="btn ghost" data-a="send-proof" data-no="${o.no}">Neue Vorschau senden</button><button class="btn ghost" data-a="st" data-no="${o.no}" data-st="produktion">Trotzdem produzieren</button>`;
-    if (o.status === 'produktion') next = `<button class="btn" data-a="st" data-no="${o.no}" data-st="bereit">${ic('check')} Fertig – ${o.ship.method === 'pickup' ? 'abholbereit melden' : 'bereit zum Versand'}</button>`;
-    if (o.status === 'bereit') next = o.ship.method === 'pickup' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="zugestellt">${ic('check')} Abgeholt</button>` : o.ship.method === 'local' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="unterwegs">${ic('bike')} Kurier ist unterwegs</button>` : `<button class="btn" data-a="ship" data-no="${o.no}">${ic('truck')} Sendungsnummer eintragen & versenden</button>`;
+    if (o.status === 'produktion') next = `<button class="btn" data-a="st" data-no="${o.no}" data-st="bereit">${ic('check')} Fertig – ${o.ship.method === 'pickup' ? 'abholbereit melden' : o.ship.method === 'digital' ? 'bereit zum Verschicken' : 'bereit zum Versand'}</button>`;
+    if (o.status === 'bereit') next = o.ship.method === 'digital' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="zugestellt">${ic('mail')} Per E-Mail verschickt</button>` : o.ship.method === 'pickup' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="zugestellt">${ic('check')} Abgeholt</button>` : o.ship.method === 'local' ? `<button class="btn" data-a="st" data-no="${o.no}" data-st="unterwegs">${ic('bike')} Kurier ist unterwegs</button>` : `${window.CLOUD && CLOUD.on ? `<button class="btn" data-a="dhl" data-no="${o.no}">${ic('print')} DHL-Label erstellen & versenden</button>` : ''}<button class="btn${window.CLOUD && CLOUD.on ? ' ghost' : ''}" data-a="ship" data-no="${o.no}">${ic('truck')} Sendungsnummer eintragen & versenden</button>`;
     if (o.status === 'unterwegs') next = `<button class="btn" data-a="st" data-no="${o.no}" data-st="zugestellt">${ic('check')} Zugestellt</button>`;
     const mails = ST.emails().filter(m => m.no === o.no);
     shell('bestellungen', `<a class="link back" href="#/admin/bestellungen">${ic('back')} Bestellungen</a>
@@ -139,7 +143,7 @@
         <div class="od-items">${o.items.map((it, i) => `<section class="a-card od-item"><div class="od-pv"><canvas data-opv="${i}"></canvas></div><div class="od-info"><h3>${it.qty} × ${esc(L(it.name, AL()))}</h3>
           <dl class="kv">${DOCS.lines(it, AL()).map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl>
           ${it.approval ? `<p class="appr-st ${it.approval.status}">${ic('eye')} Freigabe: <b>${{ offen: 'wartet auf Kunde', ok: 'freigegeben', change: 'Änderung gewünscht' }[it.approval.status]}</b></p>${it.approval.comments.map(c => `<p class="cmt ${c.by}"><b>${c.by === 'shop' ? 'Shop' : 'Kunde'}:</b> ${esc(c.text)}</p>`).join('')}` : ''}
-          ${it.pid === 'geschenkbox' ? `<div class="vbtns"><button class="btn sm" data-a="boxcard" data-no="${o.no}" data-i="${i}">${ic('card')} Grußkarte drucken (PNG)</button></div>` : `<div class="vbtns"><button class="btn sm" data-a="files" data-no="${o.no}" data-i="${i}">${ic('print')} Drucken / Dateien</button><button class="btn ghost sm" data-a="edit-item" data-no="${o.no}" data-i="${i}">${ic('edit')} Text korrigieren</button><button class="btn ghost sm" data-a="big" data-no="${o.no}" data-i="${i}">${ic('zoomIn')} Groß ansehen</button></div>`}</div></section>`).join('')}</div>
+          ${`<div class="vbtns"><button class="btn sm" data-a="files" data-no="${o.no}" data-i="${i}">${ic('print')} Drucken / Dateien</button><button class="btn ghost sm" data-a="edit-item" data-no="${o.no}" data-i="${i}">${ic('edit')} Text korrigieren</button><button class="btn ghost sm" data-a="big" data-no="${o.no}" data-i="${i}">${ic('zoomIn')} Groß ansehen</button></div>`}</div></section>`).join('')}</div>
         <aside class="od-side">
           <section class="a-card"><h3>Dokumente</h3><div class="docbtns">
             <button class="btn ghost sm" data-a="pdf" data-k="sheet" data-no="${o.no}">${ic('print')} Produktionsblatt</button>
@@ -162,7 +166,7 @@
           <section class="a-card"><h3>E-Mails an Kunde</h3>${mails.length ? `<ul class="mlist">${mails.map(m => `<li><a href="#/admin/emails/${m.id}">${esc(DOCS.mail(m).subject)}</a><small>${C.ago(m.at, AL())} · ${esc(m.to)}</small></li>`).join('')}</ul>` : '<p class="muted">Keine.</p>'}</section>
           ${o.status !== 'storniert' && o.status !== 'zugestellt' ? `<button class="btn ghost sm danger" data-a="cancel" data-no="${o.no}">${ic('trash')} Bestellung stornieren</button>` : ''}
         </aside></div>`);
-    for (const c of $$('[data-opv]')) { const it = o.items[+c.dataset.opv]; const p = ST.product(it.pid); if (it.pid === 'geschenkbox' && it.D.box && window.BOX) { await BOX.drawBox(c, Object.assign({ items: o.items.filter(x => x.D && x.D.boxOf === it.id).map(x => ({ pid: x.pid, D: x.D, qty: x.qty })) }, it.D.box), 700); continue; } if (p && p.views.length) await ENG.render(c, p, 0, it.D, { maxW: 700, force: true }); }
+    for (const c of $$('[data-opv]')) { const it = o.items[+c.dataset.opv]; const p = ST.product(it.pid); if (p && p.views.length) await ENG.render(c, p, 0, it.D, { maxW: 700, force: true }); }
   };
 
   /* ---------------- production ---------------- */
@@ -219,7 +223,7 @@
           <label class="fld"><span>Fertigung (Werktage)</span><input class="in" type="number" min="0" max="20" name="prod" value="${p.prod || 2}"></label><label class="fld"><span>MwSt.</span><select class="in" name="tax"><option value="19"${p.tax !== 7 ? ' selected' : ''}>19 %</option><option value="7"${p.tax === 7 ? ' selected' : ''}>7 % (Blumen)</option></select></label>
           <label class="fld"><span>Kategorie</span><select class="in" name="cat">${CAT_EXTRA.cats.map(c => `<option value="${c}"${p.cat === c ? ' selected' : ''}>${t('cat_' + c, null, AL())}</option>`).join('')}</select></label></div>
         <fieldset class="occs"><legend>Anlässe</legend>${CAT_EXTRA.occ.map(o => `<label class="check"><input type="checkbox" name="occ" value="${o}"${(p.occ || []).includes(o) ? ' checked' : ''}><span>${t('occ_' + o, null, AL())}</span></label>`).join('')}</fieldset>
-        <div class="row"><label class="check"><input type="checkbox" name="sd"${p.sd ? ' checked' : ''}><span>Am selben Tag möglich (Kurier/Abholung)</span></label><label class="check"><input type="checkbox" name="active"${p.active ? ' checked' : ''}><span>Online</span></label><label class="check"><input type="checkbox" name="best"${p.best ? ' checked' : ''}><span>Bestseller</span></label></div>
+        <div class="row"><label class="check"><input type="checkbox" name="sd"${p.sd ? ' checked' : ''}><span>Am selben Tag möglich (Kurier/Abholung)</span></label><label class="check"><input type="checkbox" name="active"${p.active ? ' checked' : ''}><span>Online</span></label><label class="check"><input type="checkbox" name="best"${p.best ? ' checked' : ''}><span>Bestseller</span></label><label class="check"><input type="checkbox" name="digital"${p.digital ? ' checked' : ''}><span>Digitales Produkt (kein Versand, kommt per E-Mail)</span></label></div>
         <button class="btn">Speichern</button></form>
       <section class="a-card" id="optEd"></section></div></div>`);
     A.optEditor(p);
@@ -361,8 +365,8 @@
   A.discounts = function () {
     const cs = ST.coupons(); const gs = ST.giftcards();
     shell('rabatte', `<div class="a-head"><h1>Rabatte & Gutscheine</h1></div>
-      <section class="a-card"><h2>Rabattcodes</h2><div class="ctable">${cs.map((c, i) => `<div class="crow2"><b>${esc(c.code)}</b><span>${c.type === 'pct' ? c.value + ' %' : eur(c.value, AL())}${c.min ? ' ab ' + eur(c.min, AL()) : ''}</span><span>${c.until ? 'bis ' + C.date(c.until, { day: '2-digit', month: '2-digit', year: 'numeric' }, AL()) : 'unbefristet'}</span><span>${c.uses || 0}${c.max ? '/' + c.max : ''} genutzt</span><span class="vbtns"><label class="tog"><input type="checkbox" data-cp="on" data-i="${i}"${c.on ? ' checked' : ''}><span>aktiv</span></label><button class="ibtn" data-a="cp-del" data-i="${i}" aria-label="Löschen">${ic('trash')}</button></span></div>`).join('')}</div>
-        <form data-aform="coupon" class="grid5"><label class="fld"><span>Code</span><input class="in" name="code" required placeholder="SOMMER15"></label><label class="fld"><span>Art</span><select class="in" name="type"><option value="pct">Prozent</option><option value="eur">Euro</option></select></label><label class="fld"><span>Wert</span><input class="in" name="value" type="number" step="0.5" required></label><label class="fld"><span>Mindestwert €</span><input class="in" name="min" type="number" value="0"></label><label class="fld"><span>Gültig bis</span><input class="in" name="until" type="date"></label><button class="btn sm">Anlegen</button></form></section>
+      <section class="a-card"><h2>Rabattcodes</h2><div class="ctable">${cs.map((c, i) => `<div class="crow2"><b>${esc(c.code)}</b><span>${c.type === 'pct' ? esc(c.value) + ' %' : eur(c.value, AL())}${c.min ? ' ab ' + eur(c.min, AL()) : ''}</span><span>${c.until ? 'bis ' + C.date(c.until, { day: '2-digit', month: '2-digit', year: 'numeric' }, AL()) : 'unbefristet'}</span><span class="cp-uses"><span>${c.uses || 0} genutzt</span> <label><span>max.</span> <input class="in xs" type="number" min="0" step="1" inputmode="numeric" value="${+c.max || 0}" data-cp="max" data-i="${i}" aria-label="Maximal nutzbar (0 = unbegrenzt)"></label></span><span class="vbtns"><label class="tog"><input type="checkbox" data-cp="on" data-i="${i}"${c.on ? ' checked' : ''}><span>aktiv</span></label><button class="ibtn" data-a="cp-del" data-i="${i}" aria-label="Löschen">${ic('trash')}</button></span></div>`).join('')}</div>
+        <form data-aform="coupon" class="grid5"><label class="fld"><span>Code</span><input class="in" name="code" required placeholder="SOMMER15"></label><label class="fld"><span>Art</span><select class="in" name="type"><option value="pct">Prozent</option><option value="eur">Euro</option></select></label><label class="fld"><span>Wert</span><input class="in" name="value" type="number" step="0.5" required></label><label class="fld"><span>Mindestwert €</span><input class="in" name="min" type="number" value="0"></label><label class="fld"><span>Gültig bis</span><input class="in" name="until" type="date"></label><label class="fld"><span>Max. Nutzungen</span><input class="in" name="max" type="number" min="0" step="1" value="0" inputmode="numeric"><small class="muted">0 = unbegrenzt</small></label><button class="btn sm">Anlegen</button></form></section>
       <section class="a-card"><h2>Geschenkgutscheine</h2><div class="ctable">${gs.length ? gs.map(g => `<div class="crow2"><b>${esc(g.code)}</b><span>Wert ${eur(g.value, AL())}</span><span>Rest ${eur(g.balance, AL())}</span><span>${esc(g.to || '')} ${g.order ? '· ' + g.order : '· manuell'}</span><span>${C.date(g.created, { day: '2-digit', month: '2-digit', year: 'numeric' }, AL())}</span></div>`).join('') : '<p class="muted">Noch keine Gutscheine verkauft.</p>'}</div>
         <form data-aform="giftcard" class="grid5"><label class="fld"><span>Betrag €</span><input class="in" name="amount" type="number" value="50" required></label><label class="fld"><span>Für (Name)</span><input class="in" name="to"></label><label class="fld"><span>E-Mail</span><input class="in" name="email" type="email"></label><button class="btn sm">Gutschein erstellen</button></form></section>`);
   };
@@ -397,6 +401,8 @@
         ${f('shipping.dhl.price', 'DHL Deutschland €', sh.dhl.price, 'number')}${f('shipping.dhl.days', 'DHL Laufzeit (Tage)', sh.dhl.days, 'number')}${f('shipping.eu.price', 'DHL EU €', sh.eu.price, 'number')}</div>
         <div class="row">${['pickup', 'local', 'dhl', 'eu'].map(m => `<label class="check"><input type="checkbox" name="shipping.${m}.on"${sh[m].on ? ' checked' : ''}><span>${M_L[m]} anbieten</span></label>`).join('')}</div></section>
       <section class="a-card"><h2>Zahlung & Ablauf</h2><div class="row">${Object.keys(PAY_L).map(k => `<label class="check"><input type="checkbox" name="payments.${k}"${s.payments[k] ? ' checked' : ''}><span>${PAY_L[k]}</span></label>`).join('')}</div>
+        <div class="grid3">${f('paypal.clientId', 'PayPal Client-ID (Live, öffentlich)', (s.paypal || {}).clientId || '')}</div>
+        <p class="muted small">PayPal und Karte erscheinen an der Kasse erst, wenn hier die Client-ID steht und der Haken gesetzt ist. Das geheime PayPal-Passwort (Secret) gehört nur auf den Server, nie hierher.</p>
         <div class="grid3">${f('cancelMinutes', 'Kunde kann stornieren innerhalb (Minuten)', s.cancelMinutes, 'number')}</div>
         <label class="check"><input type="checkbox" name="approvalDefault"${s.approvalDefault ? ' checked' : ''}><span>Design-Freigabe an der Kasse standardmäßig anbieten</span></label>
         <label class="check"><input type="checkbox" name="campaign.on"${s.campaign.on ? ' checked' : ''}><span>Saison-Aktion auf der Startseite (Valentinstag, Muttertag, Ramadan, Weihnachten automatisch)</span></label></section>
@@ -425,7 +431,7 @@
   A.navSheet = function () {
     const ov = C.sheet({ title: 'Verwaltung', start: false, foot: false, kind: 'side anav' });
     const open = ST.orders().filter(o => o.status === 'neu').length; const tab = (C.path().split('/')[2] || '');
-    ov.body.innerHTML = `<nav class="an-list">${TABS.filter(x => !x[3] || isOwner()).map(([k, i, l]) => `<a href="#/admin${k ? '/' + k : ''}"${k === tab ? ' aria-current="page"' : ''}>${ic(i)}<span>${l}</span>${k === 'bestellungen' && open ? `<em>${open}</em>` : ''}</a>`).join('')}</nav>
+    ov.body.innerHTML = `<nav class="an-list">${navLinks(tab, open, 0)}</nav>
       <div class="an-foot"><a class="btn ghost block" href="#/">${ic('store')} Shop ansehen</a><button class="btn ghost block" data-a="logout">${ic('logout')} Abmelden (${esc((session() || {}).user || '')})</button></div>`;
   };
 
@@ -450,20 +456,38 @@
         ST.sendMail('approval', ST.order(no), { msg, token: x.items.find(i => i.approval).approval.token });
         C.toast('Vorschau wurde an den Kunden geschickt'); re(); return;
       }
+      case 'dhl': {
+        if (!window.CLOUD || !CLOUD.on || !CLOUD.dhlLabel) { C.toast('DHL-Label geht nur mit dem Server.', 'err'); return; }
+        const kg = await promptText('DHL-Label', 'Gewicht mit Verpackung (kg)', '1');
+        if (!kg) return;
+        el.disabled = true; C.toast('DHL-Label wird erstellt …');
+        try {
+          const r = await CLOUD.dhlLabel(no, parseFloat(String(kg).replace(',', '.')));
+          if (r.label) { const bin = atob(r.label); const u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i); await C.save(`${no}_DHL_${r.shipmentNo}.pdf`, new Blob([u8], { type: 'application/pdf' })); }
+          ST.updateOrder(no, x => { x.tracking = { code: r.shipmentNo, carrier: 'DHL', at: Date.now() }; });
+          ST.setStatus(no, 'unterwegs', by, 'DHL ' + r.shipmentNo);
+          C.toast(`DHL-Label erstellt · Sendung ${r.shipmentNo}${r.warnings && r.warnings.length ? ' · Hinweis: ' + r.warnings[0].text : ''}`); re();
+        } catch (e) {
+          el.disabled = false;
+          const msg = { server_not_configured: 'DHL ist noch nicht eingerichtet (Zugangsdaten fehlen auf dem Server).', intl_not_configured: 'Für EU-Pakete fehlt die DHL-Abrechnungsnummer International.', dhl_auth: 'DHL hat die Zugangsdaten abgelehnt.', weight: 'Bitte ein Gewicht zwischen 0,01 und 31,5 kg eingeben.', auth: 'Bitte neu anmelden.', offline: 'Keine Verbindung zum Server.' }[e.code];
+          const det = e.data && e.data.messages && e.data.messages.length ? e.data.messages.map(m => m.text).filter(Boolean).slice(0, 2).join(' · ') : '';
+          C.toast(msg || ('DHL: ' + (det || 'Label konnte nicht erstellt werden.')), 'err');
+        }
+        return;
+      }
       case 'ship': {
         const code = await promptText('Versenden', 'DHL-Sendungsnummer', '00340434' + String(Math.floor(Math.random() * 1e12)).padStart(12, '0'));
         if (!code) return;
         ST.updateOrder(no, x => { x.tracking = { code: code.trim(), carrier: 'DHL', at: Date.now() }; });
         ST.setStatus(no, 'unterwegs', by, 'Sendung ' + code.trim()); C.toast('Versendet · Kunde hat die Sendungsnummer bekommen'); re(); return;
       }
-      case 'paid': ST.updateOrder(no, x => { x.pay.status = 'bezahlt'; x.pay.at = Date.now(); }); ST.issueGiftcardsFor(ST.order(no)); ST.log('zahlung', `${no} als bezahlt markiert`, by); re(); return;
+      case 'paid': ST.updateOrder(no, x => { x.pay.status = 'bezahlt'; x.pay.at = Date.now(); }); ST.issueGiftcardsFor(ST.order(no)); ST.sendMail('paid', ST.order(no)); ST.log('zahlung', `${no} als bezahlt markiert`, by); re(); return;
       case 'cancel': if (await C.confirm(`${no} wirklich stornieren? Der Kunde wird informiert, Bestand und Gutschein werden zurückgebucht.`, 'Stornieren', 'Zurück')) { ST.cancelOrder(no, by, 'vom Shop'); re(); } return;
       case 'cmp-done': ST.updateOrder(no, x => { x.complaints[+el.dataset.k].done = true; }); re(); return;
       case 'files': return A.filesDialog(o, +el.dataset.i);
       case 'fdl': { const fmt = el.dataset.f; const i = +el.dataset.i; el.disabled = true; const old = el.innerHTML; el.innerHTML = '<span class="spin"></span>'; try { const fs = await DOCS.makeFiles(o, i, fmt); if (!fs.length) { C.toast('Für dieses Produkt nicht nötig'); } else if (fs.length === 1) await C.save(fs[0].name, fs[0].blob); else { const JSZip = await C.zip(); const z = new JSZip(); fs.forEach(f => z.file(f.name, f.blob)); await C.save(`${o.no}_${i + 1}_${fmt}.zip`, await z.generateAsync({ type: 'blob' })); } ST.log('datei', `${o.no}: ${fmt.toUpperCase()} heruntergeladen`, (session() || {}).user); } catch (e) { console.error(e); C.toast('Fehler beim Erstellen', 'err'); } el.disabled = false; el.innerHTML = old; return; }
       case 'fall': { const i = +el.dataset.i; const JSZip = await C.zip(); const z = new JSZip(); for (const f of DOCS.formatsFor(DOCS.zonesOf(o.items[i]))) for (const x of await DOCS.makeFiles(o, i, f.id)) z.file(x.name, x.blob); return dl(`${o.no}_${i + 1}_alle-Dateien.zip`, z.generateAsync({ type: 'blob' })); }
       case 'anav': return A.navSheet();
-      case 'boxcard': return dl(`${o.no}_Grusskarte.png`, BOX.cardBlob(o.items[+el.dataset.i]));
       case 'zip': return dl(`${no}.zip`, DOCS.orderZip(o));
       case 'pdf': { const k = el.dataset.k; const m = { sheet: [`${no}_Produktion.pdf`, () => DOCS.sheet([o])], invoice: [`${o.invoice}.pdf`, () => DOCS.invoice(o)], note: [`${no}_Lieferschein.pdf`, () => DOCS.deliveryNote(o)], label: [`${no}_Etikett.pdf`, () => DOCS.label(o)] }[k]; return dl(m[0], m[1]()); }
       case 'dayzip': { const os = ST.orders().filter(x => x.status === 'produktion'); if (!os.length) { C.toast('Keine Aufträge in Produktion'); return; } return dl(`Druckdateien_${today()}.zip`, DOCS.dayZip(os, today())); }
@@ -513,6 +537,7 @@
   };
   A.onChange = function (el) {
     if (el.dataset.pf) { const k = el.dataset.pf; const v = el.type === 'checkbox' ? el.checked : (k === 'salePrice' && !el.value ? null : +el.value); ST.saveOverride(el.dataset.id, { [k]: v }); ST.log('produkt', `${el.dataset.id}: ${k} → ${v}`); C.toast('Gespeichert'); if (el.type === 'checkbox') el.closest('.prow').classList.toggle('off', k === 'active' && !v); return true; }
+    if (el.dataset.cp === 'max') { const l = ST.coupons(); l[+el.dataset.i].max = Math.max(0, Math.floor(+el.value || 0)); ST.saveCoupons(l); return true; }
     if (el.dataset.cp) { const l = ST.coupons(); l[+el.dataset.i].on = el.checked; ST.saveCoupons(l); return true; }
     return false;
   };
@@ -522,12 +547,12 @@
     if (k === 'note') { ST.updateOrder(f.dataset.no, o => { o.notes = (o.notes || []).concat([{ by, at: Date.now(), text: g('text') }]); }); re(); return; }
     if (k === 'product') {
       const id = f.dataset.id; const p = ST.product(id);
-      const patch = { name: { de: g('name_de'), en: g('name_en'), ar: g('name_ar') }, desc: { de: g('desc_de'), en: g('desc_en'), ar: g('desc_ar') }, mat: { de: g('mat_de'), en: g('mat_en'), ar: g('mat_ar') }, size: { de: g('size_de'), en: g('size_en'), ar: g('size_ar') }, price: +g('price'), salePrice: g('salePrice') ? +g('salePrice') : null, saleEnd: g('saleEnd'), stock: +g('stock'), prod: +g('prod'), tax: +g('tax'), cat: g('cat'), occ: fd.getAll('occ'), sd: !!fd.get('sd'), active: !!fd.get('active'), best: !!fd.get('best') };
+      const patch = { name: { de: g('name_de'), en: g('name_en'), ar: g('name_ar') }, desc: { de: g('desc_de'), en: g('desc_en'), ar: g('desc_ar') }, mat: { de: g('mat_de'), en: g('mat_en'), ar: g('mat_ar') }, size: { de: g('size_de'), en: g('size_en'), ar: g('size_ar') }, price: +g('price'), salePrice: g('salePrice') ? +g('salePrice') : null, saleEnd: g('saleEnd'), stock: +g('stock'), prod: +g('prod'), tax: +g('tax'), cat: g('cat'), occ: fd.getAll('occ'), sd: !!fd.get('sd'), active: !!fd.get('active'), best: !!fd.get('best'), digital: !!fd.get('digital') };
       if (p.custom) { ST.saveCustom(Object.assign({}, ST.get('customProducts', []).find(x => x.id === id), patch)); } else ST.saveOverride(id, patch);
       if (SHOP.searchIndex) SHOP.searchIndex = null;
       ST.log('produkt', 'Bearbeitet: ' + patch.name.de, by); C.toast('Gespeichert'); re(); return;
     }
-    if (k === 'coupon') { const l = ST.coupons(); const code = g('code').toUpperCase().replace(/\s/g, ''); if (l.some(c => c.code === code)) { C.toast('Code existiert schon', 'err'); return; } l.push({ code, type: g('type'), value: +g('value'), min: +g('min') || 0, until: g('until'), uses: 0, max: 0, on: true }); ST.saveCoupons(l); ST.log('rabatt', 'Rabattcode ' + code, by); re(); return; }
+    if (k === 'coupon') { const l = ST.coupons(); const code = g('code').toUpperCase().replace(/\s/g, ''); if (l.some(c => c.code === code)) { C.toast('Code existiert schon', 'err'); return; } l.push({ code, type: g('type'), value: +g('value'), min: +g('min') || 0, until: g('until'), uses: 0, max: Math.max(0, Math.floor(+g('max') || 0)), on: true }); ST.saveCoupons(l); ST.log('rabatt', 'Rabattcode ' + code, by); re(); return; }
     if (k === 'giftcard') { const gs = ST.giftcards(); const code = ST.newGiftcardCode(); const amt = +g('amount'); gs.push({ code, value: amt, balance: amt, created: Date.now(), order: '', to: g('to'), toEmail: g('email'), msg: '', from: ST.settings().shop.name, log: [] }); ST.saveGiftcards(gs); if (g('email')) ST.sendMail('giftcard', null, { code, amount: amt, to: g('to'), toEmail: g('email'), from: ST.settings().shop.name }); ST.log('gutschein', 'Gutschein ' + code + ' erstellt', by); C.toast('Gutschein ' + code); re(); return; }
     if (k === 'answer') { const l = ST.get('questions', []); const q = l.find(x => x.id === f.dataset.id); q.answer = g('a'); q.answeredAt = Date.now(); ST.setQuestions(l); const p = ST.product(q.pid); ST.sendMail('answer', null, { toEmail: q.email, q: q.text, a: q.answer, product: p ? L(p.name, q.lang || AL()) : '' }); const em = ST.emails(); if (em[0]) { em[0].lang = q.lang || 'de'; ST.set('emails', em); } re(); return; }
     if (k === 'settings') {

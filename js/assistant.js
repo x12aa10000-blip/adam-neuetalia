@@ -127,9 +127,7 @@
       ['prod', ['wie lange', 'dauer', 'wann fertig', 'how long', 'when ready', 'when will', 'قديش بياخد', 'قديش بدو', 'امتى بيجهز', 'متى بيجهز', 'كم يوم', 'قديش وقت', 'امتى بيوصل'], l => T3(l,
         'Die meisten Geschenke sind in 1–3 Werktagen fertig, viele Rosenboxen am selben Tag. Das genaue Fertig- und Lieferdatum steht auf jeder Produktseite und an der Kasse.', 'Most gifts are ready in 1–3 working days, many rose boxes the same day. The exact ready and delivery date is shown on every product page and at checkout.', 'أغلب الهدايا بتجهز خلال ١–٣ أيام عمل، وكتير من علب الورد بنفس اليوم. التاريخ الدقيق مكتوب بصفحة كل منتج وعند الدفع.')],
       ['wrap', ['verpack', 'geschenkpapier', 'wrap', 'packaging', 'tute', 'تغليف', 'غلاف', 'تغلفو', 'كيس', 'مغلف'], l => T3(l,
-        `Als Geschenk verpackt mit Grußkarte kostet ${e(s.wrap)} – einfach an der Kasse wählen. Oder du stellst gleich eine ganze Geschenkbox zusammen.`, `Gift wrapping with a card costs ${e(s.wrap)} – just pick it at checkout. Or build a whole gift box.`, `التغليف كهدية مع كرت بـ ${e(s.wrap)}، بتختاره وقت الدفع. أو فيك تجهز بوكس هدايا كامل.`), { box: 1 }],
-      ['box', ['box', 'bundle', 'mehrere', 'zusammen', 'several', 'together', 'بوكس', 'صندوق', 'علبه هدايا', 'كذا هديه', 'مع بعض', 'عده هدايا', 'بكج'], l => T3(l,
-        'Im Box-Baukasten wählst du Box, Füllung und Schleife, legst so viele Geschenke mit Namen oder Foto hinein, wie du willst, dazu Extras wie Rosen oder Pralinen, und schreibst eine Grußkarte. Du siehst die Box sofort.', 'In the box builder you choose the box, filling and ribbon, add as many gifts with names or photos as you like, extras like roses or chocolates, and write a card. You see the box instantly.', 'بـ "صمّم بوكسك" بتختار البوكس والحشوة والشريطة، بتحط قد ما بدك هدايا بالاسم أو الصورة، وإضافات متل ورد وشوكولاتة، وبتكتب كرت تهنئة – وبتشوف البوكس فوراً.'), { box: 1 }],
+        `Als Geschenk verpackt mit Grußkarte kostet ${e(s.wrap)} – einfach an der Kasse wählen.`, `Gift wrapping with a card costs ${e(s.wrap)} – just pick it at checkout.`, `التغليف كهدية مع كرت بـ ${e(s.wrap)}، بتختاره وقت الدفع.`)],
       ['giftcard', ['gutschein', 'gift card', 'voucher', 'giftcard', 'بطاقه هديه', 'قسيمه', 'كرت هديه', 'فاوتشر'], l => T3(l,
         'Geschenkgutscheine gibt es in jedem Betrag ab 5 € – sie kommen sofort per E-Mail und gelten 3 Jahre im Shop und im Laden.', 'Gift cards come in any amount from €5 – they arrive instantly by e-mail and are valid for 3 years online and in store.', 'بطاقات الهدايا بأي مبلغ من ٥ يورو وطالع، بتوصل فوراً بالإيميل وصالحة ٣ سنين بالموقع وبالمحل.'), { href: '#/gutschein' }],
       ['contact', ['whatsapp', 'telefon', 'anrufen', 'kontakt', 'nummer', 'phone', 'call', 'contact', 'email', 'واتس', 'رقم', 'تواصل', 'اتصل', 'تلفون', 'حكي معكن', 'موظف', 'انسان'], l => T3(l,
@@ -233,22 +231,20 @@
     // small talk
     const greet = any(msg, GREET), thanks = any(msg, THANKS), bye = any(msg, BYE);
     if (any(msg, HOWRU)) parts.push(T3(lang, 'Mir geht’s super, danke! 😊 Und dir?', 'I’m great, thanks! 😊 How about you?', 'الحمدلله تمام، شكراً! 😊 وإنت كيفك؟'));
-    if (any(msg, WHOAMI)) parts.push(T3(lang, 'Ich bin der digitale Geschenk-Assistent von Neuetalia 🤖💕 Ich kenne alle unsere Produkte, Preise und Lieferzeiten und helfe dir, das passende Geschenk zu finden.', 'I’m Neuetalia’s digital gift assistant 🤖💕 I know all our products, prices and delivery times and help you find the right gift.', 'أنا مساعد الهدايا الرقمي من نيوتاليا 🤖💕 بعرف كل منتجاتنا وأسعارها ومواعيد التوصيل، وبساعدك تلاقي الهدية المناسبة.'));
+    if (any(msg, WHOAMI)) parts.push(T3(lang, 'Ich bin der digitale Geschenk-Assistent von Adam 🤖💕 Ich kenne alle unsere Produkte, Preise und Lieferzeiten und helfe dir, das passende Geschenk zu finden.', 'I’m Adam’s digital gift assistant 🤖💕 I know all our products, prices and delivery times and help you find the right gift.', 'أنا مساعد الهدايا الرقمي من آدم 🤖💕 بعرف كل منتجاتنا وأسعارها ومواعيد التوصيل، وبساعدك تلاقي الهدية المناسبة.'));
     if (any(msg, ANGRY)) { parts.push(T3(lang, 'Das tut mir wirklich leid! 😔 Bitte schreib uns direkt auf WhatsApp mit deiner Bestellnummer und einem Foto – wir kümmern uns sofort darum und machen es wieder gut.', 'I’m really sorry about that! 😔 Please message us on WhatsApp with your order number and a photo – we’ll take care of it right away.', 'كتير آسفين على هالشي! 😔 ابعتلنا واتساب رقم الطلب مع صورة، ومنهتم فيها فوراً ومنصلحها.')); wa = true; }
 
     // topics (several at once)
     const topics = faqTopics().map(([id, ws, fn, extra]) => [id, score(msg, ws), fn, extra || {}]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]);
     const giftWords = giftWordsPre(msg); void any(msg, ['geschenk', 'gift', 'present', 'idee', 'idea', 'empfehl', 'recommend', 'suggest', 'vorschlag', 'هديه', 'هدايا', 'اقترح', 'اقتراح', 'بتنصح', 'نصيحه', 'فكره', 'افكار', 'ساعدني', 'شو بجيب', 'شو اجيب', 'محتار']);
     const askPrice = any(msg, ['preis', 'kostet', 'kosten', 'price', 'cost', 'how much', 'cheapest', 'billigste', 'teuerste', 'سعر', 'سعره', 'سعرها', 'قديش', 'كم سعر', 'بكم', 'غالي', 'رخيص', 'ارخص', 'اغلى']);
-    if (topics.some(x => ['spotify', 'photo', 'proof', 'giftcard', 'box'].includes(x[0]))) for (let i = topics.length - 1; i >= 0; i--) if (topics[i][0] === 'howorder') topics.splice(i, 1);
+    if (topics.some(x => ['spotify', 'photo', 'proof', 'giftcard'].includes(x[0]))) for (let i = topics.length - 1; i >= 0; i--) if (topics[i][0] === 'howorder') topics.splice(i, 1);
     if (topics.some(x => x[0] === 'intl')) for (let i = topics.length - 1; i >= 0; i--) if (topics[i][0] === 'ship') topics.splice(i, 1);
     if (!b && !/(€|eur|euro|يورو|اورو|بحدود|ميزاني)/.test(msg.n + raw) && /(^| )(\d{2,4})( |$)/.test(msg.n) && +RegExp.$2 >= 20 && giftWordsPre(msg) && !topics.some(x => x[0] === 'bulk')) topics.unshift(['bulk', 9, faqTopics().find(x => x[0] === 'bulk')[2], { wa: 1 }]);
     for (const [id, , fn, ex] of topics.slice(0, 2)) {
       if (id === 'discount' && askPrice && typeHit) continue;
-      if (id === 'box' && (giftWords || typeHit) && !any(msg, ['box', 'بوكس', 'صندوق', 'كذا هديه', 'mehrere', 'several'])) continue;
       parts.push(fn(lang));
       if (ex.wa) wa = true;
-      if (ex.box) chips.push({ l: tl('nav_box') + ' 🎁', href: '#/box' });
       if (ex.href) chips.push({ l: ex.href === '#/verfolgen' ? t('track_title') : ex.href === '#/gutschein' ? t('nav_gift') : t('account'), href: ex.href });
       if (ex.cat) { const ids = ST.products().filter(p => p.cat === ex.cat || (p.also || []).includes(ex.cat)).slice(0, 4).map(p => p.id); if (ids.length) products = ids; }
       if (ex.sale) { const ids = ST.products().filter(p => ST.onSale(p)).slice(0, 4).map(p => p.id); if (ids.length) products = ids; }
@@ -275,7 +271,7 @@
     const boost = new Map((typeHit || content.length) ? searchProducts(typeHit ? raw : content.join(' ')).filter(p => !typeHit || p.cat === typeHit || (p.also || []).includes(typeHit)).slice(0, 8).map((p, i) => [p.id, Math.max(1.5, 6 - i * .7)]) : []);
     if (!products && !typeHit && content.length && boost.size && (giftWords || thisWho || thisOcc)) {
       let ids = [...boost.keys()].map(id => ST.product(id)).filter(p => p && (!b || ST.minPrice(p) <= b.max)).slice(0, 4).map(p => p.id);
-      if (ids.length >= 2 || (ids.length && !thisOcc && !thisWho)) { parts.push(T3(lang, 'Passend dazu habe ich das hier gefunden – alles mit Namen oder Foto personalisierbar:', 'Here’s what fits that – all personalisable with a name or photo:', 'على حسب يلي حكيتلي، لقيتلك هدول – وكلهم بتنعمل بالاسم أو الصورة:')); products = ids; chips = chips.concat([{ l: T3(lang, 'Andere Ideen', 'Other ideas', 'اقتراحات تانية'), q: { more: 1 } }, { l: tl('box_suggest_btn') + ' 🎁', act: 'box' }]); }
+      if (ids.length >= 2 || (ids.length && !thisOcc && !thisWho)) { parts.push(T3(lang, 'Passend dazu habe ich das hier gefunden – alles mit Namen oder Foto personalisierbar:', 'Here’s what fits that – all personalisable with a name or photo:', 'على حسب يلي حكيتلي، لقيتلك هدول – وكلهم بتنعمل بالاسم أو الصورة:')); products = ids; chips = chips.concat([{ l: T3(lang, 'Andere Ideen', 'Other ideas', 'اقتراحات تانية'), q: { more: 1 } }]); }
     }
     // gift finding
     const wantsGift = giftWords || (slotsChanged && (SL.occ || SL.who || SL.type || b)) || (typeHit && !parts.length);
@@ -289,7 +285,7 @@
       else if (!SL.max && !SL._askedBudget) { SL._askedBudget = 1; parts.push(T3(lang, 'Wie viel möchtest du ungefähr ausgeben? Schreib einfach einen Betrag, z. B. „40 €“ – oder „egal“.', 'Roughly how much would you like to spend? Just type an amount, e.g. “€40” – or “any”.', 'قديش حابب تدفع تقريباً؟ اكتب أي مبلغ متل "40 يورو" – أو "مش مهم".')); chips = chips.concat(budChips(), [{ l: T3(lang, 'Egal', 'Any price', 'مش مهم'), q: { max: -1 } }]); }
       else {
         const ids = recommend(boost);
-        if (ids.length) { parts.push(T3(lang, `Das hier würde ich dir empfehlen${SL.max ? ' (bis ' + eur(SL.max) + ')' : ''}${ids.every(id => (ST.product(id).fields || []).length) ? ' – alles personalisierbar mit Live-Vorschau' : ''}:`, `Here’s what I’d recommend${SL.max ? ' (up to ' + eur(SL.max) + ')' : ''}${ids.every(id => (ST.product(id).fields || []).length) ? ' – all personalisable with a live preview' : ''}:`, `هدول بنصحك فيهم${SL.max ? ' (لحد ' + eur(SL.max) + ')' : ''}${ids.every(id => (ST.product(id).fields || []).length) ? ' – وكلهم بتقدر تخصصهم وتشوفهم مباشرة' : ''}:`)); products = ids; out.after = T3(lang, 'Oder soll ich dir gleich eine ganze Geschenkbox mit mehreren Geschenken und Grußkarte zusammenstellen?', 'Or shall I put together a whole gift box with several gifts and a card?', 'أو بتحب جهزلك بوكس هدايا كامل فيه كذا هدية وكرت تهنئة؟'); chips = chips.concat([{ l: tl('box_suggest_btn') + ' 🎁', act: 'box' }, { l: T3(lang, 'Andere Ideen', 'Other ideas', 'اقتراحات تانية'), q: { more: 1 } }]); }
+        if (ids.length) { parts.push(T3(lang, `Das hier würde ich dir empfehlen${SL.max ? ' (bis ' + eur(SL.max) + ')' : ''}${ids.every(id => (ST.product(id).fields || []).length) ? ' – alles personalisierbar mit Live-Vorschau' : ''}:`, `Here’s what I’d recommend${SL.max ? ' (up to ' + eur(SL.max) + ')' : ''}${ids.every(id => (ST.product(id).fields || []).length) ? ' – all personalisable with a live preview' : ''}:`, `هدول بنصحك فيهم${SL.max ? ' (لحد ' + eur(SL.max) + ')' : ''}${ids.every(id => (ST.product(id).fields || []).length) ? ' – وكلهم بتقدر تخصصهم وتشوفهم مباشرة' : ''}:`)); products = ids; chips = chips.concat([{ l: T3(lang, 'Andere Ideen', 'Other ideas', 'اقتراحات تانية'), q: { more: 1 } }]); }
         else { parts.push(T3(lang, `Für ${SL.max ? 'bis ' + eur(SL.max) : 'diese Auswahl'} habe ich gerade wenig Passendes – mit etwas mehr Budget gibt es viele schöne Ideen. Oder ein Gutschein in genau deinem Betrag?`, `For ${SL.max ? 'up to ' + eur(SL.max) : 'this choice'} there isn’t much – with a little more budget there are lots of lovely ideas. Or a gift card in exactly your amount?`, `${SL.max ? 'لحد ' + eur(SL.max) : 'بهالاختيار'} ما في كتير خيارات – إذا زدت الميزانية شوي في أفكار كتير حلوة. أو شو رأيك ببطاقة هدية بنفس المبلغ اللي بدك ياه؟`)); chips = chips.concat(budChips().slice(2), [{ l: t('nav_gift'), href: '#/gutschein' }]); }
       }
     }
@@ -299,7 +295,7 @@
       const found = searchProducts(raw).slice(0, 4);
       if (found.length && (searchProducts.top >= 2 || searchProducts.n <= 2)) { parts.push(T3(lang, 'Dazu habe ich das hier bei uns gefunden:', 'Here’s what I found for you:', 'لقيتلك هدول عنا:')); products = found.map(p => p.id); chips = chips.concat([{ l: T3(lang, 'Mehr Ideen', 'More ideas', 'أفكار أكتر'), q: {} }]); }
     }
-    if (greet && !parts.length) { parts.push(T3(lang, 'Hallo und herzlich willkommen bei Neuetalia! 👋💕 Für wen suchst du ein Geschenk und zu welchem Anlass? Ich kann dir auch alles zu Versand, Abholung und Bezahlung sagen.', 'Hi and welcome to Neuetalia! 👋💕 Who are you looking for a gift for and what’s the occasion? I can also tell you all about delivery, pick-up and payment.', 'أهلاً وسهلاً بنيوتاليا! 👋💕 لمين عم تدور على هدية وشو المناسبة؟ وفيني جاوبك عن التوصيل والاستلام والدفع.')); chips = chips.concat(occChips().slice(0, 4)); }
+    if (greet && !parts.length) { parts.push(T3(lang, 'Hallo und herzlich willkommen bei Adam! 👋💕 Für wen suchst du ein Geschenk und zu welchem Anlass? Ich kann dir auch alles zu Versand, Abholung und Bezahlung sagen.', 'Hi and welcome to Adam! 👋💕 Who are you looking for a gift for and what’s the occasion? I can also tell you all about delivery, pick-up and payment.', 'أهلاً وسهلاً بآدم! 👋💕 لمين عم تدور على هدية وشو المناسبة؟ وفيني جاوبك عن التوصيل والاستلام والدفع.')); chips = chips.concat(occChips().slice(0, 4)); }
     else if (greet && parts.length) parts.unshift(T3(lang, 'Hallo! 👋', 'Hi! 👋', 'أهلاً! 👋'));
     if (thanks && !parts.length) parts.push(T3(lang, 'Sehr gern! 💕 Wenn du noch etwas brauchst, bin ich da.', 'You’re welcome! 💕 I’m here if you need anything else.', 'تكرم عيونك! 💕 إذا احتجت أي شي أنا هون.'));
     if (bye && !parts.length) parts.push(T3(lang, 'Bis bald und viel Freude beim Schenken! 💕', 'See you soon and enjoy gifting! 💕', 'مع السلامة، وإن شاء الله تفرّح حبايبك! 💕'));
@@ -307,7 +303,7 @@
       // still nothing: a friendly, useful answer instead of "I don't know"
       parts.push(T3(lang, 'Gute Frage! Das kläre ich am besten persönlich mit dir: Schreib uns kurz auf WhatsApp, wir antworten meist innerhalb einer Stunde. Hier schon mal unsere beliebtesten Geschenke:', 'Good question! The team can answer that best – message us on WhatsApp, we usually reply within an hour. Meanwhile, here are our favourite gifts:', 'سؤال حلو! أحسن شي يجاوبك عليه فريق المحل – راسلنا واتساب وعادةً منرد خلال ساعة. وهي هلق أكتر الهدايا اللي بيحبوها الزباين:'));
       products = ST.products().filter(p => p.best).slice(0, 4).map(p => p.id); wa = true;
-      chips = chips.concat(occChips().slice(0, 3), [{ l: tl('nav_box') + ' 🎁', href: '#/box' }]);
+      chips = chips.concat(occChips().slice(0, 3));
     }
     out.text = parts.join('\n\n'); out.products = products; out.wa = wa;
     const seen = new Set(); out.chips = chips.filter(c => !seen.has(c.l) && seen.add(c.l)).slice(0, 7);
@@ -342,7 +338,7 @@
     if (!on) { if (p) p.remove(); document.body.classList.remove('as-open'); return; }
     if (!p) { p = document.createElement('section'); p.id = 'asPanel'; p.className = 'as-panel'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', t('as_title')); document.body.appendChild(p); }
     document.body.classList.add('as-open');
-    if (!LOG.length) LOG.push({ who: 'bot', text: t('as_hello'), chips: occChips().slice(0, 4).concat([{ l: tl('nav_box') + ' 🎁', href: '#/box' }, { l: t('help_ship'), say: C.lang() === 'ar' ? 'كيف التوصيل؟' : C.lang() === 'en' ? 'How does delivery work?' : 'Wie funktioniert der Versand?' }]) });
+    if (!LOG.length) LOG.push({ who: 'bot', text: t('as_hello'), chips: occChips().slice(0, 4).concat([{ l: t('help_ship'), say: C.lang() === 'ar' ? 'كيف التوصيل؟' : C.lang() === 'en' ? 'How does delivery work?' : 'Wie funktioniert der Versand?' }]) });
     AS.draw();
     setTimeout(() => { const i = $('#asIn'); if (i && matchMedia('(pointer:fine)').matches) i.focus(); }, 60);
   };
@@ -353,7 +349,7 @@
   AS.draw = function () {
     const p = $('#asPanel'); if (!p) return;
     const s = ST.settings();
-    p.innerHTML = `<header class="as-head"><i>${ic('sparkle')}</i><div><b>${esc(t('as_title'))}</b><small>${esc(t('as_sub'))}</small></div><button class="ibtn" data-as="reset" aria-label="${esc(t('box_reset'))}" title="${esc(t('box_reset'))}">${ic('rotateL')}</button><button class="ibtn" data-as="close" aria-label="${esc(t('close'))}">${ic('close')}</button></header>
+    p.innerHTML = `<header class="as-head"><i>${ic('sparkle')}</i><div><b>${esc(t('as_title'))}</b><small>${esc(t('as_sub'))}</small></div><button class="ibtn" data-as="reset" aria-label="${esc(t('as_reset'))}" title="${esc(t('as_reset'))}">${ic('rotateL')}</button><button class="ibtn" data-as="close" aria-label="${esc(t('close'))}">${ic('close')}</button></header>
       <div class="as-log" id="asLog">${LOG.map((m, i) => `<div class="as-m ${m.who}"${m.lang === 'ar' ? ' dir="rtl"' : m.lang ? ' dir="ltr"' : ''}><p>${esc(m.text)}</p>
         ${m.products ? `<div class="as-ps">${m.products.map(card).join('')}</div>` : ''}${m.after ? `<p>${esc(m.after)}</p>` : ''}
         ${m.wa ? `<a class="btn teal sm" target="_blank" rel="noopener" href="https://wa.me/${esc(s.shop.wa)}">${ic('chat')} WhatsApp</a>` : ''}
@@ -370,7 +366,6 @@
     if (!c) return;
     if (c.ext) { window.open(c.ext, '_blank', 'noopener'); return; }
     if (c.href) { C.go(c.href); if (innerWidth < 700) AS.toggle(false); return; }
-    if (c.act === 'box') { const st = BOX.suggest(SL.occ || '', SL.max > 0 ? SL.max : 75); BOX.useState(st); C.go('#/box'); if (innerWidth < 700) AS.toggle(false); return; }
     if (c.say) return AS.send(c.say);
     if (c.q) {
       if (c.q.more) { SL.type = ''; SL._askedBudget = 1; SL._shift = (SL._shift || 0) + 4; }

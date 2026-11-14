@@ -1,0 +1,15 @@
+# Supabase CLI configuration for the Edge Functions of the Adam shop.
+# The functions do their own checks (order number + e-mail, PayPal signature), so the Supabase JWT check is off.
+# PayPal webhooks cannot send a Supabase JWT.
+[functions.paypal-create-order]
+verify_jwt = false
+
+[functions.paypal-capture-order]
+verify_jwt = false
+
+[functions.paypal-webhook]
+verify_jwt = false
+
+# Admin-only DHL label: the admin session token is checked in the database (shop_srv_dhl_order).
+[functions.dhl-label]
+verify_jwt = false

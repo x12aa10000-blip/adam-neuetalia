@@ -185,7 +185,7 @@
     }
     objs[0] = `<< /Type /Catalog /Pages ${pagesId} 0 R >>`;
     objs[1] = `<< /Type /Pages /Kids [${kidsRef.join(' ')}] /Count ${pageIds.length} >>`;
-    const info = add(`<< /Title (${(meta && meta.title || 'Dokument').replace(/[()\\]/g, '')}) /Producer (Adam & Neuetalia Shop) >>`);
+    const info = add(`<< /Title (${(meta && meta.title || 'Dokument').replace(/[()\\]/g, '')}) /Producer (Adam Shop) >>`);
     push('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
     objs.forEach((o, i) => {
       offs[i] = len;

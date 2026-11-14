@@ -1,31 +1,8 @@
-/* Round 8 fixes: box builder mobile mini bar, drag-to-scroll strips on desktop, editor navigation helpers. */
+/* Round 8 fixes: drag-to-scroll strips on desktop, editor navigation helpers. */
 (function () {
   'use strict';
   const mq = matchMedia('(max-width:960px)');
 
-  /* ---------- box builder: on phones the big preview stays at the top (not following you);
-     once it scrolls away, a slim bar with a small live preview, count and price appears ---------- */
-  let bxObs = null;
-  function bxMini() {
-    const side = $('.bx-side'), stage = $('.bx-stage'); let bar = $('.bx-mini');
-    if (!side || !stage || !mq.matches) { if (bar) bar.remove(); return; }
-    if (!bar) {
-      bar = document.createElement('button'); bar.type = 'button'; bar.className = 'bx-mini'; bar.setAttribute('aria-label', t('live_preview'));
-      bar.innerHTML = '<canvas width="120" height="90"></canvas><span class="bx-mini-t"></span><b></b><i>' + ic('eye') + '</i>';
-      bar.addEventListener('click', () => { const s = $('.bx-stage'); if (s) s.scrollIntoView({ behavior: 'smooth', block: 'center' }); });
-      document.body.appendChild(bar);
-    }
-    const sum = $('.bx-sum'); if (sum) { const sp = sum.querySelector('span'), b = sum.querySelector('b'); $('.bx-mini-t', bar).textContent = sp ? sp.textContent : ''; $('b', bar).textContent = b ? b.textContent : ''; }
-    const src = $('#bxCv'), dst = $('canvas', bar);
-    if (src && src.width) { const x = dst.getContext('2d'); x.clearRect(0, 0, 120, 90); const r = Math.min(120 / src.width, 90 / src.height); x.drawImage(src, (120 - src.width * r) / 2, (90 - src.height * r) / 2, src.width * r, src.height * r); }
-    if (bxObs) bxObs.disconnect();
-    bxObs = new IntersectionObserver(es => { const b = $('.bx-mini'); if (b) b.classList.toggle('on', !es[0].isIntersecting && C.path().startsWith('/box')); }, { threshold: 0.05 });
-    bxObs.observe(stage);
-  }
-  if (window.BOX) {
-    const _d = BOX.drawAll; BOX.drawAll = async function () { const r = await _d.apply(this, arguments); try { bxMini(); } catch (e) { } return r; };
-  }
-  window.addEventListener('hashchange', () => { if (!C.path().startsWith('/box')) { const b = $('.bx-mini'); if (b) b.remove(); } });
 
   /* ---------- every horizontal strip can be dragged with the mouse on a computer, plus arrow buttons ---------- */
   const STRIP = '.prail,.qk-row,.rail,.chips,.thumbs,.carou-track,.dates,.dz-views';
@@ -78,7 +55,7 @@
 (function () {
   const fit = () => document.querySelectorAll('.fonts button').forEach(b => {
     if (!b.clientWidth) return; b.style.fontSize = ''; let fs = parseFloat(getComputedStyle(b).fontSize), n = 0;
-    while (b.scrollWidth > b.clientWidth + 1 && fs > 11 && n++ < 14) { fs -= 1; b.style.fontSize = fs + 'px'; }
+    while (b.scrollWidth > b.clientWidth + 1 && fs > 8 && n++ < 8) { fs = Math.max(8, Math.floor(fs * b.clientWidth / b.scrollWidth * 10) / 10 - .3); b.style.fontSize = fs + 'px'; }
   });
   let tm; const mo = new MutationObserver(() => { clearTimeout(tm); tm = setTimeout(fit, 80); });
   mo.observe(document.body, { childList: true, subtree: true, characterData: true });

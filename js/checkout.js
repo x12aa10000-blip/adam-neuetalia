@@ -8,11 +8,11 @@
   const lineHTML = (it, compact) => {
     const p = ST.product(it.pid); const lines = DOCS.lines(it, C.lang());
     return `<div class="cline" data-line="${esc(it.id)}">
-      <a class="cthumb" href="${p && p.id === 'geschenkbox' ? '#/box?edit=' + esc(it.id) : p && p.id !== 'gutschein' ? '#/p/' + esc(it.pid) + '?edit=' + esc(it.id) : '#/gutschein'}"><img src="${esc(it.preview || (p && p.views[0] && p.views[0].thumb) || '')}" alt="" width="96" height="96"></a>
+      <a class="cthumb" href="${p && p.id !== 'gutschein' ? '#/p/' + esc(it.pid) + '?edit=' + esc(it.id) : '#/gutschein'}"><img src="${esc(it.preview || (p && p.views[0] && p.views[0].thumb) || '')}" alt="" width="96" height="96"></a>
       <div class="cinfo"><b>${esc(L(it.name))}</b>
         <ul class="clist">${lines.slice(0, compact ? 3 : 20).map(([a, b]) => `<li><span>${esc(a)}</span> ${esc(b)}</li>`).join('')}</ul>
         <div class="crow"><div class="qty sm" role="group" aria-label="${esc(t('qty'))}"><button type="button" data-act="cq" data-d="-1" data-id="${esc(it.id)}" aria-label="−">${ic('minus')}</button><output>${it.qty}</output><button type="button" data-act="cq" data-d="1" data-id="${esc(it.id)}" aria-label="+">${ic('plus')}</button></div>
-          ${p && p.id === 'geschenkbox' ? `<a class="link" href="#/box?edit=${esc(it.id)}">${t('edit')}</a>` : p && p.id !== 'gutschein' ? `<a class="link" href="#/p/${esc(it.pid)}?edit=${esc(it.id)}">${t('edit')}</a>` : ''}<button class="link" data-act="crm" data-id="${esc(it.id)}">${t('remove')}</button></div>
+          ${p && p.id !== 'gutschein' ? `<a class="link" href="#/p/${esc(it.pid)}?edit=${esc(it.id)}">${t('edit')}</a>` : ''}<button class="link" data-act="crm" data-id="${esc(it.id)}">${t('remove')}</button></div>
       </div>
       <span class="cprice">${eur(it.unit * it.qty)}</span></div>`;
   };
@@ -40,9 +40,24 @@
       <aside class="sumbox"><h2>${t('summary')}</h2><div class="sumline"><span>${t('subtotal')}</span><b>${eur(T.sub)}</b></div><p class="muted small">${t('ship_calc_next')}</p><a class="btn block" href="#/kasse">${t('to_checkout')}</a>
       <ul class="trust"><li>${ic('store')} ${t('trust_made')}</li><li>${ic('eye')} ${t('trust_proof')}</li></ul></aside></div>`, 'cart');
   };
-  K.changeQty = function (id, d) { const c = ST.cart(); const it = c.find(i => i.id === id); if (!it) return; const q0 = it.qty; it.qty = Math.max(1, Math.min(50, it.qty + d)); if (it.pid === 'geschenkbox') c.filter(i => i.D && i.D.boxOf === id).forEach(i => { i.qty = Math.max(1, Math.round(i.qty / q0 * it.qty)); }); ST.saveCart(c); K.refresh(); };
-  K.remove = function (id) { ST.saveCart(ST.cart().filter(i => i.id !== id && !(i.D && i.D.boxOf === id))); K.refresh(); C.toast(t('removed')); };
-  K.refresh = function () { SHOP.refreshHeader(); if ($('.ov .clines')) K.drawer(); else if (C.path().startsWith('/warenkorb')) K.page(); else if (C.path().startsWith('/kasse')) K.checkout(); };
+  K.changeQty = function (id, d) { const c = ST.cart(); const it = c.find(i => i.id === id); if (!it) return; const q0 = it.qty; it.qty = Math.max(1, Math.min(50, it.qty + d)); ST.saveCart(c); K.refresh(); };
+  K.remove = function (id) { ST.saveCart(ST.cart().filter(i => i.id !== id)); K.refresh(); C.toast(t('removed')); };
+  // re-render the bag without moving anything: the open drawer is filled in place (no close/slide-in),
+  // and the page keeps its height and scroll position while previews redraw
+  K.refresh = function () {
+    SHOP.refreshHeader();
+    const lines = $('.ov .clines');
+    if (lines) {
+      const ov = lines.closest('.ov'); const y = $('.ov-body', ov).scrollTop; const orig = C.sheet;
+      C.sheet = () => { ov.body = $('.ov-body', ov); ov.foot = $('.ov-foot', ov); ov.panel = $('.ov-panel', ov); return ov; };
+      try { K.drawer(); } finally { C.sheet = orig; }
+      $('.ov-body', ov).scrollTop = y; return;
+    }
+    const path = C.path(); if (!path.startsWith('/warenkorb') && !path.startsWith('/kasse')) return;
+    const y = scrollY; const b = document.body; b.style.minHeight = document.documentElement.scrollHeight + 'px';
+    if (path.startsWith('/warenkorb')) K.page(); else K.checkout();
+    scrollTo(0, y); clearTimeout(K._rh); K._rh = setTimeout(() => { b.style.minHeight = ''; }, 900);
+  };
 
   /* ---------------- checkout ---------------- */
   let CO = null; // checkout state survives re-render
@@ -54,8 +69,12 @@
     if (!CO) CO = blankCO();
     const s = ST.settings(); const me = ST.me();
     const prodDays = ST.prodDaysOf(cart);
-    const methods = ['pickup', 'local', 'dhl', 'eu'].filter(m => s.shipping[m] && s.shipping[m].on);
+    // a bag with only digital things (gift cards, products marked digital) needs no shipping and no address
+    const digital = ST.cartDigital(cart);
+    const methods = digital ? ['digital'] : ['pickup', 'local', 'dhl', 'eu'].filter(m => s.shipping[m] && s.shipping[m].on);
     if (!methods.includes(CO.method)) CO.method = methods[0];
+    const noAddr = CO.method === 'pickup' || CO.method === 'digital';
+    if (digital) CO.wrap = false;
     const T = ST.totals(cart, { method: CO.method, wrap: CO.wrap, coupon: CO.coupon, giftcard: CO.giftcard });
     const est = ST.deliveryDate(CO.method, prodDays);
     const dates = []; { let d = new Date(est); for (let i = 0; dates.length < 8 && i < 20; i++) { if (ST.isWorkday(d)) dates.push(ST.iso(d)); d = new Date(d.getTime() + 864e5); } }
@@ -64,12 +83,17 @@
     const pays = Object.keys(s.payments).filter(k => s.payments[k] && (k !== 'cash' || CO.method === 'pickup'));
     if (!pays.includes(CO.pay)) CO.pay = pays[0];
     const hasCustom = cart.some(i => { const p = ST.product(i.pid); return p && !p.virtual && !ENG.isDefault(p, i.D); });
+    // German addresses: 5-digit postcode, city and street suggestions from the official open postcode directory (OpenPLZ)
+    const isDE = k => k === 'addr' ? CO.method !== 'eu' : (CO.bill.country || 'DE') === 'DE';
+    const EU = ['AT', 'NL', 'BE', 'FR', 'DK', 'PL', 'CH', 'IT', 'ES', 'SE'];
     const addrForm = (k, a, req) => `<div class="grid2">
       <label class="fld full"><span>${t('full_name')}</span><input class="in" data-co="${k}.name" value="${esc(a.name)}" autocomplete="name" ${req}></label>
-      <label class="fld full"><span>${t('street')}</span><input class="in" data-co="${k}.street" value="${esc(a.street)}" autocomplete="street-address" ${req}></label>
-      <label class="fld"><span>${t('zip')}</span><input class="in" data-co="${k}.zip" value="${esc(a.zip)}" inputmode="numeric" autocomplete="postal-code" ${req}></label>
-      <label class="fld"><span>${t('city')}</span><input class="in" data-co="${k}.city" value="${esc(a.city)}" autocomplete="address-level2" ${req}></label>
-      ${k === 'addr' && CO.method === 'eu' ? `<label class="fld full"><span>${t('country')}</span><select class="in" data-co="addr.country">${['AT', 'NL', 'BE', 'FR', 'DK', 'PL', 'CH', 'IT', 'ES', 'SE'].map(c => `<option${a.country === c ? ' selected' : ''} value="${c}">${t('cty_' + c)}</option>`).join('')}</select></label>` : ''}</div>`;
+      <label class="fld full"><span>${t('street')}</span><input class="in" data-co="${k}.street" value="${esc(a.street)}" autocomplete="${k === 'bill' ? 'billing' : 'shipping'} street-address"${isDE(k) ? ` list="dl-${k}-street"` : ''} ${req}>${isDE(k) ? `<datalist id="dl-${k}-street"></datalist>` : ''}</label>
+      <label class="fld"><span>${t('zip')}</span><input class="in" data-co="${k}.zip" value="${esc(a.zip)}" inputmode="numeric" autocomplete="${k === 'bill' ? 'billing' : 'shipping'} postal-code"${isDE(k) ? ' maxlength="5" pattern="[0-9]{5}"' : ' maxlength="10"'} ${req}></label>
+      <label class="fld"><span>${t('city')}</span><input class="in" data-co="${k}.city" value="${esc(a.city)}" autocomplete="${k === 'bill' ? 'billing' : 'shipping'} address-level2"${isDE(k) ? ` list="dl-${k}-city"` : ''} ${req}>${isDE(k) ? `<datalist id="dl-${k}-city"></datalist>` : ''}</label>
+      ${k === 'addr' && CO.method === 'eu' ? `<label class="fld full"><span>${t('country')}</span><select class="in" data-co="addr.country">${EU.map(c => `<option${a.country === c ? ' selected' : ''} value="${c}">${t('cty_' + c)}</option>`).join('')}</select></label>`
+        : k === 'addr' ? `<label class="fld full"><span>${t('country')}</span><input class="in" value="${esc(t('cty_DE'))}" readonly aria-readonly="true" tabindex="-1"></label>`
+        : `<label class="fld full"><span>${t('country')}</span><select class="in" data-co="bill.country">${['DE'].concat(EU).map(c => `<option${(a.country || 'DE') === c ? ' selected' : ''} value="${c}">${t('cty_' + c)}</option>`).join('')}</select></label>`}</div>`;
     if (CO.method === 'eu' && CO.addr.country === 'DE') CO.addr.country = 'AT';
     if (CO.method !== 'eu') CO.addr.country = 'DE';
     const localBad = CO.method === 'local' && CO.addr.zip && !ST.localZip(CO.addr.zip);
@@ -85,18 +109,19 @@
         </section>
 
         <section class="co-sec"><h2><span>2</span>${t('co_delivery')}</h2>
-          <div class="mopts">${methods.map(m => { const pr = m === 'pickup' ? 0 : m === 'dhl' && T.sub >= s.freeFrom ? 0 : s.shipping[m].price; const d = ST.deliveryDate(m, prodDays);
+          ${digital ? `<div class="pickbox dig">${ic('mail')}<div><b>${t('m_digital')}</b><p>${t('m_digital_d')}</p></div></div>` : ''}
+          <div class="mopts"${digital ? ' hidden' : ''}>${methods.filter(m => m !== 'digital').map(m => { const pr = m === 'pickup' ? 0 : m === 'dhl' && T.sub >= s.freeFrom ? 0 : s.shipping[m].price; const d = ST.deliveryDate(m, prodDays);
             return `<label class="mopt"><input type="radio" name="method" value="${m}" data-co="method"${CO.method === m ? ' checked' : ''}><span class="mi">${ic({ pickup: 'store', local: 'bike', dhl: 'truck', eu: 'globe' }[m])}</span><span class="mt"><b>${t('m_' + m)}</b><small>${m === 'pickup' ? t('mo_pickup', { d: C.date(d) }) : m === 'local' ? t('mo_local', { d: C.date(d) }) : t('mo_ship', { d: C.date(d) })}</small></span><em>${pr ? eur(pr) : t('free')}</em></label>`; }).join('')}</div>
           ${CO.method === 'pickup' ? `<div class="pickbox">${ic('store')}<div><b>${esc(s.shop.name)}</b><p>${esc(s.shop.street)}, ${esc(s.shop.zip)} ${esc(s.shop.city)}<br>${t('mon_sat')} <bdi dir="ltr">${esc(s.hours.wd)}</bdi> · ${t('sunday')} <bdi dir="ltr">${esc(s.hours.sun)}</bdi></p></div></div>` : ''}
           ${['pickup', 'local'].includes(CO.method) ? `<div class="fld"><span class="lb">${CO.method === 'pickup' ? t('pick_date') : t('deliv_date')}</span><div class="dates">${dates.map(d => `<label><input type="radio" name="date" value="${d}" data-co="date"${CO.date === d ? ' checked' : ''}><span><small>${C.date(d, { weekday: 'short' })}</small><b>${C.date(d, { day: 'numeric' })}</b><small>${C.date(d, { month: 'short' })}</small></span></label>`).join('')}</div></div>` : ''}
           ${CO.method === 'local' ? `<div class="fld"><span class="lb">${t('time_window')}</span><div class="seg">${s.shipping.local.windows.map(w => `<button type="button" data-cow="${w}" aria-pressed="${CO.window === w}"><bdi dir="ltr">${w}</bdi></button>`).join('')}</div></div>` : ''}
-          ${CO.method !== 'pickup' ? `<h3 class="sub">${t('ship_addr')}</h3>${addrForm('addr', CO.addr, 'required')}${localBad ? `<p class="warn">${t('local_zip_bad')}</p>` : CO.method === 'local' ? `<p class="hint">${t('local_zip_hint')}</p>` : ''}` : ''}
-          ${me && me.addresses && me.addresses.length > 1 && CO.method !== 'pickup' ? `<div class="seg sm">${me.addresses.map((a, i) => `<button type="button" data-coaddr="${i}">${esc(a.street)}</button>`).join('')}</div>` : ''}
+          ${!noAddr ? `<h3 class="sub">${t('ship_addr')}</h3>${addrForm('addr', CO.addr, 'required')}${localBad ? `<p class="warn">${t('local_zip_bad')}</p>` : CO.method === 'local' ? `<p class="hint">${t('local_zip_hint')}</p>` : ''}` : ''}
+          ${me && me.addresses && me.addresses.length > 1 && !noAddr ? `<div class="seg sm">${me.addresses.map((a, i) => `<button type="button" data-coaddr="${i}">${esc(a.street)}</button>`).join('')}</div>` : ''}
           <label class="check"><input type="checkbox" data-co="isGift"${CO.isGift ? ' checked' : ''}><span>${t('is_gift')}</span></label>
           ${CO.isGift ? `<div class="giftbox">
-            ${CO.method !== 'pickup' ? `<p class="hint">${t('gift_hint')}</p>` : ''}
+            ${!noAddr ? `<p class="hint">${t('gift_hint')}</p>` : ''}
             <label class="fld"><span>${t('gift_card')} <small>${t('optional')}</small></span><textarea class="in" rows="3" maxlength="240" data-co="card" placeholder="${esc(t('gift_card_ph'))}">${esc(CO.card)}</textarea></label>
-            <label class="check"><input type="checkbox" data-co="wrap"${CO.wrap ? ' checked' : ''}><span>${t('gift_wrap')} <small>+${eur(s.wrap)}</small></span></label>
+            ${digital ? '' : `<label class="check"><input type="checkbox" data-co="wrap"${CO.wrap ? ' checked' : ''}><span>${t('gift_wrap')} <small>+${eur(s.wrap)}</small></span></label>`}
             <label class="check"><input type="checkbox" data-co="hidePrices"${CO.hidePrices ? ' checked' : ''}><span>${t('hide_prices')}</span></label></div>` : ''}
         </section>
 
@@ -105,10 +130,10 @@
 
         <section class="co-sec"><h2><span>${hasCustom ? 4 : 3}</span>${t('co_payment')}</h2>
           <div class="pays">${pays.map(k => `<label class="pay"><input type="radio" name="pay" value="${k}" data-co="pay"${CO.pay === k ? ' checked' : ''}><span class="pl pl-${k}">${t('pay_' + k)}</span><small>${t('payd_' + k)}</small></label>`).join('')}</div>
-          ${CO.method === 'pickup' ? '' : `<label class="check"><input type="checkbox" data-co="sameBill"${CO.sameBill ? ' checked' : ''}><span>${t('same_bill')}</span></label>`}
-          ${CO.method === 'pickup' || !CO.sameBill ? `<h3 class="sub">${t('bill_addr')}</h3>${addrForm('bill', CO.bill, 'required')}` : ''}
+          ${noAddr ? '' : `<label class="check"><input type="checkbox" data-co="sameBill"${CO.sameBill ? ' checked' : ''}><span>${t('same_bill')}</span></label>`}
+          ${noAddr || !CO.sameBill ? `<h3 class="sub">${t('bill_addr')}</h3>${addrForm('bill', CO.bill, 'required')}` : ''}
           <label class="fld"><span>${t('order_note')} <small>${t('optional')}</small></span><textarea class="in" rows="2" maxlength="400" data-co="note">${esc(CO.note)}</textarea></label>
-          ${me ? '' : `<label class="check"><input type="checkbox" data-co="account"${CO.account ? ' checked' : ''}><span>${t('create_acc')}</span></label>${CO.account ? `<label class="fld"><span>${t('password')}</span><input class="in" type="password" data-co="pw" minlength="6" value="${esc(CO.pw)}" autocomplete="new-password"></label>` : ''}`}
+          ${me ? '' : `<label class="check"><input type="checkbox" data-co="account"${CO.account ? ' checked' : ''}><span>${t('create_acc')}</span></label>${CO.account ? `<label class="fld"><span>${t('password')}</span><input class="in" type="password" data-co="pw" minlength="8" value="${esc(CO.pw)}" autocomplete="new-password"></label>` : ''}`}
           <label class="check"><input type="checkbox" data-co="marketing"${CO.marketing ? ' checked' : ''}><span>${t('marketing_opt')}</span></label>
         </section>
         </form>
@@ -128,11 +153,37 @@
       </div></aside></div>`, 'checkout');
   };
   const setPath = (o, path, v) => { const ks = path.split('.'); let x = o; while (ks.length > 1) x = x[ks.shift()]; x[ks[0]] = v; };
-  const RERENDER = ['method', 'isGift', 'wrap', 'approval', 'sameBill', 'account', 'pay', 'addr.country'];
+  const RERENDER = ['method', 'isGift', 'wrap', 'approval', 'sameBill', 'account', 'pay', 'addr.country', 'bill.country'];
+  // official German postcode directory – only the postcode / the first letters of the street leave the browser
+  const PLZ = 'https://openplzapi.org/de/';
+  const plzGet = async q => { try { const r = await fetch(PLZ + q, { headers: { accept: 'application/json' } }); return r.ok ? await r.json() : []; } catch (e) { return []; } };
+  const deAddr = k => k === 'addr' ? CO.method !== 'eu' : (CO.bill.country || 'DE') === 'DE';
+  const fillList = (id, names) => { const dl = document.getElementById(id); if (dl) dl.innerHTML = [...new Set(names)].slice(0, 12).map(n => `<option value="${esc(n)}"></option>`).join(''); };
+  K._plz = async function (k, el) {
+    if (!CO) return; const a = CO[k]; if (!a) return; /* the order was already sent, form is gone */ const zip = String(a.zip || '');
+    if (el.dataset.co === k + '.zip' && !/^\d{5}$/.test(zip)) { const h = el.closest('.fld') && el.closest('.fld').querySelector('.plz-hint'); if (h) h.remove(); }
+    if (el.dataset.co === k + '.zip' && /^\d{5}$/.test(zip)) {
+      const list = await plzGet('Localities?postalCode=' + zip + '&pageSize=20'); const names = (Array.isArray(list) ? list : []).map(x => x.name).filter(Boolean);
+      fillList('dl-' + k + '-city', names);
+      const zf = el.closest('.fld'); let hint = zf && zf.querySelector('.plz-hint');
+      if (zf && Array.isArray(list) && !names.length) { if (!hint) { hint = document.createElement('small'); hint.className = 'plz-hint'; hint.setAttribute('role', 'status'); zf.appendChild(hint); } hint.textContent = t('plz_unknown'); } else if (hint) hint.remove();
+      const city = $(`[data-co="${k}.city"]`);
+      if (names.length && city && (!a.city || !names.includes(a.city))) { a.city = names[0]; city.value = names[0]; city.closest('.fld') && city.closest('.fld').classList.remove('bad'); }
+    }
+    if (el.dataset.co === k + '.street') {
+      const v = String(a.street || '').replace(/\s*\d.*$/, '').trim(); if (v.length < 3 || !/^\d{5}$/.test(zip)) return;
+      const q = '^' + v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const list = await plzGet('Streets?name=' + encodeURIComponent(q) + '&postalCode=' + zip + '&pageSize=15');
+      fillList('dl-' + k + '-street', (Array.isArray(list) ? list : []).map(x => x.name).filter(Boolean));
+    }
+  };
   K.onInput = function (el) {
     if (!CO || !el.dataset.co) return false;
-    const k = el.dataset.co; const v = el.type === 'checkbox' ? el.checked : el.value;
+    const k = el.dataset.co; let v = el.type === 'checkbox' ? el.checked : el.value;
+    const part = k.split('.')[0];
+    if ((part === 'addr' || part === 'bill') && k.endsWith('.zip') && deAddr(part)) { const d = String(v).replace(/\D/g, '').slice(0, 5); if (d !== v) { v = d; el.value = d; } }
     setPath(CO, k, v);
+    if ((part === 'addr' || part === 'bill') && (k.endsWith('.zip') || k.endsWith('.street')) && deAddr(part)) { clearTimeout(K._pt); K._pt = setTimeout(() => K._plz(part, el), 350); }
     if (RERENDER.includes(k) || (k === 'addr.zip' && CO.method === 'local' && String(v).length >= 5)) { const y = scrollY; K.checkout(); scrollTo(0, y); }
     return true;
   };
@@ -155,10 +206,11 @@
     const bad = [];
     const em = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
     if (!CO.name.trim()) bad.push('name'); if (!em.test(CO.email.trim())) bad.push('email'); if (String(CO.phone).replace(/\D/g, '').length < 6) bad.push('phone');
-    if (CO.method !== 'pickup' && !String(CO.addr.name || '').trim() && !CO.isGift && CO.name.trim()) CO.addr.name = CO.name.trim(); // own address: no need to type the name twice
-    if (CO.method !== 'pickup') { for (const f of ['name', 'street', 'zip', 'city']) if (!String(CO.addr[f]).trim()) bad.push('addr.' + f); if (CO.method === 'local' && !ST.localZip(CO.addr.zip)) bad.push('addr.zip'); else if (CO.method === 'dhl' && String(CO.addr.zip).trim() && !/^\d{5}$/.test(String(CO.addr.zip).trim())) bad.push('addr.zip'); }
-    if (CO.method === 'pickup' || !CO.sameBill) for (const f of ['name', 'street', 'zip', 'city']) if (!String(CO.bill[f]).trim()) bad.push('bill.' + f);
-    if (CO.account && !ST.me() && String(CO.pw).length < 6) bad.push('pw');
+    const noAddr = CO.method === 'pickup' || CO.method === 'digital';
+    if (!noAddr && !String(CO.addr.name || '').trim() && !CO.isGift && CO.name.trim()) CO.addr.name = CO.name.trim(); // own address: no need to type the name twice
+    if (!noAddr) { for (const f of ['name', 'street', 'zip', 'city']) if (!String(CO.addr[f]).trim()) bad.push('addr.' + f); if (CO.method === 'local' && !ST.localZip(CO.addr.zip)) bad.push('addr.zip'); else if (CO.method === 'dhl' && String(CO.addr.zip).trim() && !/^\d{5}$/.test(String(CO.addr.zip).trim())) bad.push('addr.zip'); }
+    if (noAddr || !CO.sameBill) { for (const f of ['name', 'street', 'zip', 'city']) if (!String(CO.bill[f]).trim()) bad.push('bill.' + f); if ((CO.bill.country || 'DE') === 'DE' && String(CO.bill.zip).trim() && !/^\d{5}$/.test(String(CO.bill.zip).trim()) && !bad.includes('bill.zip')) bad.push('bill.zip'); }
+    if (CO.account && !ST.me() && String(CO.pw).length < 8) bad.push('pw');
     if (!CO.agb) bad.push('agb');
     return bad;
   }
@@ -171,17 +223,32 @@
       const first = $(`[data-co="${bad[0]}"]`); if (first) { first.scrollIntoView({ block: 'center', behavior: 'smooth' }); setTimeout(() => first.focus({ preventScroll: true }), 300); }
       C.toast(bad[0] === 'agb' ? t('need_agb') : bad[0] === 'addr.zip' && CO.method === 'local' ? t('local_zip_bad') : t('need_fields'), 'err'); return;
     }
-    const ok = await K.pay(CO.pay, ST.totals(ST.cart(), { method: CO.method, wrap: CO.wrap, coupon: CO.coupon, giftcard: CO.giftcard }).total);
-    if (!ok) return;
-    if (CO.account && !ST.me()) { const r = await ST.register({ name: CO.name, email: CO.email, phone: CO.phone, pw: CO.pw, marketing: CO.marketing }); if (r.err === 'exists') C.toast(t('acc_exists'), 'err'); }
-    const bill = CO.method === 'pickup' || !CO.sameBill ? CO.bill : CO.addr;
-    const r = ST.placeOrder({ name: CO.name.trim(), email: CO.email.trim(), phone: CO.phone.trim(), method: CO.method, addr: CO.method === 'pickup' ? null : Object.assign({}, CO.addr, { name: CO.addr.name || CO.name }), bill: Object.assign({}, bill),
+    const noAddr = CO.method === 'pickup' || CO.method === 'digital';
+    const bill = noAddr || !CO.sameBill ? CO.bill : CO.addr;
+    const D = { name: CO.name.trim(), email: CO.email.trim(), phone: CO.phone.trim(), method: CO.method, addr: noAddr ? null : Object.assign({}, CO.addr, { name: CO.addr.name || CO.name }), bill: Object.assign({}, bill),
       date: ['pickup', 'local'].includes(CO.method) ? CO.date : '', window: CO.method === 'local' ? CO.window : '', recipient: CO.isGift && CO.method !== 'pickup' ? CO.addr.name : '', isGift: CO.isGift, card: CO.isGift ? CO.card : '', wrap: CO.isGift && CO.wrap, hidePrices: CO.isGift && CO.hidePrices,
-      approval: CO.approval, pay: CO.pay, coupon: CO.coupon, giftcard: CO.giftcard, note: CO.note, lang: C.lang(), marketing: CO.marketing, saveAddr: CO.saveAddr });
-    if (r.err) { C.toast(t('cart_empty'), 'err'); return; }
+      approval: CO.approval, pay: CO.pay, coupon: CO.coupon, giftcard: CO.giftcard, note: CO.note, lang: C.lang(), marketing: CO.marketing, saveAddr: CO.saveAddr };
+    if (K.extend) K.extend(D);
+    const btn = $('[data-act="place"]'); const busy = on => { if (btn) { btn.disabled = on; btn.classList.toggle('busy', on); } };
+    busy(true);
+    try {
+      if (CLOUD.on) { const ck = await CLOUD.checkOrder(D); if (ck.err) {
+        if (['price_changed', 'product_unavailable', 'price'].includes(ck.err)) { await CLOUD.refreshPublic(); SHOP.refreshHeader(); K.checkout(); }
+        C.toast(CLOUD.msg(ck.err === 'fields' || ck.err === 'zip' ? 'generic' : ck.err === 'price' ? 'price_changed' : ck.err), 'err'); return; } }
+      // with the server: PayPal/card is paid AFTER the order is saved and is verified on the server (CLOUD.payPayPal)
+      const payAfter = CLOUD.on && ['paypal', 'card'].includes(CO.pay);
+      const ok = payAfter ? true : await K.pay(CO.pay, ST.totals(ST.cart(), { method: CO.method, wrap: CO.wrap, coupon: CO.coupon, giftcard: CO.giftcard }).total);
+      if (!ok) return;
+      if (K.payRef) { D.payRef = K.payRef; K.payRef = ''; }
+      if (CO.account && !ST.me()) { const ra = await ST.register({ name: CO.name, email: CO.email, phone: CO.phone, pw: CO.pw, marketing: CO.marketing }); if (ra.err === 'exists') C.toast(t('acc_exists'), 'err'); }
+      var r = await ST.placeOrder(D);
+    } finally { busy(false); }
+    if (r.err) { C.toast(r.err === 'empty' ? t('cart_empty') : CLOUD.msg(r.err), 'err'); if (D.payRef) C.toast('PayPal: ' + D.payRef, 'err'); return; }
+    const payNow = CLOUD.on && CLOUD.payable && CLOUD.payable(r.o);
     CO = null; SHOP.refreshHeader();
     ST.set('lastOrderMine', { no: r.o.no, email: r.o.cust.email });
     C.go('#/danke/' + r.o.no);
+    if (payNow) setTimeout(() => CLOUD.payPayPal(r.o), 400);
   };
   /** demo payment: no real payment data is asked for */
   K.pay = function (method, total) {
@@ -210,7 +277,7 @@
       ${o.pay.method === 'vorkasse' ? `<div class="bankbox"><h2>${t('bank_h')}</h2><dl><dt>${t('bank_amount')}</dt><dd>${eur(o.totals.total)}</dd><dt>IBAN</dt><dd><bdi dir="ltr">${esc(s.shop.iban)}</bdi></dd><dt>${t('bank_name')}</dt><dd>${esc(s.shop.bank)}</dd><dt>${t('bank_ref')}</dt><dd>${o.no}</dd></dl></div>` : ''}
       ${o.approval ? `<p class="hint">${ic('eye')} ${t('thx_proof')}</p>` : ''}
       <ol class="steps-line">${['s_received', o.approval ? 's_proof' : null, 's_making', o.ship.method === 'pickup' ? 's_ready' : 's_shipped', 's_done'].filter(Boolean).map((k, i) => `<li class="${i === 0 ? 'on' : ''}"><span></span>${t(k)}</li>`).join('')}</ol>
-      <div class="vbtns center"><a class="btn" href="#/verfolgen/${o.no}?e=${encodeURIComponent(o.cust.email)}">${t('track_order')}</a><a class="btn ghost" href="#/postfach">${ic('mail')} ${t('see_emails')}</a></div>
+      <div class="vbtns center"><a class="btn" href="#/verfolgen/${o.no}?e=${encodeURIComponent(o.cust.email)}">${t('track_order')}</a><button class="btn ghost" data-act="inv" data-no="${o.no}">${ic('download')} ${t('invoice_pdf')}</button></div>
       <p class="muted small center">${t('thx_cancel', { min: s.cancelMinutes })}</p>
       ${ST.me() ? '' : `<p class="center"><a class="link" href="#/konto">${t('thx_acc')}</a></p>`}
     </div>`, 'thanks');
@@ -285,8 +352,8 @@
       const mode = tab === 'registrieren' ? 'reg' : 'login';
       SHOP.page(`<div class="wrap acc-auth"><div class="auth-art"><img src="img/p/p37.jpg" alt="" width="420" height="483"></div><div class="auth-box"><p class="muted">${t('auth_welcome')}</p><h1>${mode === 'login' ? t('login') : t('register')}</h1>
         <div class="tabs2" role="tablist"><a role="tab" href="#/konto" aria-selected="${mode === 'login'}">${t('login')}</a><a role="tab" href="#/konto/registrieren" aria-selected="${mode === 'reg'}">${t('register')}</a></div>
-        ${mode === 'login' ? `<form class="authf" data-form="login" data-next="${esc((q && q.next) || '')}"><label class="fld"><span>${t('email')}</span><input class="in" name="email" type="email" autocomplete="email" required></label><label class="fld"><span>${t('password')}</span><input class="in" name="pw" type="password" autocomplete="current-password" required></label><button class="btn block">${t('login')}</button><p class="muted small">${t('demo_acc_note')}</p></form>` :
-        `<form class="authf" data-form="register"><label class="fld"><span>${t('full_name')}</span><input class="in" name="name" autocomplete="name" required></label><label class="fld"><span>${t('email')}</span><input class="in" name="email" type="email" autocomplete="email" required></label><label class="fld"><span>${t('phone')}</span><input class="in" name="phone" type="tel" autocomplete="tel"></label><label class="fld"><span>${t('password')}</span><input class="in" name="pw" type="password" minlength="6" autocomplete="new-password" required></label><label class="check"><input type="checkbox" name="marketing"><span>${t('marketing_opt')}</span></label><button class="btn block">${t('register')}</button></form>`}
+        ${mode === 'login' ? `<form class="authf" data-form="login" data-next="${esc((q && q.next) || '')}"><label class="fld"><span>${t('email')}</span><input class="in" name="email" type="email" autocomplete="email" required></label><label class="fld"><span>${t('password')}</span><input class="in" name="pw" type="password" autocomplete="current-password" required></label><button class="btn block">${t('login')}</button><p class="small"><a class="link" href="#/konto/passwort">${t('pw_forgot')}</a></p></form>` :
+        `<form class="authf" data-form="register"><label class="fld"><span>${t('full_name')}</span><input class="in" name="name" autocomplete="name" required></label><label class="fld"><span>${t('email')}</span><input class="in" name="email" type="email" autocomplete="email" required></label><label class="fld"><span>${t('phone')}</span><input class="in" name="phone" type="tel" autocomplete="tel"></label><label class="fld"><span>${t('password')}</span><input class="in" name="pw" type="password" minlength="8" autocomplete="new-password" required></label><label class="check"><input type="checkbox" name="marketing"><span>${t('marketing_opt')}</span></label><button class="btn block">${t('register')}</button></form>`}
         <div class="acc-benefits"><p>${ic('truck')} ${t('acc_b1')}</p><p>${ic('heart')} ${t('acc_b2')}</p><p>${ic('bag')} ${t('acc_b3')}</p></div></div></div>`, 'acc');
       return;
     }
