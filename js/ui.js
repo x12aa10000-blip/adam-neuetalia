@@ -217,5 +217,48 @@
     inp.addEventListener('input', C.debounce(() => { heroName = inp.value; draw(); }, 90));
     draw();
   };
+
+  /* ---------------- sheets: menu, search, bag open and close smoothly ---------------- */
+  const sheet0 = C.sheet;
+  C.sheet = function (o) { $$('.ov').forEach(e => e.remove()); const keep = o && o.noFocus; const ov = sheet0.call(this, Object.assign({}, o, { noFocus: true })); if (!keep) { const f = $('input:not([type=hidden]),select,textarea', ov.panel); if (f) setTimeout(() => f.focus({ preventScroll: true }), 90); } return ov; };
+  const search0 = S.searchSheet; S.searchSheet = function () { search0.apply(this, arguments); setTimeout(() => { const i = $('#sq'); if (i) i.focus({ preventScroll: true }); }, 140); };
+  C.closeAll = function (now) {
+    const list = $$('.ov:not(.out)'); document.body.classList.remove('noscroll');
+    if (!list.length || now === true || (C.reduced && C.reduced())) { $$('.ov').forEach(e => e.remove()); return; }
+    list.forEach(e => { e.classList.add('out'); e.style.pointerEvents = 'none'; setTimeout(() => e.remove(), 320); });
+  };
+  /* drag a bottom sheet down to close it */
+  (function () {
+    let st = null;
+    document.addEventListener('pointerdown', e => {
+      if (!window.matchMedia('(max-width:760px)').matches) return;
+      let h = e.target.closest && e.target.closest('.ov:not(.modal) .ov-head'); if (!h && e.target.classList && e.target.classList.contains('ov-panel') && !e.target.closest('.ov.modal') && e.clientY - e.target.getBoundingClientRect().top < 30) h = e.target; if (!h) return;
+      if (e.target.closest('button,a,input')) return;
+      const panel = h.closest('.ov-panel'); if (!panel) return;
+      st = { y: e.clientY, t: Date.now(), panel, dy: 0 }; panel.style.transition = 'none'; panel.style.animation = 'none';
+    });
+    document.addEventListener('pointermove', e => { if (!st) return; const top = st.panel.closest('.ov').classList.contains('top'); st.dy = top ? Math.min(0, e.clientY - st.y) : Math.max(0, e.clientY - st.y); st.panel.style.transform = `translateY(${st.dy}px)`; });
+    const end = () => {
+      if (!st) return; const { panel, dy, t } = st; st = null; const v = Math.abs(dy) / Math.max(1, Date.now() - t);
+      if (Math.abs(dy) > 110 || v > .6) { panel.style.transition = 'transform .28s ease-in'; panel.style.transform = `translateY(${dy > 0 ? '100%' : '-100%'})`; setTimeout(() => C.closeAll(true), 240); }
+      else { panel.style.transition = 'transform .4s cubic-bezier(.34,1.4,.64,1)'; panel.style.transform = ''; setTimeout(() => { panel.style.transition = ''; panel.style.animation = 'none'; }, 420); }
+    };
+    document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
+  })();
+
+  S.menu = function () {
+    const ov = C.sheet({ title: t('menu'), start: true, foot: false, kind: 'side menu n-sheet', noFocus: true });
+    const s = ST.settings(), cats = CAT_EXTRA.cats;
+    const links = [['#/anlass', 'gift', t('nav_occ')], ['#/gutschein', 'cards', t('nav_gift')], ['#/verfolgen', 'truck', t('track_title')], ['#/konto', 'user', t('account')], ['#/wunschliste', 'heart', t('wishlist')], ['#/hilfe', 'chat', t('nav_help')]];
+    ov.body.innerHTML = `<button type="button" class="n-msearch" data-act="search">${ic('search')}<span>${esc(t('search_ph'))}</span></button>
+      <h3 class="n-mh">${t('categories')}</h3>
+      <div class="n-mcats">${cats.map(c => `<a class="n-mcat" href="#/c/${c}"><span class="n-mimg"><img src="${esc(S.catImg(c))}" alt="" loading="lazy" width="240" height="240"></span><b>${t('cat_' + c)}</b></a>`).join('')}</div>
+      <a class="n-btn n-dark n-mall" href="#/c/alle">${t('nav_shop')}${ic('chev')}</a>
+      <nav class="n-mlinks">${links.map(([h, i, l]) => `<a href="${h}">${ic(i)}<span>${l}</span>${ic('chev', 'chev')}</a>`).join('')}</nav>
+      <h3 class="n-mh">${t('language')}</h3>
+      <div class="n-mlangs" role="group">${[['de', 'Deutsch'], ['en', 'English'], ['ar', 'العربية']].map(([l, x]) => `<button type="button" data-lang="${l}" aria-pressed="${l === C.lang()}" lang="${l}">${x}</button>`).join('')}</div>
+      <div class="n-mvisit"><b>${esc(s.shop.name)}</b><span>${esc(s.shop.street)}, ${esc(s.shop.zip)} ${esc(s.shop.city)}<br>${t('mon_sat')} <bdi dir="ltr">${esc(s.hours.wd)}</bdi> · ${t('sunday')} <bdi dir="ltr">${esc(s.hours.sun)}</bdi></span>
+        <span class="n-mv"><a class="n-btn n-sm n-tq" target="_blank" rel="noopener" href="https://wa.me/${esc(s.shop.wa)}">${ic('chat')} WhatsApp</a><a class="n-btn n-sm n-line" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.shop.name + ', ' + s.shop.street + ', ' + s.shop.city)}">${ic('route')} ${t('route')}</a></span></div>`;
+  };
   S.heroInit = () => { };
 })();

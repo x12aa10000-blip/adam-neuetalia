@@ -246,3 +246,87 @@ body.n-scrolling .as-btn { opacity: 0; scale: .7; pointer-events: none; }
 
 /* font sample buttons: long text is cut with an ellipsis, never hard-clipped */
 .fonts button { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+
+/* ===== v9.2: sheets (menu, search, bag, dialogs) ===== */
+@keyframes ovBg { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ovBgOut { to { opacity: 0; } }
+@keyframes ovUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes ovDown { to { transform: translateY(100%); } }
+@keyframes ovDrop { from { transform: translateY(-104%); } to { transform: translateY(0); } }
+@keyframes ovRise { to { transform: translateY(-104%); } }
+@keyframes ovSideIn { from { transform: translateX(var(--sx, 100%)); } to { transform: translateX(0); } }
+@keyframes ovSideOut { to { transform: translateX(var(--sx, 100%)); } }
+@keyframes ovPop { from { opacity: 0; transform: translateY(18px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes ovPopOut { to { opacity: 0; transform: translateY(10px) scale(.97); } }
+@keyframes nRow { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+html .ov-bg { background: color-mix(in srgb, var(--n-ink) 38%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 1; transition: none; animation: ovBg .35s ease both; }
+html .ov.out .ov-bg { animation: ovBgOut .3s ease both; }
+html .ov .ov-panel { transition: none; opacity: 1; transform: none; background: #fff; border-radius: 28px 0 0 28px; box-shadow: 0 30px 80px -20px rgba(51, 51, 51, .45); overflow: hidden; will-change: transform; --sx: 100%; animation: ovSideIn .5s cubic-bezier(.22, 1, .36, 1) both; }
+html[dir=rtl] .ov .ov-panel { border-radius: 0 28px 28px 0; --sx: -100%; }
+html .ov .ov-panel.start { --sx: -100%; border-radius: 0 28px 28px 0; } html[dir=rtl] .ov .ov-panel.start { --sx: 100%; border-radius: 28px 0 0 28px; }
+html .ov.out .ov-panel { animation: ovSideOut .3s cubic-bezier(.4, 0, 1, 1) both; }
+html .ov-head { border-bottom: 0; padding: 18px 20px 10px; } html .ov-head h2 { font-size: 22px !important; font-weight: 650; letter-spacing: -.02em; color: var(--n-ink); }
+html .ov-head .ibtn { width: 42px; height: 42px; border-radius: 50%; background: var(--n-rose); color: var(--n-ink); display: grid; place-items: center; border: 0; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), background .2s; }
+html .ov-head .ibtn:active { transform: scale(.86); }
+html .ov-foot { border-top: 0; background: #fff; box-shadow: 0 -10px 24px -18px rgba(51, 51, 51, .35); }
+html .ov-body { overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+/* centred dialogs */
+html .ov.modal .ov-panel { border-radius: 28px; animation: ovPop .38s cubic-bezier(.22, 1, .36, 1) both; transform: none; top: 50%; translate: 0 -50%; }
+html .ov.modal.out .ov-panel { animation: ovPopOut .22s ease both; }
+/* search drops down from the top */
+html .ov.top .ov-panel { border-radius: 0 0 30px 30px; animation: ovDrop .5s cubic-bezier(.22, 1, .36, 1) both; left: 0; right: 0; margin-inline: auto; width: min(760px, 100%); }
+html .ov.top.out .ov-panel { animation: ovRise .3s cubic-bezier(.4, 0, 1, 1) both; }
+
+@media (max-width: 760px) {
+  /* menu and bag become bottom sheets with a grabber */
+  html .ov:not(.modal):not(.top):not(.anav) .ov-panel { inset: auto 0 0 0; width: 100%; max-width: 100%; height: auto; max-height: 92dvh; border-radius: 30px 30px 0 0; animation: ovUp .55s cubic-bezier(.22, 1, .36, 1) both; }
+  html .ov.menu .ov-panel { height: 92dvh; }
+  html .ov:not(.modal):not(.anav) .ov-panel.start { border-radius: 30px 30px 0 0; }
+  html .ov.out:not(.modal):not(.top):not(.anav) .ov-panel { animation: ovDown .32s cubic-bezier(.4, 0, 1, 1) both; }
+  html .ov:not(.modal):not(.anav) .ov-panel::before { content: ""; position: absolute; top: 8px; left: 50%; width: 42px; height: 5px; margin-left: -21px; border-radius: 3px; background: color-mix(in srgb, var(--n-ink) 20%, transparent); z-index: 2; }
+  html .ov:not(.modal):not(.anav) .ov-head { padding-top: 24px; touch-action: none; cursor: grab; }
+  html .ov.top .ov-panel { width: 100%; }
+  html .ov.modal .ov-panel { width: min(560px, calc(100% - 20px)); }
+}
+@media (prefers-reduced-motion: reduce) { html .ov .ov-panel, html .ov-bg { animation-duration: .01ms !important; } }
+
+/* new menu */
+.n-sheet .ov-body { padding: 4px 18px calc(28px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 14px; align-content: start; }
+.n-sheet .ov-body > * { animation: nRow .5s cubic-bezier(.22, 1, .36, 1) both; }
+.n-sheet .ov-body > :nth-child(2) { animation-delay: .04s; } .n-sheet .ov-body > :nth-child(3) { animation-delay: .08s; } .n-sheet .ov-body > :nth-child(4) { animation-delay: .12s; } .n-sheet .ov-body > :nth-child(5) { animation-delay: .16s; } .n-sheet .ov-body > :nth-child(n+6) { animation-delay: .2s; }
+.n-msearch { display: flex; align-items: center; gap: 12px; width: 100%; height: 54px; padding-inline: 20px; border: 0; border-radius: 999px; background: var(--n-rose); color: var(--n-soft); font: 500 16px "Adam UI", sans-serif; text-align: start; cursor: pointer; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1); }
+.n-msearch:active { transform: scale(.97); } .n-msearch .ic { width: 22px; height: 22px; flex: none; color: var(--n-ink); fill: none; stroke: currentColor; }
+.n-mh { margin: 8px 2px 0 !important; font: 650 14px "Adam UI", sans-serif !important; letter-spacing: .02em; text-transform: none; color: var(--n-soft) !important; }
+.n-mcats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px 10px; }
+.n-mcat { display: grid; gap: 8px; justify-items: center; text-align: center; text-decoration: none; color: var(--n-ink); -webkit-tap-highlight-color: transparent; transition: transform .3s cubic-bezier(.34, 1.56, .64, 1); }
+.n-mcat:active { transform: scale(.94); }
+.n-mimg { display: block; width: 100%; aspect-ratio: 1; border-radius: 24px; overflow: hidden; background: var(--n-rose); } .n-mimg img { width: 100%; height: 100%; object-fit: cover; }
+.n-mcat b { font: 600 13.5px/1.25 "Adam UI", sans-serif; overflow-wrap: anywhere; }
+.n-mall { width: 100%; }
+.n-mlinks { display: grid; border-radius: 24px; background: var(--n-rose); overflow: hidden; }
+.n-mlinks a { display: flex; align-items: center; gap: 14px; padding: 16px 18px; color: var(--n-ink); font-weight: 600; text-decoration: none; transition: background .2s; -webkit-tap-highlight-color: transparent; }
+.n-mlinks a + a { box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 80%, transparent); } .n-mlinks a:active { background: var(--n-rose2); }
+.n-mlinks .ic { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; } .n-mlinks span { flex: 1; } .n-mlinks .chev { width: 18px; height: 18px; opacity: .5; } [dir=rtl] .n-mlinks .chev { transform: scaleX(-1); }
+.n-mlangs { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--n-rose); }
+.n-mlangs button { flex: 1; height: 44px; border: 0; border-radius: 999px; background: none; font: 600 15px "Adam UI", sans-serif; color: var(--n-soft); cursor: pointer; transition: background .3s, color .3s, box-shadow .3s; }
+.n-mlangs button[aria-pressed=true] { background: #fff; color: var(--n-ink); box-shadow: var(--n-sh); }
+.n-mvisit { display: grid; gap: 6px; padding: 20px; border-radius: 24px; background: var(--n-mint); color: var(--n-ink); } .n-mvisit b { font-size: 17px; } .n-mvisit > span { color: var(--n-body); line-height: 1.5; }
+.n-mv { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+/* search sheet */
+.ov.top .ov-body { padding: 4px 18px 22px; }
+.ov.top .sform { gap: 8px; } .ov.top .sform .in { height: 54px; border-radius: 999px; border: 0; background: var(--n-rose); padding-inline: 22px; font-size: 17px; box-shadow: none; }
+.ov.top .sform .in:focus { background: #fff; box-shadow: 0 0 0 3px var(--n-tq); outline: 0 !important; }
+.ov.top .sform .btn { height: 54px; border-radius: 999px; padding-inline: 24px; background: var(--n-pk); color: var(--n-ink); border: 0; font-weight: 600; }
+.ov.top .srow { border-radius: 20px; padding: 10px; } .ov.top .srow img { border-radius: 14px; } .ov.top .srow:active { background: var(--n-rose); }
+.ov.top .sugg button { border: 0; border-radius: 999px; background: var(--n-rose); min-height: 44px; font-weight: 600; color: var(--n-ink); transition: transform .3s cubic-bezier(.34, 1.56, .64, 1); } .ov.top .sugg button:active { transform: scale(.93); }
+
+.ov a, .ov .n-btn { text-decoration: none !important; }
+.ov.top .sform .in { min-width: 0; font-size: 16px; padding-inline: 20px; } .ov.top .sform .btn { padding-inline: 18px; flex: none; }
+@media (max-width: 760px) {
+  html .ov.modal .ov-panel { top: auto; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); translate: none; max-height: 88dvh; width: calc(100% - 20px); margin-inline: auto; left: 0; right: 0; animation: ovUp .5s cubic-bezier(.22, 1, .36, 1) both; }
+  html .ov.modal.out .ov-panel { animation: ovDown .3s cubic-bezier(.4, 0, 1, 1) both; }
+}
+html .ov-head .ibtn { flex: none; min-width: 42px; }
